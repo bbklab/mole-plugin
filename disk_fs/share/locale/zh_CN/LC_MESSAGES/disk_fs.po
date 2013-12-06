@@ -1,38 +1,71 @@
-msgid "Util: [/sbin/tune2fs] not prepared."
+# Copyright (C) 2013 EMINFO LANGUAGE FILE FOR GETTEXT
+# FIRST AUTHOR <zhangguangzheng@eyou.net>, 2013.
+# This file is distributed under the same license as the eminfo package.
+#
+msgid ""
 msgstr ""
+"Project-Id-Version: 1.0-beta6\n"
+"Report-Msgid-Bugs-To: zhangguangzheng@eyou.net\n"
+"POT-Creation-Date: 2013-11-29 17:16+0800\n"
+"PO-Revision-Date: 2013-11-29 17:16+0800\n"
+"Last-Translator: Guangzheng Zhang <zhang.elinks@gmail.com>\n"
+"Language-Team: EMINFO-LANGUAGE <zhang.elinks@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Chinese\n"
+"X-Poedit-Country: CHINA\n"
+
+msgid "\t%+#D"
+msgstr "\t%+#D"
+
+msgid "\n"
+msgstr "\n"
+
+msgid "Util: [/sbin/tune2fs] not prepared."
+msgstr "[/sbin/tune2fs] 不存在或没有执行权限."
 
 msgid "File: [/etc/mtab] not prepared."
-msgstr ""
+msgstr " [/etc/mtab] 文件不存在或为空文件."
 
 msgid "FSTYPE: [${filesystem_fstype}]" 
-msgstr ""
+msgstr "只检查 ${filesystem_fstype} 文件系统类型的分区"
 
 msgid "FileSystem Stat"
-msgstr ""
+msgstr "文件系统状态检查"
 
-msgid "${result} (${t}) ${d} -> unknown"
-msgstr ""
+msgid "(${t}) ${d} -> unknown"
+msgstr "设备: ${d}  文件系统状态未知 (文件系统类型${t})"
 
-msgid "${result} (${t}) ${d} -> clean" 
-msgstr ""
+msgid "(${t}) ${d} -> clean" 
+msgstr "设备: ${d}  文件系统状态正常 (文件系统类型${t})"
+
+msgid "(${t}) ${d} -> ${stat}"
+msgstr "设备: ${d}  文件系统状态异常 ${stat}  (文件系统类型${t})"
 
 msgid "IO Test" 
-msgstr ""
+msgstr "读写测试"
 
-msgid "Disk_IO: ${m} ${t} success"
-msgstr ""
+msgid "(${t}) ${m} -> iotest Success"
+msgstr "挂载点: ${m} 读写正常 (文件系统类型${t})"
 
-msgid "Disk_IO: ${m} ${t} warn \"${ioerr}\""
-msgstr ""
+msgid "(${t}) ${m} -> iotest warning: ${ioerr}"
+msgstr "挂载点: ${m} 读写异常 (文件系统类型${t})   失败信息: ${ioerr}"
 
-msgid "${result} (${t}) ${m} -> iotest Success ### "
-msgstr ""
+msgid "IO/FS Check WARNING"
+msgstr "读写测试或文件系统状态异常"
 
-msgid "IO/FS Check WARNING | ${warnnum} check failed | ${result} "
-msgstr ""
+msgid "${warnnum} check failed"
+msgstr "${warnnum} 项检查异常"
 
-msgid "IO/FS Check UNKNOWN | ${unknnum} check unknown | ${result} "
-msgstr ""
+msgid "IO/FS Check UNKNOWN"
+msgstr "读写测试或文件系统状态未知"
 
-msgid "IO/FS Check OK | fsstat,iotest check success | ${result} "
-msgstr ""
+msgid "${unknnum} check unknown"
+msgstr "${unknnum} 项检查未知"
+
+msgid "IO/FS Check OK"
+msgstr "读写测试或文件系统状态正常"
+
+msgid "fsstat,iotest check success"
+msgstr "读写测试或文件系统状态正常"
