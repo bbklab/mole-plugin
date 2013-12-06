@@ -1,93 +1,53 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
-msgid ""
-msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-06 18:30+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
-"Content-Transfer-Encoding: 8bit\n"
-
-#: smtp_svr:9 smtp_svr:10
-msgid ":encoding(utf8)"
-msgstr ""
-
-#: smtp_svr:55
 msgid "check list: $addr_port ### ### "
 msgstr ""
 
-#: smtp_svr:62
 msgid "<font color=yellow> smtp_host or smtp_port not defined </font> ### ### "
 msgstr ""
 
-#: smtp_svr:67
 msgid ""
 "<font color=yellow> $smtp_host:$smtp_port smtp port not numberic </font> ### "
-"### "
 msgstr ""
 
-#: smtp_svr:82 smtp_svr:101
-msgid "gb2312"
-msgstr ""
-
-#: smtp_svr:83
 msgid ""
 "<font color=red> connect [$smtp_host:$smtp_port] failed in $time_out "
 "seconds, return [$@] </font> "
 msgstr ""
 
-#: smtp_svr:85
 msgid ""
 "<font color=red> connect [$smtp_host:$smtp_port] failed in $time_out "
 "seconds, maybe in black ip list </font> "
 msgstr ""
 
-#: smtp_svr:94
 msgid ""
 "connect [$smtp_host:$smtp_port] return welcome banner: ### [$welcome] "
 "($time_duration seconds) ### "
 msgstr ""
 
-#: smtp_svr:105
 msgid ""
 "<font color=red> smtp command: AUTH LOGIN return [code=$rcode message="
 "$response] </font> "
 msgstr ""
 
-#: smtp_svr:112
 msgid ""
 "smtp command: AUTH LOGIN return [code=$rcode message=$response] "
 "($time_duration seconds) ### ### "
 msgstr ""
 
-#: smtp_svr:116
 msgid " smtp_user or smtp_pass not defined, smtp login test skip ### ### "
 msgstr ""
 
-#: smtp_svr:124
 msgid " ($time_duration seconds) ### ### "
 msgstr ""
 
-#: smtp_svr:130
 msgid ""
 "{crit}:{str}:{ SMTP SVR CRITICAL | $critnum/$total smtp check critical | "
 "$result }"
 msgstr ""
 
-#: smtp_svr:133
 msgid ""
 "{unknown}:{str}:{ SMTP SVR UNKNOWN | $unknnum/$total smtp check unknown | "
 "$result }"
 msgstr ""
 
-#: smtp_svr:136
 msgid "{ok}:{str}:{ SMTP SVR OK | $total/$total smtp check success | $result }"
 msgstr ""

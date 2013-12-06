@@ -1,109 +1,47 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
-msgid ""
-msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-06 18:28+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
-"Content-Transfer-Encoding: 8bit\n"
-
-#: memcache_perf:9 memcache_perf:10
-msgid ":encoding(utf8)"
-msgstr ""
-
-#: memcache_perf:43
 msgid "check list: $addr_port ### ### "
 msgstr ""
 
-#: memcache_perf:50
-msgid ""
-"<font color=yellow> memcache_host or memcache_port not defined </font> ### "
-"### "
+msgid "<font color=yellow> memcache_host or memcache_port not defined </font>"
 msgstr ""
 
-#: memcache_perf:55
-msgid ""
-"<font color=yellow> $mem_host:$mem_port memcache port not numberic </font> "
-"### ### "
+msgid "<font color=yellow> $mem_host:$mem_port memcache port not numberic </font>"
 msgstr ""
 
-#: memcache_perf:70
-msgid ""
-"<font color=red> connect [$mem_host:$mem_port] failed in $time_out seconds, "
-"return [$@] </font>"
+msgid "<font color=red> connect [$mem_host:$mem_port] failed in $time_out seconds, return [$@] </font>"
 msgstr ""
 
-#: memcache_perf:72
-msgid ""
-"<font color=red> connect [$mem_host:$mem_port] failed in $time_out seconds. "
-"</font> "
+msgid "<font color=red> connect [$mem_host:$mem_port] failed in $time_out seconds. </font>"
 msgstr ""
 
-#: memcache_perf:80
-msgid ""
-"connect memcache server [$mem_host:$mem_port] succeed. ($time_duration "
-"seconds) ### "
+msgid "connect memcache server [$mem_host:$mem_port] succeed. ($time_duration seconds)"
 msgstr ""
 
-#: memcache_perf:83
-msgid "stats\r\n"
+msgid " memcache return error: $_"
 msgstr ""
 
-#: memcache_perf:90
-msgid " memcache return error: $_ ### "
+msgid "get response: ($time_duration seconds)"
 msgstr ""
 
-#: memcache_perf:125
-msgid "get response: ($time_duration seconds) ### "
+msgid "Version=$version  PID=$pid  Uptime=$uptime"
 msgstr ""
 
-#: memcache_perf:126
-msgid "Version=$version  PID=$pid  Uptime=$uptime ### "
+msgid "Size=$bytes  Item=$curitem  Connection=$curconn"
 msgstr ""
 
-#: memcache_perf:127
-msgid "Size=$bytes  Item=$curitem  Connection=$curconn ### "
-msgstr ""
-
-#: memcache_perf:129
 msgid "Hit=$get_hits  Request=$cmd_get  HitRate="
 msgstr ""
 
-#: memcache_perf:129
-msgid "% ### ###"
+msgid "Hit=$get_hits  Request=$cmd_get  HitRate=0%"
 msgstr ""
 
-#: memcache_perf:131
-msgid "Hit=$get_hits  Request=$cmd_get  HitRate=0% ### ###"
+msgid " ($time_duration seconds)"
 msgstr ""
 
-#: memcache_perf:139
-msgid " ($time_duration seconds) ### ### "
+msgid "{crit}:{str}:{ Memcache SVR CRITICAL | $critnum/$total memcache check critical | $result }"
 msgstr ""
 
-#: memcache_perf:145
-msgid ""
-"{crit}:{str}:{ Memcache SVR CRITICAL | $critnum/$total memcache check "
-"critical | $result }"
+msgid "{unknown}:{str}:{ Memcache SVR UNKNOWN | $unknnum/$total memcache check unknown | $result }"
 msgstr ""
 
-#: memcache_perf:148
-msgid ""
-"{unknown}:{str}:{ Memcache SVR UNKNOWN | $unknnum/$total memcache check "
-"unknown | $result }"
-msgstr ""
-
-#: memcache_perf:151
-msgid ""
-"{ok}:{str}:{ Memcache SVR OK | $total/$total memcache check success | "
-"$result }"
+msgid "{ok}:{str}:{ Memcache SVR OK | $total/$total memcache check success | $result }"
 msgstr ""

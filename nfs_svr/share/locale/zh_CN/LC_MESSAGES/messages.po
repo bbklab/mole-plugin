@@ -1,228 +1,29 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
-msgid ""
-msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-06 18:29+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
-"Content-Transfer-Encoding: 8bit\n"
-
-#: nfs_svr:4
-msgid "/usr/local/eminfo/"
-msgstr ""
-
-#: nfs_svr:5
-msgid "${BASE_DIR}/bin/include"
-msgstr ""
-
-#: nfs_svr:8
-msgid "{unknown}:{str}:{include file not exists or empty}"
-msgstr ""
-
-#: nfs_svr:25 nfs_svr:26
-msgid "$1"
-msgstr ""
-
-#: nfs_svr:25
-msgid "data"
-msgstr ""
-
-#: nfs_svr:25
-msgid "d"
-msgstr ""
-
-#: nfs_svr:26
-msgid "help"
-msgstr ""
-
-#: nfs_svr:26
-msgid "h"
-msgstr ""
-
-#: nfs_svr:42 nfs_svr:146
-msgid "${MODE}"
-msgstr ""
-
-#: nfs_svr:42 nfs_svr:146
-msgid "1"
-msgstr ""
-
-#: nfs_svr:51 nfs_svr:87
-msgid "${nfs_server_ip}"
-msgstr ""
-
-#: nfs_svr:51 nfs_svr:108
-msgid "127.0.0.1"
-msgstr ""
-
-#: nfs_svr:55
-msgid "/usr/sbin/rpcinfo"
-msgstr ""
-
-#: nfs_svr:57 nfs_svr:65 nfs_svr:73
-msgid "unknown"
-msgstr ""
-
-#: nfs_svr:58 nfs_svr:66 nfs_svr:74 nfs_svr:151 nfs_svr:156
-msgid "str"
-msgstr ""
-
-#: nfs_svr:59
 msgid "utilite [/usr/sbin/rpcinfo] not prepared."
 msgstr ""
 
-#: nfs_svr:63
-msgid "/usr/sbin/showmount"
-msgstr ""
-
-#: nfs_svr:67
 msgid "utilite [/usr/sbin/showmount] not prepared."
 msgstr ""
 
-#: nfs_svr:71
-msgid "/etc/mtab"
-msgstr ""
-
-#: nfs_svr:75
 msgid "File: [/etc/mtab] not prepared."
 msgstr ""
 
-#: nfs_svr:79
-msgid "nfs mountd portmapper nlockmgr"
+msgid "NFS Server: [${nfs_server_ip}]" 
 msgstr ""
 
-#: nfs_svr:80
-msgid "portmapper"
+msgid "nfs server [${ip}], services: [${nfs_server_services}] alive"
 msgstr ""
 
-#: nfs_svr:86
-msgid "NFS Server: [${nfs_server_ip}] ### ###"
+msgid "nfs local client services: [${nfs_client_services}] alive"
 msgstr ""
 
-#: nfs_svr:91
-msgid "${ip}"
-msgstr ""
-
-#: nfs_svr:94 nfs_svr:111
-msgid "${status}"
-msgstr ""
-
-#: nfs_svr:94 nfs_svr:111
-msgid "${i}"
-msgstr ""
-
-#: nfs_svr:95
-msgid "${i1}"
-msgstr ""
-
-#: nfs_svr:96
-msgid "${i},${failed_server_services}"
-msgstr ""
-
-#: nfs_svr:99
-msgid "${failed_server_services}"
-msgstr ""
-
-#: nfs_svr:100 nfs_svr:117 nfs_svr:127
-msgid "${result} $(html_red "
-msgstr ""
-
-#: nfs_svr:100 nfs_svr:117 nfs_svr:127
-msgid ") ### ### "
-msgstr ""
-
-#: nfs_svr:104
-msgid ""
-"${result} nfs server [${ip}], services: [${nfs_server_services}] alive ### "
-msgstr ""
-
-#: nfs_svr:112
-msgid "${i2}"
-msgstr ""
-
-#: nfs_svr:113
-msgid "${i},${failed_client_services}"
-msgstr ""
-
-#: nfs_svr:116
-msgid "${failed_client_services}"
-msgstr ""
-
-#: nfs_svr:121
-msgid ""
-"${result} nfs local client services: [${nfs_client_services}] alive ### "
-msgstr ""
-
-#: nfs_svr:126
-msgid "$?"
-msgstr ""
-
-#: nfs_svr:126 nfs_svr:148
-msgid "0"
-msgstr ""
-
-#: nfs_svr:127 nfs_svr:131
-msgid "${nfs_exports}"
-msgstr ""
-
-#: nfs_svr:132
 msgid "${result} read nfs exports list: [${path_exports}] ### "
 msgstr ""
 
-#: nfs_svr:138
-msgid "${mpoint}"
-msgstr ""
-
-#: nfs_svr:139
 msgid "${result} ${ip}:${i} mounted on ${mpoint} ### "
 msgstr ""
 
-#: nfs_svr:142
-msgid "${result} ###"
+msgid "NFS SVR Check CRITICAL | ${critnum} nfs server check failed" 
 msgstr ""
 
-#: nfs_svr:148
-msgid "${critnum}"
-msgstr ""
-
-#: nfs_svr:150
-msgid "crit"
-msgstr ""
-
-#: nfs_svr:152
-msgid ""
-"NFS SVR Check CRITICAL | ${critnum} nfs server check failed | ${result} "
-msgstr ""
-
-#: nfs_svr:154
-msgid "${STATE_OK}"
-msgstr ""
-
-#: nfs_svr:155
-msgid "ok"
-msgstr ""
-
-#: nfs_svr:157
 msgid "NFS SVR Check OK | ${total} nfs server check success | ${result} "
-msgstr ""
-
-#: nfs_svr:164
-msgid "{"
-msgstr ""
-
-#: nfs_svr:164
-msgid "}:{"
-msgstr ""
-
-#: nfs_svr:164
-msgid "}"
 msgstr ""

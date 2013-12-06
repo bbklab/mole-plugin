@@ -1,233 +1,35 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
-msgid ""
-msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-06 18:28+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
-"Content-Transfer-Encoding: 8bit\n"
-
-#: memory:4
-msgid "/usr/local/eminfo/"
-msgstr ""
-
-#: memory:5
-msgid "${BASE_DIR}/bin/include"
-msgstr ""
-
-#: memory:8
-msgid "{unknown}:{str}:{include file not exists or empty}"
-msgstr ""
-
-#: memory:22 memory:23
-msgid "$1"
-msgstr ""
-
-#: memory:22
-msgid "data"
-msgstr ""
-
-#: memory:22
-msgid "d"
-msgstr ""
-
-#: memory:23
-msgid "help"
-msgstr ""
-
-#: memory:23
-msgid "h"
-msgstr ""
-
-#: memory:46
-msgid "${mem_uplimit}"
-msgstr ""
-
-#: memory:46
-msgid "${mem_uplimit//[0-9.]}"
-msgstr ""
-
-#: memory:47
-msgid "${swp_uplimit}"
-msgstr ""
-
-#: memory:47
-msgid "${swp_uplimit//[0-9.]}"
-msgstr ""
-
-#: memory:52
-msgid "/proc/meminfo"
-msgstr ""
-
-#: memory:54 memory:71 memory:79 memory:87
-msgid "unknown"
-msgstr ""
-
-#: memory:55 memory:72 memory:80 memory:88 memory:122 memory:128
-msgid "str"
-msgstr ""
-
-#: memory:56
 msgid "File: [/proc/meminfo] not prepared."
 msgstr ""
 
-#: memory:65
-msgid "scale=3; 100 * (1 - ${mem_free}/${mem_total})"
-msgstr ""
-
-#: memory:66
-msgid "scale=3; 100 * (1 - ${swp_free}/${swp_total})"
-msgstr ""
-
-#: memory:69
-msgid "${mem_total}"
-msgstr ""
-
-#: memory:69
-msgid "${mem_total//[0-9]}"
-msgstr ""
-
-#: memory:69
-msgid "${mem_free}"
-msgstr ""
-
-#: memory:69
-msgid "${mem_free//[0-9]}"
-msgstr ""
-
-#: memory:73
 msgid "memory total=[${total}] or memory free=[${free}] is not numberic."
 msgstr ""
 
-#: memory:77
-msgid "${swp_total}"
-msgstr ""
-
-#: memory:77
-msgid "${swp_total//[0-9]}"
-msgstr ""
-
-#: memory:77
-msgid "${swp_free}"
-msgstr ""
-
-#: memory:77
-msgid "${swp_free//[0-9]}"
-msgstr ""
-
-#: memory:81
 msgid "swap total=[${total}] or swap free=[${free}] is not numberic."
 msgstr ""
 
-#: memory:85
-msgid "${mem_percent}"
+msgid "total=[$((${mem_total}/1024))]M  free=[$((${mem_free}/1024))]M" 
 msgstr ""
 
-#: memory:85
-msgid "${mem_percent//[0-9.]}"
+msgid "Memory Usage: [${mem_percent}]% <= Uplimit: [${mem_uplimit}%]"
 msgstr ""
 
-#: memory:85
-msgid "${swp_percent}"
+msgid "total=[$((${mem_total}/1024))]M  free=[$((${mem_free}/1024))]M" 
 msgstr ""
 
-#: memory:85
-msgid "${swp_percent//[0-9.]}"
+msgid "total=[$((${swp_total}/1024))]M  free=[$((${swp_free}/1024))]M" 
 msgstr ""
 
-#: memory:89
-msgid "Retuen is not numberic: ["
-msgstr ""
-
-#: memory:89
-msgid "] or [${swp_percent}]"
-msgstr ""
-
-#: memory:94
-msgid "${MODE}"
-msgstr ""
-
-#: memory:94 memory:101 memory:109
-msgid "1"
-msgstr ""
-
-#: memory:95
-msgid ""
-"$((${mem_total}/1024))M $((${mem_free}/1024))M ${mem_percent}% "
-"$((${swp_total}/1024))M $((${swp_free}/1024))M ${swp_percent}%"
-msgstr ""
-
-#: memory:101 memory:109
-msgid "$(echo  "
-msgstr ""
-
-#: memory:101 memory:109
-msgid " | bc 2>&-)"
-msgstr ""
-
-#: memory:103 memory:111
-msgid "${result} ### $(html_yellow "
-msgstr ""
-
-#: memory:103
-msgid ""
-") ### total=[$((${mem_total}/1024))]M  free=[$((${mem_free}/1024))]M ###"
-msgstr ""
-
-#: memory:106
-msgid ""
-"${result} ### Memory Usage: [${mem_percent}]% <= Uplimit: [${mem_uplimit}%] "
-"### total=[$((${mem_total}/1024))]M  free=[$((${mem_free}/1024))]M ###"
-msgstr ""
-
-#: memory:111
-msgid ""
-") ### total=[$((${swp_total}/1024))]M  free=[$((${swp_free}/1024))]M ###"
-msgstr ""
-
-#: memory:114
 msgid ""
 "${result} ### Swap Usage: [${swp_percent}]% <= Uplimit: [${swp_uplimit}%] "
 "### total=[$((${swp_total}/1024))]M  free=[$((${swp_free}/1024))]M ###"
 msgstr ""
 
-#: memory:121
-msgid "warn"
-msgstr ""
-
-#: memory:123
 msgid ""
 "Memory/Swap Usage Check WARNING | ${warnnum}/$((${warnnum}+${oknum})) check "
 "failed. | ${result} ### ${rsz_top_ps} ### ${vsz_top_ps}"
 msgstr ""
 
-#: memory:127
-msgid "ok"
-msgstr ""
-
-#: memory:129
 msgid ""
 "Memory/Swap Usage Check OK | ${oknum}/$((${warnnum}+${oknum})) check "
 "success. | ${result}"
-msgstr ""
-
-#: memory:136
-msgid "{"
-msgstr ""
-
-#: memory:136
-msgid "}:{"
-msgstr ""
-
-#: memory:136
-msgid "}"
 msgstr ""

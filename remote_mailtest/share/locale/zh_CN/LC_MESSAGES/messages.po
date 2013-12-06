@@ -1,245 +1,26 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
-msgid ""
-msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-06 18:30+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
-"Content-Transfer-Encoding: 8bit\n"
-
-#: remote_mailtest:4
-msgid "/usr/local/eminfo/"
-msgstr ""
-
-#: remote_mailtest:5
-msgid "${BASE_DIR}/bin/include"
-msgstr ""
-
-#: remote_mailtest:8
-msgid "{unknown}:{str}:{include file not exists or empty}"
-msgstr ""
-
-#: remote_mailtest:31 remote_mailtest:118
-msgid "${helo_greeting_fqdn}"
-msgstr ""
-
-#: remote_mailtest:31
-msgid "eyou.net."
-msgstr ""
-
-#: remote_mailtest:40
-msgid "/usr/bin/host"
-msgstr ""
-
-#: remote_mailtest:42 remote_mailtest:50 remote_mailtest:62 remote_mailtest:70
-#: remote_mailtest:82
-msgid "unknown"
-msgstr ""
-
-#: remote_mailtest:43 remote_mailtest:51 remote_mailtest:63 remote_mailtest:71
-#: remote_mailtest:83 remote_mailtest:138 remote_mailtest:143
-msgid "str"
-msgstr ""
-
-#: remote_mailtest:44
 msgid "Util: [/usr/bin/host] not prepared."
 msgstr ""
 
-#: remote_mailtest:48 remote_mailtest:97
-msgid "${sample_email_file}"
-msgstr ""
-
-#: remote_mailtest:52
-msgid "sample_email_file not set."
-msgstr ""
-
-#: remote_mailtest:56 remote_mailtest:57
-msgid "/${sample_email_file##*file:}"
-msgstr ""
-
-#: remote_mailtest:58 remote_mailtest:59
-msgid "${BASE_DIR}/${sample_email_file##*file:}"
-msgstr ""
-
-#: remote_mailtest:64
 msgid "sample_email_file [${sample_email_file}] not exist or empty"
 msgstr ""
 
-#: remote_mailtest:68 remote_mailtest:118
-msgid "${mail_body_file}"
-msgstr ""
-
-#: remote_mailtest:72
-msgid "mail_body_file not set."
-msgstr ""
-
-#: remote_mailtest:76 remote_mailtest:77
-msgid "/${mail_body_file##*file:}"
-msgstr ""
-
-#: remote_mailtest:78 remote_mailtest:79
-msgid "${BASE_DIR}/${mail_body_file##*file:}"
-msgstr ""
-
-#: remote_mailtest:84
 msgid "mail_body_file [${mail_body_file}] not exist or empty"
 msgstr ""
 
-#: remote_mailtest:88
-msgid "/var/eyou/etc/eyou_smtpd_config"
-msgstr ""
-
-#: remote_mailtest:89
-msgid "/usr/local/eyou/mail/etc/eyou_mail.ini"
-msgstr ""
-
-#: remote_mailtest:90 remote_mailtest:91
-msgid "${v5_config}"
-msgstr ""
-
-#: remote_mailtest:91
-msgid "="
-msgstr ""
-
-#: remote_mailtest:92 remote_mailtest:93
-msgid "${v4_config}"
-msgstr ""
-
-#: remote_mailtest:95
-msgid "${base_domain}"
-msgstr ""
-
-#: remote_mailtest:95
-msgid "demo.eyou.net"
-msgstr ""
-
-#: remote_mailtest:97 remote_mailtest:98 remote_mailtest:103
-#: remote_mailtest:115
-msgid ":::"
-msgstr ""
-
-#: remote_mailtest:98 remote_mailtest:103 remote_mailtest:115
-msgid "${content}"
-msgstr ""
-
-#: remote_mailtest:99
-msgid "${remote_domain}"
-msgstr ""
-
-#: remote_mailtest:101
 msgid "Remote Test Mail from [${base_domain}] at $(date +%F_%T)"
 msgstr ""
 
-#: remote_mailtest:104 remote_mailtest:108 remote_mailtest:118
-msgid "${mx_host}"
-msgstr ""
-
-#: remote_mailtest:109
-msgid " ${str} $( html_red "
-msgstr ""
-
-#: remote_mailtest:109
-msgid " ) ### ### "
-msgstr ""
-
-#: remote_mailtest:116
-msgid "${xlist}"
-msgstr ""
-
-#: remote_mailtest:118
-msgid "eminfo@${base_domain}"
-msgstr ""
-
-#: remote_mailtest:118
-msgid "${y}"
-msgstr ""
-
-#: remote_mailtest:118
-msgid "${subject}"
-msgstr ""
-
-#: remote_mailtest:120
-msgid "${str1}"
-msgstr ""
-
-#: remote_mailtest:120
-msgid "sendEmail"
-msgstr ""
-
-#: remote_mailtest:121
-msgid "${rc}"
-msgstr ""
-
-#: remote_mailtest:121 remote_mailtest:135
-msgid "0"
-msgstr ""
-
-#: remote_mailtest:122
 msgid " $result remote mail to [${y}] return [${str2}] ### "
 msgstr ""
 
-#: remote_mailtest:123 remote_mailtest:127
 msgid " $result talked with mx-host: [${mx_host}] ### "
 msgstr ""
 
-#: remote_mailtest:124
 msgid " $result subject: [${subject}] ### ### "
 msgstr ""
 
-#: remote_mailtest:126
-msgid " $result $(html_red "
-msgstr ""
-
-#: remote_mailtest:126
-msgid ") ### "
-msgstr ""
-
-#: remote_mailtest:128
-msgid " $result subject: [${subject}] ### ###"
-msgstr ""
-
-#: remote_mailtest:135
-msgid "${errnum}"
-msgstr ""
-
-#: remote_mailtest:137
-msgid "ok"
-msgstr ""
-
-#: remote_mailtest:139
 msgid "Remote Mail Test OK | ${total}/${total} remote mail test succeed | "
 msgstr ""
 
-#: remote_mailtest:139 remote_mailtest:144
-msgid " "
-msgstr ""
-
-#: remote_mailtest:142
-msgid "crit"
-msgstr ""
-
-#: remote_mailtest:144
-msgid ""
-"Remote Mail Test CRITICAL | ${errnum}/${total} remote mail test failed | "
-msgstr ""
-
-#: remote_mailtest:151
-msgid "{"
-msgstr ""
-
-#: remote_mailtest:151
-msgid "}:{"
-msgstr ""
-
-#: remote_mailtest:151
-msgid "}"
+msgid "Remote Mail Test CRITICAL | ${errnum}/${total} remote mail test failed | "
 msgstr ""

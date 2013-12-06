@@ -1,61 +1,14 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
-msgid ""
-msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-06 18:30+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
-"Content-Transfer-Encoding: 8bit\n"
-
-#: notify_syslogin:12
-msgid "/var/tmp/$filename.trace"
-msgstr ""
-
-#: notify_syslogin:28
-msgid ">$tracefile"
-msgstr ""
-
-#: notify_syslogin:30
-msgid "$dev $inode $position"
-msgstr ""
-
-#: notify_syslogin:40
-msgid "<$tracefile"
-msgstr ""
-
-#: notify_syslogin:51
 msgid "{noop}:{str}:{ authpriv file [$authfile] not exists. }"
 msgstr ""
 
-#: notify_syslogin:67
-msgid "<$authfile"
-msgstr ""
-
-#: notify_syslogin:68
 msgid "{noop}:{str}:{ open authpriv file [$authfile] failed. }"
 msgstr ""
 
-#: notify_syslogin:77
 msgid "$1: user [$2] login from [$3:$4] ###"
 msgstr ""
 
-#: notify_syslogin:87
 msgid "{noop}:{str}:{no login event found}"
 msgstr ""
 
-#: notify_syslogin:93
 msgid "$number login event | $number login event | "
-msgstr ""
-
-#: notify_syslogin:94
-msgid "{ok}:{str}:{$result}"
 msgstr ""
