@@ -1,0 +1,95 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-12-06 18:30+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: pop_svr:8 pop_svr:9
+msgid ":encoding(utf8)"
+msgstr ""
+
+#: pop_svr:54
+msgid "check list: $addr_port ### ### "
+msgstr ""
+
+#: pop_svr:61
+msgid "<font color=yellow> pop_host or pop_port not defined </font> ### ### "
+msgstr ""
+
+#: pop_svr:66
+msgid ""
+"<font color=yellow> $pop_host:$pop_port pop port not numberic </font> ### "
+"### "
+msgstr ""
+
+#: pop_svr:78
+msgid ""
+"<font color=red> connect [$pop_host:$pop_port] failed in $time_out seconds, "
+"return [$@] </font> "
+msgstr ""
+
+#: pop_svr:86
+msgid ""
+"connect [$pop_host:$pop_port] return welcome banner: ### [$welcome] "
+"($time_duration seconds) ### "
+msgstr ""
+
+#: pop_svr:96
+msgid ""
+"<font color=red> pop command: USER return [code=$rcode message=$response] </"
+"font> "
+msgstr ""
+
+#: pop_svr:103
+msgid ""
+"pop command: USER return [code=$rcode message=$response] ($time_duration "
+"seconds) ### "
+msgstr ""
+
+#: pop_svr:111
+msgid ""
+"<font color=red> pop command: PASS return [code=$rcode message=$response] </"
+"font> "
+msgstr ""
+
+#: pop_svr:118
+msgid ""
+"pop command: PASS return [code=$rcode message=Authorized Success] "
+"($time_duration seconds) ### ### "
+msgstr ""
+
+#: pop_svr:122
+msgid " pop_user or pop_pass not defined, pop login test skip ### ### "
+msgstr ""
+
+#: pop_svr:130
+msgid " ($time_duration seconds) ### ### "
+msgstr ""
+
+#: pop_svr:136
+msgid ""
+"{crit}:{str}:{ POP SVR CRITICAL | $critnum/$total pop check critical | "
+"$result }"
+msgstr ""
+
+#: pop_svr:139
+msgid ""
+"{unknown}:{str}:{ POP SVR UNKNOWN | $unknnum/$total pop check unknown | "
+"$result }"
+msgstr ""
+
+#: pop_svr:142
+msgid "{ok}:{str}:{ POP SVR OK | $total/$total pop check success | $result }"
+msgstr ""

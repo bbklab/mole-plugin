@@ -2,12 +2,47 @@
 
 
 BASE_DIR="/usr/local/eminfo/"
+
+# === LOAD GETTEXT.SH FILE
+if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+        source "/usr/bin/gettext.sh" 2>&1
+        rc=$?                                                                                                                       
+        [ "$rc" != "0" ] && {
+                echo -en "{unknown}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                exit 3
+        }
+else
+        echo -en "{unknown}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        exit 3
+fi
+
+# === LOAD INCLUDE FILE
 if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
         source ${BASE_DIR}/bin/include 2>&-
 else
         echo -en "{unknown}:{str}:{include file not exists or empty}"
 	exit 3
 fi
+
+# === SET TEXTDOMAINDIR TEXTDOMAIN
+if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+        export TEXTDOMAINDIR="${LOCALE_DIR}"
+        export TEXTDOMAIN="cpu_usage"
+else
+        echo -en "{unknown}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        exit 3
+fi
+
+# === SET GLOBAL LOCALE
+glocale=$(read_eminfo_config cpu_usage locale)
+if [ -z "${glocale}" ]; then
+        export LANG="${LANG}"           ## read from sysenv
+elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+        export LANG="zh_CN.UTF-8"
+elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+        export LANG="en_US.UTF-8"
+fi
+
 
 show_help(){
 cat <<EOF
@@ -59,7 +94,7 @@ check(){
 	EXIT_STATUS=${STATE_UNKNOWN};
 	LEVEL="unknown";
 	TYPE="str";
-	CONTENT="Command: [/usr/bin/vmstat] not prepared.";
+	CONTENT="$(gettext "Command: [/usr/bin/vmstat] not prepared.")";
 	return
   fi
 
@@ -82,47 +117,48 @@ check(){
   oknum=0 warnnum=0 result=
   if [ "$(echo  "${p_usage} >= ${uplimit}" | bc 2>&-)" == "1" ]; then
 	((warnnum++))
-	result="${result} $(html_red "cpu usage: [${p_usage}%] >= uplimit: [${uplimit}%]") ###"
+	result="${result} $(html_red "$(eval_gettext "cpu usage: [\${p_usage}%] >= uplimit: [\${uplimit}%]")") ###"
   else
 	((oknum++))
-	result="${result} cpu usage: [${p_usage}%] <= uplimit: [${uplimit}%] ###"
+	result="${result} $(eval_gettext "cpu usage: [\${p_usage}%] <= uplimit: [\${uplimit}%]") ###"
   fi
 
   if [ "$(echo  "${wa_usage} >= ${wa_uplimit}" | bc 2>&-)" == "1" ]; then
 	((warnnum++))
-	result="${result} $(html_red "cpu wait usage: [${wa_usage}%] >= uplimit: [${wa_uplimit}%]") ###"
+	result="${result} $(html_red "$(eval_gettext "cpu wait usage: [\${wa_usage}%] >= uplimit: [\${wa_uplimit}%]")") ###"
   else
 	((oknum++))
-	result="${result} cpu wait usage: [${wa_usage}%] <= uplimit: [${wa_uplimit}%] ###"
+	result="${result} $(eval_gettext "cpu wait usage: [\${wa_usage}%] <= uplimit: [\${wa_uplimit}%]") ###"
   fi
 
   if [ "$(echo  "${sy_usage} >= ${sy_uplimit}" | bc 2>&-)" == "1" ]; then
 	((warnnum++))
-	result="${result} $(html_red "cpu sys usage: [${sy_usage}%] >= uplimit: [${sy_uplimit}%]") ###"
+	result="${result} $(html_red "$(eval_gettext "cpu sys usage: [\${sy_usage}%] >= uplimit: [\${sy_uplimit}%]")") ###"
   else
 	((oknum++))
-	result="${result} cpu sys usage: [${sy_usage}%] <= uplimit: [${sy_uplimit}%] ###"
+	result="${result} $(eval_gettext "cpu sys usage: [\${sy_usage}%] <= uplimit: [\${sy_uplimit}%]") ###"
   fi
 
   if [ "$(echo  "${us_usage} >= ${uplimit}" | bc 2>&-)" == "1" ]; then
 	((warnnum++))
-	result="${result} $(html_red "cpu user usage: [${us_usage}%] >= uplimit: [${us_uplimit}%]") ###"
+	result="${result} $(html_red "$(eval_gettext "cpu user usage: [\${us_usage}%] >= uplimit: [\${us_uplimit}%]")") ###"
   else
 	((oknum++))
-	result="${result} cpu user usage: [${us_usage}%] <= uplimit: [${us_uplimit}%] ###"
+	result="${result} $(eval_gettext "cpu user usage: [\${us_usage}%] <= uplimit: [\${us_uplimit}%]") ###"
   fi
 
+  total=$((${warnnum}+${oknum}))
   if [ ${warnnum} -gt 0 ]; then
 	local top_pcpu_ps=$(ps -eo pid,comm,pcpu|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
 	EXIT_STATUS=${STATE_WARNING};
 	LEVEL="warn";
 	TYPE="str";
-	CONTENT="CPU Usage Check WARNING | ${warnnum}/$((${warnnum}+${oknum})) check failed. | ${result} ### ${top_pcpu_ps}"
+	CONTENT="$(gettext "CPU Usage Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check failed.") | ${result} ### ${top_pcpu_ps}"
   else
 	EXIT_STATUS=${STATE_OK};
 	LEVEL="ok";
 	TYPE="str";
-	CONTENT="CPU Usage Check OK | ${oknum}/$((${warnnum}+${oknum})) check success. | ${result}"
+	CONTENT="$(gettext "CPU Usage Check OK") | $(eval_gettext "\${oknum}/\${total} check success.") | ${result}"
   fi
 }
 

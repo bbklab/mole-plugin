@@ -1,0 +1,208 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-12-06 18:26+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: dns_svr:4
+msgid "/usr/local/eminfo/"
+msgstr ""
+
+#: dns_svr:5
+msgid "${BASE_DIR}/bin/include"
+msgstr ""
+
+#: dns_svr:8
+msgid "{unknown}:{str}:{include file not exists or empty}"
+msgstr ""
+
+#: dns_svr:16
+msgid "eyou.net:mx,ns,soa  mail.eyou.net:a"
+msgstr ""
+
+#: dns_svr:24 dns_svr:25
+msgid "$1"
+msgstr ""
+
+#: dns_svr:24
+msgid "data"
+msgstr ""
+
+#: dns_svr:24
+msgid "d"
+msgstr ""
+
+#: dns_svr:25
+msgid "help"
+msgstr ""
+
+#: dns_svr:25
+msgid "h"
+msgstr ""
+
+#: dns_svr:42 dns_svr:104
+msgid "${MODE}"
+msgstr ""
+
+#: dns_svr:42 dns_svr:104
+msgid "1"
+msgstr ""
+
+#: dns_svr:43
+msgid "$2"
+msgstr ""
+
+#: dns_svr:44
+msgid "$3"
+msgstr ""
+
+#: dns_svr:53 dns_svr:79
+msgid "${dns_check_lst}"
+msgstr ""
+
+#: dns_svr:53
+msgid "eyou.net:mx,ns,soa  mail.eyou.net:a  1.1.1.1:ptr"
+msgstr ""
+
+#: dns_svr:54
+msgid "${max_elapsed_time}"
+msgstr ""
+
+#: dns_svr:54
+msgid "${max_elapsed_time//[0-9]}"
+msgstr ""
+
+#: dns_svr:54
+msgid "10"
+msgstr ""
+
+#: dns_svr:60
+msgid "/usr/bin/time"
+msgstr ""
+
+#: dns_svr:62 dns_svr:70
+msgid "unknown"
+msgstr ""
+
+#: dns_svr:63 dns_svr:71 dns_svr:109 dns_svr:114
+msgid "str"
+msgstr ""
+
+#: dns_svr:64
+msgid "Util: [/usr/bin/time] not prepared."
+msgstr ""
+
+#: dns_svr:68
+msgid "/usr/bin/host"
+msgstr ""
+
+#: dns_svr:72
+msgid "Util: [/usr/bin/host] not prepared."
+msgstr ""
+
+#: dns_svr:78
+msgid "DNS Check List: [${dns_check_lst}] ### ###"
+msgstr ""
+
+#: dns_svr:82 dns_svr:83
+msgid "${x}"
+msgstr ""
+
+#: dns_svr:84
+msgid "/tmp/.dns_svr_time_tmp"
+msgstr ""
+
+#: dns_svr:86
+msgid "${types}"
+msgstr ""
+
+#: dns_svr:88
+#, c-format
+msgid "%E"
+msgstr ""
+
+#: dns_svr:88 dns_svr:91
+msgid "${tmpfile}"
+msgstr ""
+
+#: dns_svr:90
+msgid "${rc}"
+msgstr ""
+
+#: dns_svr:90 dns_svr:100 dns_svr:106
+msgid "0"
+msgstr ""
+
+#: dns_svr:92
+msgid ""
+"${result} dns resolving [${y}] record on [${target}] succeed in [${elapsed}] "
+"seconds ### "
+msgstr ""
+
+#: dns_svr:94
+msgid "${error}"
+msgstr ""
+
+#: dns_svr:95
+msgid "${result} $(html_red "
+msgstr ""
+
+#: dns_svr:95
+msgid ") ### "
+msgstr ""
+
+#: dns_svr:99
+msgid "${result} ### "
+msgstr ""
+
+#: dns_svr:100
+msgid "${flag}"
+msgstr ""
+
+#: dns_svr:106
+msgid "${warnnum}"
+msgstr ""
+
+#: dns_svr:108
+msgid "warn"
+msgstr ""
+
+#: dns_svr:110
+msgid "DNS SVR Check WARNING | ${warnnum}/${total} check failed | ${result} "
+msgstr ""
+
+#: dns_svr:112
+msgid "${STATE_OK}"
+msgstr ""
+
+#: dns_svr:113
+msgid "ok"
+msgstr ""
+
+#: dns_svr:115
+msgid "DNS SVR Check OK | ${total}/${total} check success | ${result} "
+msgstr ""
+
+#: dns_svr:122
+msgid "{"
+msgstr ""
+
+#: dns_svr:122
+msgid "}:{"
+msgstr ""
+
+#: dns_svr:122
+msgid "}"
+msgstr ""

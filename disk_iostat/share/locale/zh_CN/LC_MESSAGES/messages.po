@@ -1,0 +1,183 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-12-06 18:25+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: disk_iostat:4
+msgid "/usr/local/eminfo/"
+msgstr ""
+
+#: disk_iostat:5
+msgid "${BASE_DIR}/bin/include"
+msgstr ""
+
+#: disk_iostat:8
+msgid "{unknown}:{str}:{include file not exists or empty}"
+msgstr ""
+
+#: disk_iostat:26 disk_iostat:27
+msgid "$1"
+msgstr ""
+
+#: disk_iostat:26
+msgid "data"
+msgstr ""
+
+#: disk_iostat:26
+msgid "d"
+msgstr ""
+
+#: disk_iostat:27
+msgid "help"
+msgstr ""
+
+#: disk_iostat:27
+msgid "h"
+msgstr ""
+
+#: disk_iostat:44 disk_iostat:98 disk_iostat:113
+msgid "${MODE}"
+msgstr ""
+
+#: disk_iostat:44 disk_iostat:98 disk_iostat:103 disk_iostat:113
+msgid "1"
+msgstr ""
+
+#: disk_iostat:54
+msgid "${util_uplimit}"
+msgstr ""
+
+#: disk_iostat:54
+msgid "${util_uplimit//[0-9]}"
+msgstr ""
+
+#: disk_iostat:59
+msgid "${dev_list}"
+msgstr ""
+
+#: disk_iostat:61 disk_iostat:69
+msgid "unknown"
+msgstr ""
+
+#: disk_iostat:62 disk_iostat:70 disk_iostat:118 disk_iostat:123
+msgid "str"
+msgstr ""
+
+#: disk_iostat:63
+msgid "config {dev_list} empty, nothing to do."
+msgstr ""
+
+#: disk_iostat:67
+msgid "/usr/bin/iostat"
+msgstr ""
+
+#: disk_iostat:71
+msgid "Util: [/usr/bin/iostat] not prepared."
+msgstr ""
+
+#: disk_iostat:82 disk_iostat:84 disk_iostat:94
+msgid "${dev}"
+msgstr ""
+
+#: disk_iostat:85
+msgid "$(/bin/readlink ${dev} 2>&-)"
+msgstr ""
+
+#: disk_iostat:86
+msgid "${dev_tmpname##*/}"
+msgstr ""
+
+#: disk_iostat:88
+msgid "${dev##*/}"
+msgstr ""
+
+#: disk_iostat:91
+msgid "${iostat_data}"
+msgstr ""
+
+#: disk_iostat:92
+msgid "${util}"
+msgstr ""
+
+#: disk_iostat:92
+msgid "${util//[0-9.]}"
+msgstr ""
+
+#: disk_iostat:95
+msgid "${mpoint}"
+msgstr ""
+
+#: disk_iostat:95
+msgid "NULL"
+msgstr ""
+
+#: disk_iostat:99
+msgid "${dev} -> ${mpoint} : ${util}%"
+msgstr ""
+
+#: disk_iostat:103
+msgid "$(echo  "
+msgstr ""
+
+#: disk_iostat:103
+msgid " | bc 2>&-)"
+msgstr ""
+
+#: disk_iostat:105
+msgid "${result} $(html_red "
+msgstr ""
+
+#: disk_iostat:105
+msgid ") ###"
+msgstr ""
+
+#: disk_iostat:108
+msgid ""
+"${result} ${dev} (${mpoint}) io busy percent: [${util}%] <= uplimit: "
+"[${util_uplimit}%] ###"
+msgstr ""
+
+#: disk_iostat:117
+msgid "warn"
+msgstr ""
+
+#: disk_iostat:119
+msgid ""
+"IOStat Check WARNING | ${warnnum}/$((${warnnum}+${oknum})) check failed. | "
+"${result}"
+msgstr ""
+
+#: disk_iostat:122
+msgid "ok"
+msgstr ""
+
+#: disk_iostat:124
+msgid ""
+"IOStat Cehck OK | ${oknum}/$((${warnnum}+${oknum})) check success. | "
+"${result}"
+msgstr ""
+
+#: disk_iostat:131
+msgid "{"
+msgstr ""
+
+#: disk_iostat:131
+msgid "}:{"
+msgstr ""
+
+#: disk_iostat:131
+msgid "}"
+msgstr ""

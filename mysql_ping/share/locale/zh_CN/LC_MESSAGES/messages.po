@@ -1,0 +1,262 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#: mysql_ping:37 mysql_ping:38 mysql_ping:39 mysql_ping:97
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-12-06 18:29+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: mysql_ping:4
+msgid "/usr/local/eminfo/"
+msgstr ""
+
+#: mysql_ping:5
+msgid "${BASE_DIR}/bin/include"
+msgstr ""
+
+#: mysql_ping:8
+msgid "{unknown}:{str}:{include file not exists or empty}"
+msgstr ""
+
+#: mysql_ping:16
+msgid "127.0.0.1,3306,eyou,eyou; 127.0.0.1,3316,eyou,eyou"
+msgstr ""
+
+#: mysql_ping:26 mysql_ping:27
+msgid "$1"
+msgstr ""
+
+#: mysql_ping:26
+msgid "data"
+msgstr ""
+
+#: mysql_ping:26
+msgid "d"
+msgstr ""
+
+#: mysql_ping:27
+msgid "help"
+msgstr ""
+
+#: mysql_ping:27
+msgid "h"
+msgstr ""
+
+#: mysql_ping:42 mysql_ping:106 mysql_ping:113
+msgid "${MODE}"
+msgstr ""
+
+#: mysql_ping:42 mysql_ping:106 mysql_ping:113
+msgid "1"
+msgstr ""
+
+#: mysql_ping:43
+msgid "$2"
+msgstr ""
+
+#: mysql_ping:44
+msgid "$3"
+msgstr ""
+
+#: mysql_ping:45
+msgid "$4"
+msgstr ""
+
+#: mysql_ping:55 mysql_ping:62
+msgid "${mysqladmin_path}"
+msgstr ""
+
+#: mysql_ping:55
+msgid "/usr/local/eyou/mail/opt/mysql/bin/mysqladmin"
+msgstr ""
+
+#: mysql_ping:56 mysql_ping:72
+msgid "${mysql_conn_conf}"
+msgstr ""
+
+#: mysql_ping:56
+msgid "127.0.0.1,3306,eyou,eyou"
+msgstr ""
+
+#: mysql_ping:57
+msgid "${mysql_time_out}"
+msgstr ""
+
+#: mysql_ping:57
+msgid "${mysql_time_out//[0-9]}"
+msgstr ""
+
+#: mysql_ping:64 mysql_ping:129
+msgid "unknown"
+msgstr ""
+
+#: mysql_ping:65 mysql_ping:118 mysql_ping:124 mysql_ping:130
+msgid "str"
+msgstr ""
+
+#: mysql_ping:66
+msgid "utitile [${mysqladmin_path}] not prepared."
+msgstr ""
+
+#: mysql_ping:76
+msgid "${pairs}"
+msgstr ""
+
+#: mysql_ping:76
+msgid ","
+msgstr ""
+
+#: mysql_ping:77
+msgid "${sepnum}"
+msgstr ""
+
+#: mysql_ping:77
+msgid "3"
+msgstr ""
+
+#: mysql_ping:79
+msgid "${result} ### $(html_yellow "
+msgstr ""
+
+#: mysql_ping:79 mysql_ping:99
+msgid ") ### ### "
+msgstr ""
+
+#: mysql_ping:83 mysql_ping:84 mysql_ping:85 mysql_ping:86
+msgid "$(echo -e "
+msgstr ""
+
+#: mysql_ping:83 mysql_ping:84 mysql_ping:85 mysql_ping:86
+msgid "|awk -F"
+msgstr ""
+
+#: mysql_ping:83
+msgid " '{print $1}')"
+msgstr ""
+
+#: mysql_ping:84
+msgid " '{print $2}')"
+msgstr ""
+
+#: mysql_ping:85
+msgid " '{print $3}')"
+msgstr ""
+
+#: mysql_ping:86
+msgid " '{print $4}')"
+msgstr ""
+
+#: mysql_ping:87
+msgid ""
+"${result} ping mysql [${mysql_host}:${mysql_port}] with user [${mysql_user}] "
+"### "
+msgstr ""
+
+#: mysql_ping:89
+msgid "${mysql_pass}"
+msgstr ""
+
+#: mysql_ping:90
+msgid ""
+"${mysqladmin_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} --"
+"connect-timeout ${mysql_time_out} "
+msgstr ""
+
+#: mysql_ping:92
+msgid "${mysqladmin_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} -p"
+msgstr ""
+
+#: mysql_ping:92
+msgid " --connect-timeout ${mysql_time_out} "
+msgstr ""
+
+#: mysql_ping:96
+msgid "${ping_result}"
+msgstr ""
+
+#: mysql_ping:97
+msgid "$(echo "
+msgstr ""
+
+#: mysql_ping:97
+msgid "|grep -E -o -i "
+msgstr ""
+
+#: mysql_ping:97
+msgid ")"
+msgstr ""
+
+#: mysql_ping:99
+msgid "${result} $(html_red "
+msgstr ""
+
+#: mysql_ping:102
+msgid "${result} result: [${ping_result}] ### ### "
+msgstr ""
+
+#: mysql_ping:107
+msgid "${mysql_host}:${mysql_port}  [${ping_result}]"
+msgstr ""
+
+#: mysql_ping:115
+msgid "${errnum}"
+msgstr ""
+
+#: mysql_ping:115 mysql_ping:127
+msgid "0"
+msgstr ""
+
+#: mysql_ping:117
+msgid "crit"
+msgstr ""
+
+#: mysql_ping:119
+msgid "Mysql Ping CRITICAL | ${errnum}/${total} check failed | ${result} "
+msgstr ""
+
+#: mysql_ping:121
+msgid "${oknum}"
+msgstr ""
+
+#: mysql_ping:121
+msgid "${total}"
+msgstr ""
+
+#: mysql_ping:123
+msgid "ok"
+msgstr ""
+
+#: mysql_ping:125
+msgid "Mysql Ping OK | ${oknum}/${total} check success | ${result} "
+msgstr ""
+
+#: mysql_ping:127
+msgid "${unknum}"
+msgstr ""
+
+#: mysql_ping:131
+msgid "Mysql Ping Unknown | ${unknum}/${total} check unknown | ${result} "
+msgstr ""
+
+#: mysql_ping:140
+msgid "{"
+msgstr ""
+
+#: mysql_ping:140
+msgid "}:{"
+msgstr ""
+
+#: mysql_ping:140
+msgid "}"
+msgstr ""

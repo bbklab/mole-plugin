@@ -1,0 +1,38 @@
+msgid "Util: [/sbin/tune2fs] not prepared."
+msgstr ""
+
+msgid "File: [/etc/mtab] not prepared."
+msgstr ""
+
+msgid "FSTYPE: [${filesystem_fstype}]" 
+msgstr ""
+
+msgid "FileSystem Stat"
+msgstr ""
+
+msgid "${result} (${t}) ${d} -> unknown"
+msgstr ""
+
+msgid "${result} (${t}) ${d} -> clean" 
+msgstr ""
+
+msgid "IO Test" 
+msgstr ""
+
+msgid "Disk_IO: ${m} ${t} success"
+msgstr ""
+
+msgid "Disk_IO: ${m} ${t} warn \"${ioerr}\""
+msgstr ""
+
+msgid "${result} (${t}) ${m} -> iotest Success ### "
+msgstr ""
+
+msgid "IO/FS Check WARNING | ${warnnum} check failed | ${result} "
+msgstr ""
+
+msgid "IO/FS Check UNKNOWN | ${unknnum} check unknown | ${result} "
+msgstr ""
+
+msgid "IO/FS Check OK | fsstat,iotest check success | ${result} "
+msgstr ""

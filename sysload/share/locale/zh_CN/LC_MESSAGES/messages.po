@@ -1,0 +1,151 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-12-06 18:31+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: sysload:4
+msgid "/usr/local/eminfo/"
+msgstr ""
+
+#: sysload:5
+msgid "${BASE_DIR}/bin/include"
+msgstr ""
+
+#: sysload:8
+msgid "{unknown}:{str}:{include file not exists or empty}"
+msgstr ""
+
+#: sysload:26 sysload:27
+msgid "$1"
+msgstr ""
+
+#: sysload:26
+msgid "data"
+msgstr ""
+
+#: sysload:26
+msgid "d"
+msgstr ""
+
+#: sysload:27
+msgid "help"
+msgstr ""
+
+#: sysload:27
+msgid "h"
+msgstr ""
+
+#: sysload:48
+msgid "${average_cpuload_uplimit}"
+msgstr ""
+
+#: sysload:48
+msgid "${average_cpuload_uplimit//[0-9]}"
+msgstr ""
+
+#: sysload:52
+msgid "/proc/loadavg"
+msgstr ""
+
+#: sysload:52
+msgid "/proc/cpuinfo"
+msgstr ""
+
+#: sysload:54 sysload:66
+msgid "unknown"
+msgstr ""
+
+#: sysload:55 sysload:67 sysload:82 sysload:87
+msgid "str"
+msgstr ""
+
+#: sysload:56
+msgid "FILE: [/proc/loadavg] or [/proc/cpuinfo] not prepared."
+msgstr ""
+
+#: sysload:62
+msgid " "
+msgstr ""
+
+#: sysload:64
+msgid "${loadave}"
+msgstr ""
+
+#: sysload:64
+msgid "${loadave//[0-9.]}"
+msgstr ""
+
+#: sysload:68
+msgid "Retuen is not numberic: ["
+msgstr ""
+
+#: sysload:68
+msgid "]"
+msgstr ""
+
+#: sysload:73
+msgid "${MODE}"
+msgstr ""
+
+#: sysload:73 sysload:79
+msgid "1"
+msgstr ""
+
+#: sysload:74
+msgid "${cpunum} ${loadave}"
+msgstr ""
+
+#: sysload:79
+msgid "$(echo  "
+msgstr ""
+
+#: sysload:79
+msgid " | bc 2>&-)"
+msgstr ""
+
+#: sysload:81
+msgid "warn"
+msgstr ""
+
+#: sysload:83
+msgid ""
+"System Load Check CRITICAL | load [${loadave} >= "
+"$((${average_cpuload_uplimit}*${cpunum}))] | processor number: ${cpunum}, "
+"average load limit: ${average_cpuload_uplimit}"
+msgstr ""
+
+#: sysload:86
+msgid "ok"
+msgstr ""
+
+#: sysload:88
+msgid ""
+"System Load Check OK | load [${loadave} <= $((${average_cpuload_uplimit}*"
+"${cpunum}))] | processor number: ${cpunum}, average load limit: "
+"${average_cpuload_uplimit}"
+msgstr ""
+
+#: sysload:96
+msgid "{"
+msgstr ""
+
+#: sysload:96
+msgid "}:{"
+msgstr ""
+
+#: sysload:96
+msgid "}"
+msgstr ""

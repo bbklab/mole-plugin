@@ -1,0 +1,272 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#: mysql_dump:36 mysql_dump:37 mysql_dump:38
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-12-06 18:29+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: mysql_dump:4
+msgid "/usr/local/eminfo/"
+msgstr ""
+
+#: mysql_dump:5
+msgid "${BASE_DIR}/bin/include"
+msgstr ""
+
+#: mysql_dump:8
+msgid "{unknown}:{str}:{include file not exists or empty}"
+msgstr ""
+
+#: mysql_dump:25 mysql_dump:26
+msgid "$1"
+msgstr ""
+
+#: mysql_dump:25
+msgid "data"
+msgstr ""
+
+#: mysql_dump:25
+msgid "d"
+msgstr ""
+
+#: mysql_dump:26
+msgid "help"
+msgstr ""
+
+#: mysql_dump:26
+msgid "h"
+msgstr ""
+
+#: mysql_dump:51 mysql_dump:67
+msgid "${mysqldump_path}"
+msgstr ""
+
+#: mysql_dump:53 mysql_dump:61 mysql_dump:69 mysql_dump:77 mysql_dump:86
+msgid "unknown"
+msgstr ""
+
+#: mysql_dump:54 mysql_dump:62 mysql_dump:70 mysql_dump:78 mysql_dump:87
+#: mysql_dump:114 mysql_dump:163 mysql_dump:168
+msgid "str"
+msgstr ""
+
+#: mysql_dump:55
+msgid "mysqldump_path: not defined."
+msgstr ""
+
+#: mysql_dump:59 mysql_dump:75
+msgid "${dump_savedir}"
+msgstr ""
+
+#: mysql_dump:63
+msgid "dump_savedir: not defined."
+msgstr ""
+
+#: mysql_dump:71
+msgid "utitile [${mysqldump_path}] not prepared."
+msgstr ""
+
+#: mysql_dump:79
+msgid "directory: [${dump_savedir}] not exist or accessable"
+msgstr ""
+
+#: mysql_dump:83
+msgid "${mysql_conn_conf}"
+msgstr ""
+
+#: mysql_dump:83
+msgid ","
+msgstr ""
+
+#: mysql_dump:84
+msgid "${sepnum}"
+msgstr ""
+
+#: mysql_dump:84
+msgid "3"
+msgstr ""
+
+#: mysql_dump:88
+msgid "mysql_conn_conf: [${mysql_conn_conf}] is invalid"
+msgstr ""
+
+#: mysql_dump:92 mysql_dump:93 mysql_dump:94 mysql_dump:95
+msgid "$(echo -e "
+msgstr ""
+
+#: mysql_dump:92 mysql_dump:93 mysql_dump:94 mysql_dump:95
+msgid "|awk -F"
+msgstr ""
+
+#: mysql_dump:92
+msgid " '{print $1}')"
+msgstr ""
+
+#: mysql_dump:93
+msgid " '{print $2}')"
+msgstr ""
+
+#: mysql_dump:94
+msgid " '{print $3}')"
+msgstr ""
+
+#: mysql_dump:95
+msgid " '{print $4}')"
+msgstr ""
+
+#: mysql_dump:98
+msgid ""
+"dump tables from mysql [${mysql_host}:${mysql_port}] with user "
+"[${mysql_user}] by [${mysqldump_path}] ### ### "
+msgstr ""
+
+#: mysql_dump:100
+msgid "${mysql_pass}"
+msgstr ""
+
+#: mysql_dump:101
+msgid ""
+"${mysqldump_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} -q --"
+"dump-date "
+msgstr ""
+
+#: mysql_dump:103
+msgid "${mysqldump_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} -p"
+msgstr ""
+
+#: mysql_dump:103
+msgid " -q --dump-date "
+msgstr ""
+
+#: mysql_dump:106
+msgid "${dump_savedir}/$(date +%Y%m%d_%H%M%S)"
+msgstr ""
+
+#: mysql_dump:110
+msgid "${errstr}"
+msgstr ""
+
+#: mysql_dump:111
+msgid "${rc}"
+msgstr ""
+
+#: mysql_dump:113 mysql_dump:162
+msgid "crit"
+msgstr ""
+
+#: mysql_dump:115
+msgid ""
+"Mysql Dump BackUp CRITICAL | create backup directory failed | ${errstr} "
+msgstr ""
+
+#: mysql_dump:119 mysql_dump:120
+msgid "/${mysql_dump_tables##*file:}"
+msgstr ""
+
+#: mysql_dump:121 mysql_dump:122
+msgid "${BASE_DIR}/${mysql_dump_tables##*file:}"
+msgstr ""
+
+#: mysql_dump:124 mysql_dump:132
+msgid "${dbtb_file}"
+msgstr ""
+
+#: mysql_dump:125
+msgid "$(/bin/awk '($0~/^ *\\[ *.* *\\] *$/)' "
+msgstr ""
+
+#: mysql_dump:125
+msgid " 2>&- | tr -d '[\\[\\]\t\r ]')"
+msgstr ""
+
+#: mysql_dump:136
+msgid "${mysql_dump_tables}"
+msgstr ""
+
+#: mysql_dump:136
+msgid ". "
+msgstr ""
+
+#: mysql_dump:142
+msgid "$(( ${i}%2 ))"
+msgstr ""
+
+#: mysql_dump:142
+msgid "1"
+msgstr ""
+
+#: mysql_dump:144
+msgid "${array_dbtb_list[$i-1]}"
+msgstr ""
+
+#: mysql_dump:144
+msgid "${array_dbtb_list[$i]}"
+msgstr ""
+
+#: mysql_dump:146
+msgid "$?"
+msgstr ""
+
+#: mysql_dump:146 mysql_dump:160
+msgid "0"
+msgstr ""
+
+#: mysql_dump:148
+msgid "${errstuff}"
+msgstr ""
+
+#: mysql_dump:149
+msgid "${result} $(html_red "
+msgstr ""
+
+#: mysql_dump:149
+msgid ") ###"
+msgstr ""
+
+#: mysql_dump:153
+msgid "${result} Dump Table [${db}.${tb}] succeed. size=[${dt_size}]K ###"
+msgstr ""
+
+#: mysql_dump:160
+msgid "${errnum}"
+msgstr ""
+
+#: mysql_dump:164
+msgid ""
+"Mysql Dump BackUp CRITICAL | ${errnum}/${tbnum} tables backup failed. | "
+"${result} "
+msgstr ""
+
+#: mysql_dump:167
+msgid "ok"
+msgstr ""
+
+#: mysql_dump:169
+msgid ""
+"Mysql Dump BackUp OK | ${succnum}/${tbnum} tables backup successfully. | "
+"${result} "
+msgstr ""
+
+#: mysql_dump:176
+msgid "{"
+msgstr ""
+
+#: mysql_dump:176
+msgid "}:{"
+msgstr ""
+
+#: mysql_dump:176
+msgid "}"
+msgstr ""

@@ -1,0 +1,189 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#: mail_queue:36 mail_queue:37 mail_queue:38
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-12-06 18:28+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: mail_queue:4
+msgid "/usr/local/eminfo/"
+msgstr ""
+
+#: mail_queue:5
+msgid "${BASE_DIR}/bin/include"
+msgstr ""
+
+#: mail_queue:8
+msgid "{unknown}:{str}:{include file not exists or empty}"
+msgstr ""
+
+#: mail_queue:25 mail_queue:26
+msgid "$1"
+msgstr ""
+
+#: mail_queue:25
+msgid "data"
+msgstr ""
+
+#: mail_queue:25
+msgid "d"
+msgstr ""
+
+#: mail_queue:26
+msgid "help"
+msgstr ""
+
+#: mail_queue:26
+msgid "h"
+msgstr ""
+
+#: mail_queue:46
+msgid "${uplimit}"
+msgstr ""
+
+#: mail_queue:46
+msgid "${uplimit//[0-9]}"
+msgstr ""
+
+#: mail_queue:46
+msgid "300"
+msgstr ""
+
+#: mail_queue:51
+msgid "/usr/local/eyou/mail/queue/Local/Info"
+msgstr ""
+
+#: mail_queue:52
+msgid "/usr/local/eyou/mail/queue/Remote/Info"
+msgstr ""
+
+#: mail_queue:53
+msgid "/usr/local/eyou/mail/queue/Bounce/Info"
+msgstr ""
+
+#: mail_queue:54
+msgid "/usr/local/eyou/mail/queue/Mlist/Info"
+msgstr ""
+
+#: mail_queue:55
+msgid "/usr/local/eyou/mail/queue/Tmp/Info"
+msgstr ""
+
+#: mail_queue:57
+msgid "${ldir}"
+msgstr ""
+
+#: mail_queue:57
+msgid "${rdir}"
+msgstr ""
+
+#: mail_queue:57
+msgid "${bdir}"
+msgstr ""
+
+#: mail_queue:59 mail_queue:92
+msgid "unknown"
+msgstr ""
+
+#: mail_queue:60 mail_queue:82 mail_queue:87 mail_queue:93
+msgid "str"
+msgstr ""
+
+#: mail_queue:61
+msgid ""
+"Mail Queue Directories Missing | {Local/Remote/Bounce}/Info not directory | "
+"maybe mail version < 5. "
+msgstr ""
+
+#: mail_queue:70
+msgid "${ln}+${rn}+${bn}+${mn}"
+msgstr ""
+
+#: mail_queue:73
+msgid "${MODE}"
+msgstr ""
+
+#: mail_queue:73 mail_queue:79
+msgid "1"
+msgstr ""
+
+#: mail_queue:74
+msgid "${total} ${ln} ${rn} ${bn}"
+msgstr ""
+
+#: mail_queue:78
+msgid "${total}"
+msgstr ""
+
+#: mail_queue:78
+msgid "${total//[0-9]}"
+msgstr ""
+
+#: mail_queue:79
+msgid "$( echo "
+msgstr ""
+
+#: mail_queue:79
+msgid " | bc 2>&- )"
+msgstr ""
+
+#: mail_queue:80
+msgid "${STATE_CRITICAL}"
+msgstr ""
+
+#: mail_queue:81
+msgid "crit"
+msgstr ""
+
+#: mail_queue:83
+msgid ""
+"Queuing Letters Number CRITICAL | ${total} letters | letters in local: "
+"[${ln}] ### letters in remote: [${rn}] ### letters in bounce: [${bn}] ### "
+"letters in mlist: [${mn}] ### letters in tmp: [${tn}] ### "
+msgstr ""
+
+#: mail_queue:85
+msgid "${STATE_OK}"
+msgstr ""
+
+#: mail_queue:86
+msgid "ok"
+msgstr ""
+
+#: mail_queue:88
+msgid ""
+"Queuing Letters Number OK | ${total} letters | letters in local: [${ln}] ### "
+"letters in remote: [${rn}] ### letters in bounce: [${bn}] ### letters in "
+"mlist: [${mn}] ### letters in tmp: [${tn}] ### "
+msgstr ""
+
+#: mail_queue:94
+msgid ""
+"Queuing Letters Number Unknown | total: [${total}] not numberic | letters in "
+"local: [${ln}] ### letters in remote: [${rn}] ### letters in bounce: [${bn}] "
+"### letters in mlist: [${mn}] ### letters in tmp: [${tn}] ### "
+msgstr ""
+
+#: mail_queue:101
+msgid "{"
+msgstr ""
+
+#: mail_queue:101
+msgid "}:{"
+msgstr ""
+
+#: mail_queue:101
+msgid "}"
+msgstr ""

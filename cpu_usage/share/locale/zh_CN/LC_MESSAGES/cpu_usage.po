@@ -1,0 +1,62 @@
+# Copyright (C) 2013 EMINFO LANGUAGE FILE FOR GETTEXT
+# FIRST AUTHOR <zhangguangzheng@eyou.net>, 2013.
+# This file is distributed under the same license as the eminfo package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0-beta6\n"
+"Report-Msgid-Bugs-To: zhangguangzheng@eyou.net\n"
+"POT-Creation-Date: 2013-11-29 17:16+0800\n"
+"PO-Revision-Date: 2013-11-29 17:16+0800\n"
+"Last-Translator: Guangzheng Zhang <zhang.elinks@gmail.com>\n"
+"Language-Team: EMINFO-LANGUAGE <zhang.elinks@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Chinese\n"
+"X-Poedit-Country: CHINA\n"
+
+msgid "\t%+#D"
+msgstr "\t%+#D"
+
+msgid "\n"
+msgstr "\n"
+
+msgid "Command: [/usr/bin/vmstat] not prepared."
+msgstr "[/usr/bin/vmstat] 不存在或没有执行权限."
+
+msgid "cpu usage: [${p_usage}%] >= uplimit: [${uplimit}%]"
+msgstr "CPU整体使用率为 ${p_usage}%, 超出上限 ${uplimit}%"
+
+msgid "cpu usage: [${p_usage}%] <= uplimit: [${uplimit}%]" 
+msgstr "CPU整体使用率为 ${p_usage}%"
+
+msgid "cpu wait usage: [${wa_usage}%] >= uplimit: [${wa_uplimit}%]"
+msgstr "CPU等待占用率为 ${wa_usage}%, 超出上限 ${wa_uplimit}%"
+
+msgid "cpu wait usage: [${wa_usage}%] <= uplimit: [${wa_uplimit}%]"
+msgstr "CPU等待占用率为 ${wa_usage}%"
+
+msgid "cpu sys usage: [${sy_usage}%] >= uplimit: [${sy_uplimit}%]"
+msgstr "CPU系统态使用率为 ${sy_usage}%, 超出上限 ${sy_uplimit}%"
+
+msgid "cpu sys usage: [${sy_usage}%] <= uplimit: [${sy_uplimit}%]"
+msgstr "CPU系统态使用率为 ${sy_usage}%"
+
+msgid "cpu user usage: [${us_usage}%] >= uplimit: [${us_uplimit}%]"
+msgstr "CPU用户态使用率为 ${us_usage}%, 超出上限 ${us_uplimit}%"
+
+msgid "cpu user usage: [${us_usage}%] <= uplimit: [${us_uplimit}%]" 
+msgstr "CPU用户态使用率为 ${us_usage}%"
+
+msgid "CPU Usage Check WARNING"
+msgstr "CPU使用情况告警"
+
+msgid "${warnnum}/${total} check failed."
+msgstr "${warnnum}/${total} 项检查告警."
+
+msgid "CPU Usage Check OK"
+msgstr "CPU使用情况正常"
+
+msgid "${oknum}/${total} check success."
+msgstr "${oknum}/${total} 项检查正常."
