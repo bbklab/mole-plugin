@@ -2,12 +2,49 @@
 
 
 BASE_DIR="/usr/local/eminfo/"
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
-        source ${BASE_DIR}/bin/include 2>&-
+# === LOAD GETTEXT.SH FILE
+if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+        source "/usr/bin/gettext.sh" 2>&1
+        rc=$?
+        [ "$rc" != "0" ] && {
+                echo -en "{unknown}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                exit 3
+        }   
 else
-        echo -en "{unknown}:{str}:{include file not exists or empty}"
-	exit 3
+        echo -en "{unknown}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        exit 3
 fi
+
+# === LOAD INCLUDE FILE
+if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+        source ${BASE_DIR}/bin/include 2>&- 
+else    
+        echo -en "{unknown}:{str}:{include file not exists or empty}"
+        exit 3
+fi
+
+# === SET TEXTDOMAINDIR TEXTDOMAIN
+if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+        export TEXTDOMAINDIR="${LOCALE_DIR}"
+        export TEXTDOMAIN="disk_space"
+else    
+        echo -en "{unknown}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        exit 3
+fi
+
+
+# === SET GLOBAL LOCALE
+glocale=$(read_eminfo_config disk_space locale)
+if [ -z "${glocale}" ]; then
+        export LANG="${LANG}"           ## read from sysenv
+elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+        export LANG="zh_CN.UTF-8"
+elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+        export LANG="en_US.UTF-8"
+fi
+
+
+
 
 show_help(){
 cat <<EOF
@@ -71,7 +108,7 @@ check(){
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="Util: [/bin/df] not prepared.";
+        CONTENT="$(gettext "Util: [/bin/df] not prepared.")";
         return
   }
 
@@ -79,13 +116,13 @@ check(){
 	EXIT_STATUS=${STATE_UNKNOWN};
 	LEVEL="unknown";
 	TYPE="str";
-	CONTENT="File: [/etc/mtab] not prepared.";
+	CONTENT="$(gettext "File: [/etc/mtab] not prepared.")";
 	return
   }
 
   local result= mpoint= warnnum=0
 
-  result="### Space Check ### "
+  result="### $(gettext "Space Check") ### "
   for t in `echo "${filesystem_fstype}"`
   do
 	mpoint=$(awk '($3~/\<'${t}'\>/){print $1}' "/etc/mtab" 2>&-|tr '\n' ' ')
@@ -94,16 +131,19 @@ check(){
 		line=( $(/bin/df -P -T -m "${m}" 2>&- | tail -n +2) )
 		if [ "${#line[@]}" != "7" ]; then
 			((warnnum++))
-			result="${result} $(html_red "filed number [${#line[@]}] <> 7") ###"
+			fdnum=${#line[@]}
+			result="${result} $(html_red "$(eval_gettext "filed number [\${fdnum}] <> 7")") ###"
 			continue
 		fi
 		if [ "${line[5]//[0-9]}" != "%" ]; then
 			((warnnum++))
-			result="${result} $(html_red "percent filed [${line[5]}] unrecognized") ###"
+			fpercent=${line[5]}
+			result="${result} $(html_red "$(eval_gettext "percent filed [\${fpercent}] unrecognized")") ###"
 			continue
 		fi
 		if [ "$(echo -e "${exclude_mpoint}"|grep -E -o -w "${line[6]}")" != "" ]; then
-			result="${result} ["${line[@]}"] SKIP. as mount point=[${line[6]}] ###"
+			fmount=${line[6]}
+			result="${result} ["${line[@]}"] $(eval_gettext "SKIP. as mount point=[\${fmount}]") ###"
 			continue
 		fi
 
@@ -119,22 +159,22 @@ check(){
 		# check spare space
 		if [ "$(echo "${spare_space}<=${disk_spare_space_uplimit}" | bc 2>&-)" == "1" ]; then
 			((warnnum++))
-			result="${result} $(html_red "${device} -> ${mount} (${fstype}) : spare [${spare_space}M] <= [${disk_spare_space_uplimit}M]") ###"
+			result="${result} $(html_red "$(eval_gettext "\${device} -> \${mount} (\${fstype}) : spare [\${spare_space}M] <= [\${disk_spare_space_uplimit}M]")") ###"
 		else
-			result="${result} ${device} -> ${mount} (${fstype}) : spare [${spare_space}M] ###"
+			result="${result} $(eval_gettext "\${device} -> \${mount} (\${fstype}) : spare [\${spare_space}M]") ###"
 		fi
 
 		# check spare space percent
 		if [ "$( echo "${spare_pct}<=${disk_spare_percent_uplimit}" | bc 2>&- )" == "1" ]; then
 			((warnnum++))
-			result="${result} $(html_red "${device} -> ${mount} (${fstype}) : spare [${spare_pct}%] <= [${disk_spare_percent_uplimit}%]") ### "
+			result="${result} $(html_red "$(eval_gettext "\${device} -> \${mount} (\${fstype}) : spare [\${spare_pct}%] <= [\${disk_spare_percent_uplimit}%]")") ### "
 		else
-			result="${result} ${device} -> ${mount} (${fstype}) : spare [${spare_pct}%] ###"
+			result="${result} $(eval_gettext "\${device} -> \${mount} (\${fstype}) : spare [\${spare_pct}%]") ###"
 		fi
 	done
   done
 
-  result="${result} ### Inode Check ### "
+  result="${result} ### $(gettext "Inode Check") ### "
   for t in `echo "${filesystem_fstype}"`
   do
 	mpoint=$(awk '($3~/\<'${t}'\>/){print $1}' "/etc/mtab" 2>&-|tr '\n' ' ')
@@ -143,16 +183,19 @@ check(){
 		line=( $(/bin/df -P -T -i "${m}" 2>&- | tail -n +2) )
 		if [ "${#line[@]}" != "7" ]; then
 			((warnnum++))
-			result="${result} $(html_red "filed number [${#line[@]}] <> 7") ###"
+			fdnum=${#line[@]}
+			result="${result} $(html_red "$(eval_gettext "filed number [\${fdnum}] <> 7")") ###"
 			continue
 		fi
 		if [ "${line[5]//[0-9]}" != "%" ]; then
 			((warnnum++))
-			result="${result} $(html_red "percent filed [${line[5]}] unrecognized") ###"
+			fpercent=${line[5]}
+			result="${result} $(html_red "$(eval_gettext "percent filed [\${fpercent}] unrecognized")") ###"
 			continue
 		fi
 		if [ "$(echo -e "${exclude_mpoint}"|grep -E -o -w "${line[6]}")" != "" ]; then
-			result="${result} ["${line[@]}"] SKIP. as mount point=[${line[6]}] ###"
+			fmount=${line[6]}
+			result="${result} ["${line[@]}"] $(eval_gettext "SKIP. as mount point=[\${fmount}]") ###"
 			continue
 		fi
 
@@ -168,9 +211,9 @@ check(){
 		# check inode spare percent
 		if [ "$(echo "${spare_pct}<=${inode_spare_percent_uplimit}" | bc 2>&-)" == "1" ]; then
 			((warnnum++))
-			result="${result} $(html_red "${device} -> ${mount} (${fstype}) : spare [${spare_pct}%] <= [${inode_spare_percent_uplimit}%]") ###"
+			result="${result} $(html_red "$(eval_gettext "\${device} -> \${mount} (\${fstype}) : spare [\${spare_pct}%] <= [\${inode_spare_percent_uplimit}%]")") ###"
 		else
-			result="${result} ${device} -> ${mount} (${fstype}) : spare [${spare_pct}%] ###"
+			result="${result} $(eval_gettext "\${device} -> \${mount} (\${fstype}) : spare [\${spare_pct}%]") ###"
 		fi
 	done
   done
@@ -182,12 +225,12 @@ check(){
 	EXIT_STATUS=${STATE_WARNING};
 	LEVEL="warn";
 	TYPE="str";
-	CONTENT="Disk Space Check WARNING | ${warnnum} check failed.| ${result} "
+	CONTENT="$(gettext "Disk Space Check WARNING") | $(eval_gettext "\${warnnum} check failed.") | ${result} "
   } || {
 	EXIT_STATUS="${STATE_OK}"
 	LEVEL="ok"
 	TYPE="str"
-	CONTENT="Disk Space Check OK | disk-space, disk-inode check success. | ${result} "
+	CONTENT="$(gettext "Disk Space Check OK") | $(gettext "disk-space, disk-inode check success.") | ${result} "
   }
 }
 

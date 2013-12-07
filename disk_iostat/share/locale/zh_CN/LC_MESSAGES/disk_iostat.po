@@ -1,0 +1,23 @@
+msgid "config {dev_list} empty, nothing to do."
+msgstr "插件配置参数 {dev_list} 未设定"
+
+msgid "Util: [/usr/bin/iostat] not prepared."
+msgstr "[/usr/bin/iostat] 不存在或没有执行权限."
+
+msgid "${dev} (${mpoint}) io busy percent: [${util}%] <= uplimit: [${util_uplimit}%]"
+msgstr "设备: ${dev} (挂载点${mpoint}) IO繁忙程度为 ${util}%"
+
+msgid "${dev} (${mpoint}) io busy percent: [${util}%] >= uplimit: [${util_uplimit}%]"
+msgstr "设备: ${dev} (挂载点${mpoint}) IO繁忙程度为 ${util}%, 超出上限 ${util_uplimit}%"
+
+msgid "IOStat Check WARNING"
+msgstr "磁盘IO繁忙度检查告警"
+
+msgid "${warnnum}/${total} check failed."
+msgstr "${warnnum}/${total} 项检查告警."
+
+msgid "IOStat Cehck OK"
+msgstr "磁盘IO繁忙度检查正常"
+
+msgid "${oknum}/${total} check success."
+msgstr "${oknum}/${total} 项检查正常."

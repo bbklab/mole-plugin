@@ -1,0 +1,47 @@
+msgid "Util: [/bin/df] not prepared."
+msgstr "[/bin/df] 不存在或没有执行权限."
+
+msgid "File: [/etc/mtab] not prepared."
+msgstr "[/etc/mtab] 文件不存在或为空文件."
+
+msgid "Space Check"
+msgstr "磁盘空间使用率检查"
+
+msgid "filed number [${fdnum}] <> 7"
+msgstr "字段个数为${fdnum}, 不等于7"
+
+msgid "percent filed [${fpercent}] unrecognized"
+msgstr "使用率字段格式无法识别: ${fpercent}"
+
+msgid "SKIP. as mount point=[${fmount}]"
+msgstr "跳过挂载点 ${fmount} 的检查"
+
+msgid "${device} -> ${mount} (${fstype}) : spare [${spare_space}M] <= [${disk_spare_space_uplimit}M]"
+msgstr "设备: ${device}, 挂载点为${mount}, 分区类型${fstype}, 可用空间为${spare_space}M, 低于${disk_spare_space_uplimit}M"
+
+msgid "${device} -> ${mount} (${fstype}) : spare [${spare_space}M]" 
+msgstr "设备: ${device}, 挂载点为${mount}, 分区类型${fstype}, 可用空间为${spare_space}M"
+
+msgid "${device} -> ${mount} (${fstype}) : spare [${spare_pct}%] <= [${disk_spare_percent_uplimit}%]"
+msgstr "设备: ${device}, 挂载点为${mount}, 分区类型${fstype}, 可用百分比为${spare_pct}%, 低于${disk_spare_percent_uplimit}%"
+
+msgid "${device} -> ${mount} (${fstype}) : spare [${spare_pct}%]"
+msgstr "设备: ${device}, 挂载点为${mount}, 分区类型${fstype}, 可用百分比为${spare_pct}%"
+
+msgid "Inode Check"
+msgstr "磁盘节点使用率检查"
+
+msgid "${device} -> ${mount} (${fstype}) : spare [${spare_pct}%] <= [${inode_spare_percent_uplimit}%]"
+msgstr "设备: ${device}, 挂载点为${mount}, 分区类型${fstype}, 可用百分比为${spare_pct}%, 低于${inode_spare_percent_uplimit}%"
+
+msgid "Disk Space Check WARNING"
+msgstr "磁盘使用率检查告警"
+
+msgid "${warnnum} check failed."
+msgstr "${warnnum} 项检查告警."
+
+msgid "Disk Space Check OK"
+msgstr "磁盘使用率检查正常"
+
+msgid "disk-space, disk-inode check success."
+msgstr "磁盘空间使用率,磁盘节点使用率正常."
