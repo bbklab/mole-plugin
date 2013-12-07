@@ -1,0 +1,17 @@
+msgid "utilite [/usr/bin/curl] not prepared."
+msgstr "[/usr/bin/curl] 不存在或没有执行权限."
+
+msgid "check [${x}] return [code=${code}, time=${time}, pagesize=${pagesize}]"
+msgstr "检查 ${x} 的HTTP服务返回:  响应码${code}, 耗时${time}, 页面大小${pagesize}"
+
+msgid "HTTP SVR OK"
+msgstr "HTTP服务正常"
+
+msgid "${total}/${total} http check success."
+msgstr "${total}/${total} 项检查正常."
+
+msgid "HTTP SVR CRITICAL"
+msgstr "HTTP服务异常"
+
+msgid "${err_num}/${total} http check failed."
+msgstr "${err_num}/${total} 项检查异常."

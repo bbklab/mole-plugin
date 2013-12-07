@@ -1,13 +1,49 @@
 #!/usr/bin/env bash
 
 
+
 BASE_DIR="/usr/local/eminfo/"
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
-        source ${BASE_DIR}/bin/include 2>&-
+# === LOAD GETTEXT.SH FILE
+if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+        source "/usr/bin/gettext.sh" 2>&1
+        rc=$?
+        [ "$rc" != "0" ] && {
+                echo -en "{unknown}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                exit 3
+        }   
 else
-        echo -en "{unknown}:{str}:{include file not exists or empty}"
-	exit 3
+        echo -en "{unknown}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        exit 3
 fi
+
+# === LOAD INCLUDE FILE
+if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+        source ${BASE_DIR}/bin/include 2>&- 
+else    
+        echo -en "{unknown}:{str}:{include file not exists or empty}"
+        exit 3
+fi
+
+# === SET TEXTDOMAINDIR TEXTDOMAIN
+if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+        export TEXTDOMAINDIR="${LOCALE_DIR}"
+        export TEXTDOMAIN="http_svr"
+else    
+        echo -en "{unknown}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        exit 3
+fi
+
+
+# === SET GLOBAL LOCALE
+glocale=$(read_eminfo_config http_svr locale)
+if [ -z "${glocale}" ]; then
+        export LANG="${LANG}"           ## read from sysenv
+elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+        export LANG="zh_CN.UTF-8"
+elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+        export LANG="en_US.UTF-8"
+fi
+
 
 show_help(){
 cat <<EOF
@@ -65,7 +101,7 @@ check(){
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="utilite [/usr/bin/curl] not prepared."
+        CONTENT="$(gettext "utilite [/usr/bin/curl] not prepared.")"
         return
   }
 
@@ -87,11 +123,12 @@ check(){
 		echo "${addr}:${port} ${arr[*]}"
 		continue
 	}
+	code=${arr[0]}; time=${arr[1]}; pagesize=${arr[2]}
   	if [ "${arr[0]}" == "200" ]; then
-		result=" ${result} check [${x}] return [code=${arr[0]}, time=${arr[1]}, pagesize=${arr[2]}] ### "
+		result=" ${result} $(eval_gettext "check [\${x}] return [code=\${code}, time=\${time}, pagesize=\${pagesize}]") ### "
   	else
 		((err_num++))
-		result=" ${result} $(html_red "check [${x}] return [code=${arr[0]}, time=${arr[1]}, pagesize=${arr[2]}]") ### "
+		result=" ${result} $(html_red "$(eval_gettext "check [\${x}] return [code=\${code}, time=\${time}, pagesize=\${pagesize}]")") ### "
   	fi
 	((total++))
   done
@@ -103,12 +140,12 @@ check(){
 	EXIT_STATUS=${STATE_OK};
 	LEVEL="ok";
 	TYPE="str";
-	CONTENT="HTTP SVR OK | ${total}/${total} http check success. | "${result}" "
+	CONTENT="$(gettext "HTTP SVR OK") | $(eval_gettext "\${total}/\${total} http check success.") | "${result}" "
   } || {
 	EXIT_STATUS=${STATE_CRITICAL};
 	LEVEL="crit";
 	TYPE="str";
-	CONTENT="HTTP SVR CRITICAL | ${err_num}/${total} http check failed. | "${result}" "
+	CONTENT="$(gettext "HTTP SVR CRITICAL") | $(eval_gettext "\${err_num}/\${total} http check failed.") | "${result}" "
   }
 }
 
