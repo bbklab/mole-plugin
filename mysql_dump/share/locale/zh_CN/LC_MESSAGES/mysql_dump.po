@@ -1,0 +1,41 @@
+msgid "mysqldump_path: not defined."
+msgstr "配置参数 not defined 未定义."
+
+msgid "dump_savedir: not defined."
+msgstr "配置参数 dump_savedir 未定义."
+
+msgid "utitile [${mysqldump_path}] not prepared."
+msgstr "[${mysqldump_path}] 不存在或没有执行权限."
+
+msgid "directory: [${dump_savedir}] not exist or accessable"
+msgstr "目录 [${dump_savedir}] 不存在或没有写入权限."
+
+msgid "mysql_conn_conf: [${mysql_conn_conf}] is invalid"
+msgstr "Mysql连接配置不识别: ${mysql_conn_conf}"
+
+msgid "dump tables from mysql [${mysql_host}:${mysql_port}] with user [${mysql_user}] by [${mysqldump_path}]"
+msgstr "使用 ${mysqldump_path} 以Mysql用户 ${mysql_user} 的权限从如下地址: ${mysql_host}:${mysql_port} 备份数据表."
+
+msgid "create backup directory failed"
+msgstr "创建备份目录失败."
+
+msgid "ERROR_INFO:"
+msgstr "失败信息:"
+
+msgid "Dump Table [${db}.${tb}] return [${errstuff}]"
+msgstr "备份数据表 ${db}.${tb} 失败, 失败信息: ${errstuff}"
+
+msgid "Dump Table [${db}.${tb}] succeed. size=[${dt_size}]K" 
+msgstr "备份数据表 ${db}.${tb} 成功. 备份文件大小为 ${dt_size}K"
+
+msgid "Mysql Dump BackUp CRITICAL"
+msgstr "Mysql数据表备份失败"
+
+msgid "${errnum}/${tbnum} tables backup failed."
+msgstr "${errnum}/${tbnum} 个表备份失败."
+
+msgid "Mysql Dump BackUp OK"
+msgstr "Mysql数据表备份成功"
+
+msgid "${succnum}/${tbnum} tables backup successfully."
+msgstr "${succnum}/${tbnum} 个表备份成功."

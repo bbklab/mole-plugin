@@ -1,13 +1,49 @@
 #!/usr/bin/env bash
 
 
+
 BASE_DIR="/usr/local/eminfo/"
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
-        source ${BASE_DIR}/bin/include 2>&-
+# === LOAD GETTEXT.SH FILE
+if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+        source "/usr/bin/gettext.sh" 2>&1
+        rc=$?
+        [ "$rc" != "0" ] && {
+                echo -en "{unknown}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                exit 3
+        }   
 else
-        echo -en "{unknown}:{str}:{include file not exists or empty}"
-	exit 3
+        echo -en "{unknown}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        exit 3
 fi
+
+# === LOAD INCLUDE FILE
+if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+        source ${BASE_DIR}/bin/include 2>&- 
+else    
+        echo -en "{unknown}:{str}:{include file not exists or empty}"
+        exit 3
+fi
+
+# === SET TEXTDOMAINDIR TEXTDOMAIN
+if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+        export TEXTDOMAINDIR="${LOCALE_DIR}"
+        export TEXTDOMAIN="mysql_dump"
+else    
+        echo -en "{unknown}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        exit 3
+fi
+
+
+# === SET GLOBAL LOCALE
+glocale=$(read_eminfo_config mysql_dump locale)
+if [ -z "${glocale}" ]; then
+        export LANG="${LANG}"           ## read from sysenv
+elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+        export LANG="zh_CN.UTF-8"
+elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+        export LANG="en_US.UTF-8"
+fi
+
 
 show_help(){
 cat <<EOF
@@ -52,7 +88,7 @@ check() {
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="mysqldump_path: not defined."
+        CONTENT="$(gettext "mysqldump_path: not defined.")"
         return
   }
  
@@ -60,7 +96,7 @@ check() {
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="dump_savedir: not defined."
+        CONTENT="$(gettext "dump_savedir: not defined.")"
         return
   }
   
@@ -68,7 +104,7 @@ check() {
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="utitile [${mysqldump_path}] not prepared."
+        CONTENT="$(eval_gettext "utitile [\${mysqldump_path}] not prepared.")"
         return
   }
 
@@ -76,7 +112,7 @@ check() {
 	EXIT_STATUS=${STATE_UNKNOWN}
 	LEVEL="unknown"
 	TYPE="str"
-	CONTENT="directory: [${dump_savedir}] not exist or accessable"
+	CONTENT="$(eval_gettext "directory: [\${dump_savedir}] not exist or accessable")"
 	return
   }
 
@@ -85,7 +121,7 @@ check() {
 	EXIT_STATUS=${STATE_UNKNOWN}
 	LEVEL="unknown"
 	TYPE="str"
-	CONTENT="mysql_conn_conf: [${mysql_conn_conf}] is invalid"
+	CONTENT="$(eval_gettext "mysql_conn_conf: [\${mysql_conn_conf}] is invalid")"
 	return
   }
 
@@ -95,7 +131,7 @@ check() {
   mysql_pass="$(echo -e "${mysql_conn_conf}"|awk -F"," '{print $4}')"
 
   local result=
-  result="dump tables from mysql [${mysql_host}:${mysql_port}] with user [${mysql_user}] by [${mysqldump_path}] ### ### "
+  result="$(eval_gettext "dump tables from mysql [\${mysql_host}:\${mysql_port}] with user [\${mysql_user}] by [\${mysqldump_path}]") ### ### "
 
   if [ -z "${mysql_pass}" ]; then
 	cmd="${mysqldump_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} -q --dump-date "
@@ -112,7 +148,7 @@ check() {
 	EXIT_STATUS=${STATE_CRITICAL};
 	LEVEL="crit";
 	TYPE="str";
-	CONTENT="Mysql Dump BackUp CRITICAL | create backup directory failed | ${errstr} "
+	CONTENT="$(gettext "Mysql Dump BackUp CRITICAL") | $(gettext "create backup directory failed") | $(gettext "ERROR_INFO:") ### ${errstr} "
 	return
   fi
 
@@ -146,11 +182,11 @@ check() {
 		[ "$?" != "0" ] && {
 			((errnum++))
 			errstuff=$(echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n')
-			result="${result} $(html_red "Dump Table [${db}.${tb}] return [${errstuff}]") ###"
+			result="${result} $(html_red "$(eval_gettext "Dump Table [\${db}.\${tb}] return [\${errstuff}]")") ###"
 		} || {
 			((succnum++))
 			dt_size=$(/usr/bin/du -sk ${dirpath}/${db}.${tb}.sql 2>&- | awk '{print $1;exit;}')
-			result="${result} Dump Table [${db}.${tb}] succeed. size=[${dt_size}]K ###"
+			result="${result} $(eval_gettext "Dump Table [\${db}.\${tb}] succeed. size=[\${dt_size}]K") ###"
 		}
 	else
 		continue
@@ -161,12 +197,12 @@ check() {
 	EXIT_STATUS=${STATE_CRITICAL};
 	LEVEL="crit";
 	TYPE="str";
-	CONTENT="Mysql Dump BackUp CRITICAL | ${errnum}/${tbnum} tables backup failed. | ${result} "
+	CONTENT="$(gettext "Mysql Dump BackUp CRITICAL") | $(eval_gettext "\${errnum}/\${tbnum} tables backup failed.") | ${result} "
   } || {
 	EXIT_STATUS=${STATE_OK};
   	LEVEL="ok";
   	TYPE="str";
-	CONTENT="Mysql Dump BackUp OK | ${succnum}/${tbnum} tables backup successfully. | ${result} "
+	CONTENT="$(gettext "Mysql Dump BackUp OK") | $(eval_gettext "\${succnum}/\${tbnum} tables backup successfully.") | ${result} "
   }
 }
 
