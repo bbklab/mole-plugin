@@ -1,13 +1,49 @@
 #!/usr/bin/env bash
 
 
+
 BASE_DIR="/usr/local/eminfo/"
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
-        source ${BASE_DIR}/bin/include 2>&-
+# === LOAD GETTEXT.SH FILE
+if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+        source "/usr/bin/gettext.sh" 2>&1
+        rc=$?
+        [ "$rc" != "0" ] && {
+                echo -en "{unknown}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                exit 3
+        }   
 else
-        echo -en "{unknown}:{str}:{include file not exists or empty}"
-	exit 3
+        echo -en "{unknown}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        exit 3
 fi
+
+# === LOAD INCLUDE FILE
+if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+        source ${BASE_DIR}/bin/include 2>&- 
+else    
+        echo -en "{unknown}:{str}:{include file not exists or empty}"
+        exit 3
+fi
+
+# === SET TEXTDOMAINDIR TEXTDOMAIN
+if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+        export TEXTDOMAINDIR="${LOCALE_DIR}"
+        export TEXTDOMAIN="remote_mailtest"
+else    
+        echo -en "{unknown}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        exit 3
+fi
+
+
+# === SET GLOBAL LOCALE
+glocale=$(read_eminfo_config remote_mailtest locale)
+if [ -z "${glocale}" ]; then
+        export LANG="${LANG}"           ## read from sysenv
+elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+        export LANG="zh_CN.UTF-8"
+elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+        export LANG="en_US.UTF-8"
+fi
+
 
 # Return Codes
 STATE_OK=0
@@ -41,7 +77,7 @@ check() {
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="Util: [/usr/bin/host] not prepared.";
+        CONTENT="$(gettext "Util: [/usr/bin/host] not prepared.")";
         return
   }
 
@@ -49,7 +85,7 @@ check() {
 	EXIT_STATUS=${STATE_UNKNOWN}
         LEVEL="unknown"
         TYPE="str"
-        CONTENT="sample_email_file not set."
+        CONTENT="$(gettext "sample_email_file not set.")"
 	return
   fi
 
@@ -61,7 +97,7 @@ check() {
 	EXIT_STATUS=${STATE_UNKNOWN}
 	LEVEL="unknown"
 	TYPE="str"
-	CONTENT="sample_email_file [${sample_email_file}] not exist or empty"
+	CONTENT="$(eval_gettext "sample_email_file [\${sample_email_file}] not exist or empty")"
 	return
   fi
 
@@ -69,7 +105,7 @@ check() {
         EXIT_STATUS=${STATE_UNKNOWN}
         LEVEL="unknown"
         TYPE="str"
-        CONTENT="mail_body_file not set."
+        CONTENT="$(gettext "mail_body_file not set.")"
 	return
   fi
 
@@ -81,7 +117,7 @@ check() {
 	EXIT_STATUS=${STATE_UNKNOWN}
 	LEVEL="unknown"
 	TYPE="str"
-	CONTENT="mail_body_file [${mail_body_file}] not exist or empty"
+	CONTENT="$(eval_gettext "mail_body_file [\${mail_body_file}] not exist or empty")"
 	return
   fi
 
@@ -98,7 +134,8 @@ check() {
   local remote_domain=$( echo -e "${content}" | awk -F":::" '{print $1}' )
   for x in `echo "${remote_domain}"`
   do
-	local str1=  str2=  subject="Remote Test Mail from [${base_domain}] at $(date +%F_%T)"
+	local str1=  str2= date=$(date +%F_%T 2>&-)
+	local subject="$(eval_gettext "Remote Test Mail from [\${base_domain}] at \${date}")"
 	### first set mx-host if specified.
 	local mx_host=$( echo -e "${content}" | awk -F ":::" '($1~/'${x}'\>/) {print $2;exit;}' | tr -d '[ \t]' )
 	if [ -z "${mx_host}" ]; then
@@ -106,7 +143,8 @@ check() {
 		local mx_host=$( /usr/bin/host -t mx ${x/#@/} 2>&- | awk '($(NF-1)~/[0-9]+/ && $0~/'${x/#@/}'/) {print $(NF-1),$NF}' | sort -n | awk '{print $NF;exit}' )
 	fi
 	if [ -z "${mx_host}" ]; then
-		result=" ${str} $( html_red "Sorrsy: can NOT get mx for domain: [${x/#@/}]. SKIP" ) ### ### "
+		target_domain="${x/#@/}"
+		result=" ${str} $( html_red "$(eval_gettext "Sorrsy: can NOT get mx for domain: [\${target_domain}]. SKIP")" ) ### ### "
 		((total++))
 		((errnum++))
 		continue
@@ -119,13 +157,13 @@ check() {
 		rc=$?
   		str2=$( echo -e "${str1}" | awk -F "sendEmail" '{$1="";print}' | awk -F: '{for(x=2;x<=NF;x++) {printf $x}}')
 		if [ "${rc}" == "0" ]; then
-			result=" $result remote mail to [${y}] return [${str2}] ### "
-			result=" $result talked with mx-host: [${mx_host}] ### "
-			result=" $result subject: [${subject}] ### ### "
+			result=" $result $(eval_gettext "remote mail to [\${y}] return [\${str2}]") ### "
+			result=" $result $(eval_gettext "talked with mx-host: [\${mx_host}]") ### "
+			result=" $result $(eval_gettext "subject: [\${subject}]") ### ### "
 		else
-			result=" $result $(html_red "remote mail to [${y}] return [${str1}]") ### "
-			result=" $result talked with mx-host: [${mx_host}] ### "
-			result=" $result subject: [${subject}] ### ###"
+			result=" $result $(html_red "$(eval_gettext "remote mail to [\${y}] return [\${str1}]")") ### "
+			result=" $result $(eval_gettext "talked with mx-host: [\${mx_host}]") ### "
+			result=" $result $(eval_gettext "subject: [\${subject}]") ### ###"
 			((errnum++))
 		fi
 		((total++))
@@ -136,12 +174,12 @@ check() {
         EXIT_STATUS=${STATE_OK};
         LEVEL="ok";
         TYPE="str";
-        CONTENT="Remote Mail Test OK | ${total}/${total} remote mail test succeed | "${result}" "
+        CONTENT="$(gettext "Remote Mail Test OK") | $(eval_gettext "\${total}/\${total} remote mail test succeed") | "${result}" "
   else
         EXIT_STATUS=${STATE_CRITICAL};
         LEVEL="crit";
         TYPE="str";
-        CONTENT="Remote Mail Test CRITICAL | ${errnum}/${total} remote mail test failed | "${result}" "
+        CONTENT="$(gettext "Remote Mail Test CRITICAL") | $(eval_gettext "\${errnum}/\${total} remote mail test failed") | "${result}" "
   fi
 }
 

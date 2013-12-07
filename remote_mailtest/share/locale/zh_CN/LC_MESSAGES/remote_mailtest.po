@@ -1,0 +1,44 @@
+msgid "Util: [/usr/bin/host] not prepared."
+msgstr "[/usr/bin/host] 不存在或没有执行权限."
+
+msgid "sample_email_file not set."
+msgstr "未设定参数: sample_email_file"
+
+msgid "sample_email_file [${sample_email_file}] not exist or empty"
+msgstr "样例文件 [${sample_email_file}] 不存在或为空文件."
+
+msgid "mail_body_file not set."
+msgstr "未设定参数: mail_body_file"
+
+msgid "mail_body_file [${mail_body_file}] not exist or empty"
+msgstr "邮件正文样例文件 [${mail_body_file}] 不存在或为空文件."
+
+msgid "Remote Test Mail from [${base_domain}] at ${date}"
+msgstr "${date} 从域名[${base_domain}]发出的远程投递测试邮件"
+
+msgid "Sorrsy: can NOT get mx for domain: [${target_domain}]. SKIP"
+msgstr "抱歉: 无法获取域名 [${target_domain}] 的邮件交换记录."
+
+msgid "remote mail to [${y}] return [${str2}]"
+msgstr "测试向 [${y}] 发信, 结果为: [${str2}]"
+
+msgid "remote mail to [${y}] return [${str1}]"
+msgstr "测试向 [${y}] 发信, 结果为: [${str1}]"
+
+msgid "talked with mx-host: [${mx_host}]"
+msgstr "和对方进行SMTP会话的邮件交换服务器为: [${mx_host}]"
+
+msgid "subject: [${subject}]"
+msgstr "测试信主题为: [${subject}]"
+
+msgid "Remote Mail Test OK"
+msgstr "向外域邮件发送测试正常"
+
+msgid "${total}/${total} remote mail test succeed"
+msgstr "${total}/${total} 项检查正常."
+
+msgid "Remote Mail Test CRITICAL"
+msgstr "向外域邮件发送测试失败"
+
+msgid "${errnum}/${total} remote mail test failed"
+msgstr "${errnum}/${total} 项检查失败."
