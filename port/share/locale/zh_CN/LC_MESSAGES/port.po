@@ -1,0 +1,41 @@
+msgid "port required"
+msgstr "需要指定端口号"
+
+msgid "port/tmout must be numberic: port=[${port}] tmout=[${tmout}]"
+msgstr "端口或超时时间必须为整数, 端口=[${port}], 超时=[${tmout}]"
+
+msgid "Check ${ptype}://${ip}:${port} OK, return [${rstr}]" 
+msgstr "检查${ptype}端口连通性: ${ip}:${port} 正常, 返回信息: ${rstr}"
+
+msgid "Check ${ptype}://${ip}:${port} WARN, return [${rstr}]"
+msgstr "检查${ptype}端口连通性: ${ip}:${port} 告警, 返回信息: ${rstr}"
+
+msgid "port type [${ptype}] invalid, must be tcp/udp"
+msgstr "端口类型 [${ptype}] 不识别, 必须是tcp或udp"
+
+msgid "utilite [/usr/bin/nc] not prepared."
+msgstr "[/usr/bin/nc] 不存在或没有执行权限."
+
+msgid "Check List: [${port_list}]"
+msgstr "配置的检查列表: ${port_list}"
+
+msgid "[${pairs}] is invalid"
+msgstr "配置项不识别: [${pairs}]"
+
+msgid "Check Port CRITICAL"
+msgstr "端口连通性检查告警"
+
+msgid "${errnum}/${total} check failed."
+msgstr "${errnum}/${total} 项检查告警."
+
+msgid "Check Port OK"
+msgstr "端口连通性检查正常"
+
+msgid "${oknum}/${total} check success."
+msgstr "${oknum}/${total} 项检查正常."
+
+msgid "Check Port UNKNOWN"
+msgstr "端口连通性检查未知"
+
+msgid "${unknum}/${total} check unknown."
+msgstr "${unknum}/${total} 项检查未知."

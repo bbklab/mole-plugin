@@ -1,13 +1,50 @@
 #!/usr/bin/env bash
 
 
+
 BASE_DIR="/usr/local/eminfo/"
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
-        source ${BASE_DIR}/bin/include 2>&-
+# === LOAD GETTEXT.SH FILE
+if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+        source "/usr/bin/gettext.sh" 2>&1
+        rc=$?
+        [ "$rc" != "0" ] && {
+                echo -en "{unknown}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                exit 3
+        }   
 else
-        echo -en "{unknown}:{str}:{include file not exists or empty}"
-	exit 3
+        echo -en "{unknown}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        exit 3
 fi
+
+# === LOAD INCLUDE FILE
+if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+        source ${BASE_DIR}/bin/include 2>&- 
+else    
+        echo -en "{unknown}:{str}:{include file not exists or empty}"
+        exit 3
+fi
+
+# === SET TEXTDOMAINDIR TEXTDOMAIN
+if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+        export TEXTDOMAINDIR="${LOCALE_DIR}"
+        export TEXTDOMAIN="port"
+else    
+        echo -en "{unknown}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        exit 3
+fi
+
+
+# === SET GLOBAL LOCALE
+glocale=$(read_eminfo_config port locale)
+if [ -z "${glocale}" ]; then
+        export LANG="${LANG}"           ## read from sysenv
+elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+        export LANG="zh_CN.UTF-8"
+elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+        export LANG="en_US.UTF-8"
+fi
+
+
 
 show_help(){
 cat <<EOF
@@ -76,13 +113,13 @@ check_single(){
   [ -z "${tmout//[ ]}" -o "${tmout}" == "0" ] && tmout=5
   if [ -z "${port//[ ]}" ]; then    ### port null, return UNKNOWN
 	((unknum++))
-	output="$(html_red "port required") ### ### "
+	output="$(html_red "$(gettext "port required")") ### ### "
 	return_code=2
   else
   	if [ "${ptype}" == "udp" -o "${ptype}" == "tcp" ]; then		### ptype ok, continue
 		if [ -z "${port}" -o ! -z "${port//[0-9]}" -o -z "${tmout}" -o ! -z "${tmout//[0-9]}" ]; then
 			((unknum++))
-			output="$(html_red "port/tmout must be numberic: port=[${port}] tmout=[${tmout}]") ### ### "
+			output="$(html_red "$(eval_gettext "port/tmout must be numberic: port=[\${port}] tmout=[\${tmout}]")") ### ### "
 			return_code=2
 		else							### port/tmout ok, continue
 			if [ "${ptype}" == "udp" ]; then
@@ -91,10 +128,10 @@ check_single(){
 				local rstr=$( /usr/bin/nc -w "${tmout}" -vz "${ip}" "${port}" 2>&1|tr '\n' ' ')
 			fi
 			if [ "$(sub_str "${rstr}" "succeeded")" == "yes" ]; then
-				output="Check ${ptype}://${ip}:${port} OK, return [${rstr}] ###"
+				output="$(eval_gettext "Check \${ptype}://\${ip}:\${port} OK, return [\${rstr}]") ###"
 				return_code=0
 			else
-				output="$(html_red "Check ${ptype}://${ip}:${port} WARN, return [${rstr}]" ) ### "
+				output="$(html_red "$(eval_gettext "Check \${ptype}://\${ip}:\${port} WARN, return [\${rstr}]")" ) ### "
 				return_code=1
 			fi
 			# output data and exit if MODE=1 
@@ -105,7 +142,7 @@ check_single(){
 		fi
   	else	### ptype invalid, return UNKNOWN
 		((unknum++))
-		output="$(html_red "port type [${ptype}] invalid, must be tcp/udp") ### ### "
+		output="$(html_red "$(eval_gettext "port type [\${ptype}] invalid, must be tcp/udp")") ### ### "
 		return_code=2
   	fi
   fi
@@ -118,11 +155,11 @@ check_single(){
 	EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="utilite [/usr/bin/nc] not prepared."
+        CONTENT="$(gettext "utilite [/usr/bin/nc] not prepared.")"
         return
   }
 
-  local result=" ### Check List: [${port_list}] ### ### "
+  local result=" ### $(eval_gettext "Check List: [${port_list}]") ### ### "
   local oknum=0 errnum=0 unknum=0 total=0
   for pairs in `echo "${port_list}" | tr ',' ' '`
   do
@@ -163,11 +200,11 @@ check_single(){
 		;;
 	*)
 		((unknum++))
-		result="${result} ### $(html_red "[${pairs}] is invalid") ### ### "
+		result="${result} ### $(html_red "$(eval_gettext "[\${pairs}] is invalid")") ### ### "
 		continue 1
 		;;
 	esac
-	result="${result} ### Check [${pairs}] ### "
+	result="${result} ### "
 
    	tmpstr=$(check_single "${ptype}" "${ip}" "${port}" "${tmout}")
 	rc=$?
@@ -196,19 +233,19 @@ check_single(){
 	EXIT_STATUS=${STATE_CRITICAL};
 	LEVEL="crit";
 	TYPE="str";
-	CONTENT="Check Port CRITICAL | ${errnum}/${total} check failed. | "${result}" "
+	CONTENT="$(gettext "Check Port CRITICAL") | $(eval_gettext "\${errnum}/\${total} check failed.") | "${result}" "
   } || {
 	[ "${oknum}" == "${total}" ] && {
 		EXIT_STATUS=${STATE_OK};
 		LEVEL="ok";
 		TYPE="str";
-		CONTENT="Check Port OK | ${oknum}/${total} check success. | "${result}" "
+		CONTENT="$(gettext "Check Port OK") | $(eval_gettext "${oknum}/${total} check success.") | "${result}" "
 	} || {
 		[ "${unknum}" != "0" ] && {
 			EXIT_STATUS=${STATE_UNKNOWN};
 			LEVEL="unknown";
 			TYPE="str";
-			CONTENT="Check Port UNKNOWN | ${unknum}/${total} check unknown. | "${result}" "
+			CONTENT="$(gettext "Check Port UNKNOWN") | $(eval_gettext "${unknum}/${total} check unknown.") | "${result}" "
 		}
 	}
   } 
