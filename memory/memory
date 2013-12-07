@@ -1,13 +1,49 @@
 #!/usr/bin/env bash
 
 
+
 BASE_DIR="/usr/local/eminfo/"
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
-        source ${BASE_DIR}/bin/include 2>&-
+# === LOAD GETTEXT.SH FILE
+if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+        source "/usr/bin/gettext.sh" 2>&1
+        rc=$?
+        [ "$rc" != "0" ] && {
+                echo -en "{unknown}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                exit 3
+        }   
 else
-        echo -en "{unknown}:{str}:{include file not exists or empty}"
-	exit 3
+        echo -en "{unknown}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        exit 3
 fi
+
+# === LOAD INCLUDE FILE
+if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+        source ${BASE_DIR}/bin/include 2>&- 
+else    
+        echo -en "{unknown}:{str}:{include file not exists or empty}"
+        exit 3
+fi
+
+# === SET TEXTDOMAINDIR TEXTDOMAIN
+if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+        export TEXTDOMAINDIR="${LOCALE_DIR}"
+        export TEXTDOMAIN="memory"
+else    
+        echo -en "{unknown}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        exit 3
+fi
+
+
+# === SET GLOBAL LOCALE
+glocale=$(read_eminfo_config memory locale)
+if [ -z "${glocale}" ]; then
+        export LANG="${LANG}"           ## read from sysenv
+elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+        export LANG="zh_CN.UTF-8"
+elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+        export LANG="en_US.UTF-8"
+fi
+
 
 show_help(){
 cat <<EOF
@@ -53,7 +89,7 @@ check(){
 	EXIT_STATUS=${STATE_UNKNOWN};
 	LEVEL="unknown";
 	TYPE="str";
-	CONTENT="File: [/proc/meminfo] not prepared.";
+	CONTENT="$(gettext "File: [/proc/meminfo] not prepared.")";
 	return
   }
 
@@ -70,7 +106,7 @@ check(){
 	EXIT_STATUS=${STATE_UNKNOWN};
 	LEVEL="unknown";
 	TYPE="str";
-	CONTENT="memory total=[${total}] or memory free=[${free}] is not numberic.";
+	CONTENT="$(eval_gettext "memory total=[\${total}] or memory free=[\${free}] is not numberic.")";
 	return
   }
 
@@ -78,7 +114,7 @@ check(){
 	EXIT_STATUS=${STATE_UNKNOWN};
 	LEVEL="unknown";
 	TYPE="str";
-	CONTENT="swap total=[${total}] or swap free=[${free}] is not numberic.";
+	CONTENT="$(eval_gettext "swap total=[\${total}] or swap free=[\${free}] is not numberic.")";
 	return
   }
 
@@ -86,7 +122,7 @@ check(){
 	EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="Retuen is not numberic: ["${mem_percent}"] or [${swp_percent}]";
+        CONTENT="$(eval_gettext "Retuen is not numberic: [\${mem_percent}] or [\${swp_percent}]")";
 	return 
   }
 
@@ -97,36 +133,41 @@ check(){
 	exit
   }
 
-  oknum=0 warnnum=0 result=
+  oknum=0 warnnum=0 total=0 result=
+  mem_total=$((${mem_total}/1024))  mem_free=$((${mem_free}/1024))
+  mem_detail="$(eval_gettext "total=\${mem_total}M  free=\${mem_free}M")"
   if [ "$(echo  "${mem_percent} >= ${mem_uplimit}" | bc 2>&-)" == "1" ]; then
 	((warnnum++))
-	result="${result} ### $(html_yellow "Memory Usage: [${mem_percent}]% >= Uplimit: [${mem_uplimit}%]") ### total=[$((${mem_total}/1024))]M  free=[$((${mem_free}/1024))]M ###"
+	result="${result} ### $(html_yellow "$(eval_gettext "Memory Usage: [\${mem_percent}]% >= Uplimit: [\${mem_uplimit}%]")") ### ${mem_detail} ###"
   else
 	((oknum++))
-	result="${result} ### Memory Usage: [${mem_percent}]% <= Uplimit: [${mem_uplimit}%] ### total=[$((${mem_total}/1024))]M  free=[$((${mem_free}/1024))]M ###"
+	result="${result} ### $(eval_gettext "Memory Usage: [\${mem_percent}]% <= Uplimit: [\${mem_uplimit}%]") ### ${mem_detail} ###"
   fi
 
+  swp_total=$((${swp_total}/1024)) swp_free=$((${swp_free}/1024))
+  swp_detail="$(eval_gettext "total=\${swp_total}M  free=\${swp_free}M")"
   if [ "$(echo  "${swp_percent} >= ${swp_uplimit}" | bc 2>&-)" == "1" ]; then
 	((warnnum++))
-	result="${result} ### $(html_yellow "Swap Usage: [${swp_percent}]% >= Uplimit: [${swp_uplimit}%]") ### total=[$((${swp_total}/1024))]M  free=[$((${swp_free}/1024))]M ###"
+	result="${result} ### $(html_yellow "$(eval_gettext "Swap Usage: [\${swp_percent}]% >= Uplimit: [\${swp_uplimit}%]")") ### ${swp_detail} ###"
   else
 	((oknum++))
-	result="${result} ### Swap Usage: [${swp_percent}]% <= Uplimit: [${swp_uplimit}%] ### total=[$((${swp_total}/1024))]M  free=[$((${swp_free}/1024))]M ###"
+	result="${result} ### $(eval_gettext "Swap Usage: [\${swp_percent}]% <= Uplimit: [\${swp_uplimit}%]") ### ${swp_detail} ###"
   fi
 
+  total=$((${warnnum}+${oknum}))
   if [ ${warnnum} -gt 0 ]; then
 	local rsz_top_ps=$(ps -eo pid,comm,rsz|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
 	local vsz_top_ps=$(ps -eo pid,comm,vsz|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
 	EXIT_STATUS=${STATE_WARNING};
 	LEVEL="warn";
 	TYPE="str";
-	CONTENT="Memory/Swap Usage Check WARNING | ${warnnum}/$((${warnnum}+${oknum})) check failed. | ${result} ### ${rsz_top_ps} ### ${vsz_top_ps}"
+	CONTENT="$(gettext "Memory/Swap Usage Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check failed.") | ${result} ### $(gettext "RSZ_TOP:") ### ${rsz_top_ps} ### ###  $(gettext "VSZ_TOP:") ### ${vsz_top_ps}"
 	((oknum++))
   else
 	EXIT_STATUS=${STATE_OK};
 	LEVEL="ok";
 	TYPE="str";
-	CONTENT="Memory/Swap Usage Check OK | ${oknum}/$((${warnnum}+${oknum})) check success. | ${result}"
+	CONTENT="$(gettext "Memory/Swap Usage Check OK") | $(eval_gettext "\${oknum}/\${total} check success.") | ${result}"
   fi
 }
 
