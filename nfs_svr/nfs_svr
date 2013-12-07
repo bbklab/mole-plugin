@@ -1,13 +1,49 @@
 #!/bin/bash
 
 
+
 BASE_DIR="/usr/local/eminfo/"
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
-        source ${BASE_DIR}/bin/include 2>&-
+# === LOAD GETTEXT.SH FILE
+if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+        source "/usr/bin/gettext.sh" 2>&1
+        rc=$?
+        [ "$rc" != "0" ] && {
+                echo -en "{unknown}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                exit 3
+        }   
 else
+        echo -en "{unknown}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        exit 3
+fi
+
+# === LOAD INCLUDE FILE
+if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+        source ${BASE_DIR}/bin/include 2>&- 
+else    
         echo -en "{unknown}:{str}:{include file not exists or empty}"
         exit 3
 fi
+
+# === SET TEXTDOMAINDIR TEXTDOMAIN
+if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+        export TEXTDOMAINDIR="${LOCALE_DIR}"
+        export TEXTDOMAIN="nfs_svr"
+else    
+        echo -en "{unknown}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        exit 3
+fi
+
+
+# === SET GLOBAL LOCALE
+glocale=$(read_eminfo_config nfs_svr locale)
+if [ -z "${glocale}" ]; then
+        export LANG="${LANG}"           ## read from sysenv
+elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+        export LANG="zh_CN.UTF-8"
+elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+        export LANG="en_US.UTF-8"
+fi
+
 
 show_help(){
 cat <<EOF
@@ -56,7 +92,7 @@ check(){
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="utilite [/usr/sbin/rpcinfo] not prepared."
+        CONTENT="$(gettext "utilite [/usr/sbin/rpcinfo] not prepared.")"
         return
   }
 
@@ -64,7 +100,7 @@ check(){
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="utilite [/usr/sbin/showmount] not prepared."
+        CONTENT="$(gettext "utilite [/usr/sbin/showmount] not prepared.")"
         return
   }
 
@@ -72,7 +108,7 @@ check(){
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="File: [/etc/mtab] not prepared.";
+        CONTENT="$(gettext "File: [/etc/mtab] not prepared.")"
         return
   }
 
@@ -83,7 +119,7 @@ check(){
   local failed_client_services=
   local result= critnum=0  unknnum=0
   local mpoint=
-  result="NFS Server: [${nfs_server_ip}] ### ###"
+  result="$(eval_gettext "NFS Server: [\${nfs_server_ip}]") ### ###"
   for ip in `echo "${nfs_server_ip}"`
   do
 	((total++))
@@ -97,11 +133,11 @@ check(){
 		fi 
 	done
 	if [ ! -z "${failed_server_services}" ]; then
-		result="${result} $(html_red "nfs server [${ip}], services: [${failed_server_services}] dead") ### ### "
+		result="${result} $(html_red "$(eval_gettext "nfs server [\${ip}], services: [\${failed_server_services}] dead")") ### ### "
 		((critnum++))	
 		continue
 	else
-		result="${result} nfs server [${ip}], services: [${nfs_server_services}] alive ### "
+		result="${result} $(eval_gettext "nfs server [\${ip}], services: [\${nfs_server_services}] alive") ### "
 	fi
 
 	### check nfs client side services
@@ -114,29 +150,30 @@ check(){
 		fi
 	done
 	if [ ! -z "${failed_client_services}" ]; then
-		result="${result} $(html_red "nfs local client services: [${failed_client_services}] dead") ### ### "
+		result="${result} $(html_red "$(eval_gettext "nfs local client services: [\${failed_client_services}] dead")") ### ### "
 		((critnum++))
 		continue
 	else
-		result="${result} nfs local client services: [${nfs_client_services}] alive ### "
+		result="${result} $(eval_gettext "nfs local client services: [\${nfs_client_services}] alive") ### "
 	fi
 
 	### check nfs server export list
 	nfs_exports=$(/usr/sbin/showmount -e ${ip} --no-headers 2>&1)
 	if [ "$?" != "0" ]; then
-		result="${result} $(html_red "read nfs exports error: [$(echo -e "${nfs_exports}"|tr -d '\r\n')]") ### ### "
 		((critnum++))
+		readerror=$(echo -e "${nfs_exports}"|tr -d '\r\n')
+		result="${result} $(html_red "$(eval_gettext "read nfs exports error: [\${readerror}]")") ### ### "
 		continue
 	else
 		path_exports=$(echo -e "${nfs_exports}" | /bin/awk '{a[$1]++} END{for(c in a){printf "%s ",c}}')
-		result="${result} read nfs exports list: [${path_exports}] ### "
+		result="${result} $(eval_gettext "read nfs exports list: [\${path_exports}]") ### "
 	fi
 
 	for i in ${path_exports}
 	do
 		mpoint=$(/bin/awk '($1=="'$ip':'$i'" && $3~/\<nfs\>/){print $2;exit;}' /etc/mtab 2>&-)
 		if [ ! -z "${mpoint}" -a -d "${mpoint}" ]; then
-			result="${result} ${ip}:${i} mounted on ${mpoint} ### "
+			result="${result} $(eval_gettext "\${ip}:\${i} mounted on \${mpoint}") ### "
 		fi
 	done
 	result="${result} ###"
@@ -149,12 +186,12 @@ check(){
         EXIT_STATUS=${STATE_WARNING};
         LEVEL="crit";
         TYPE="str";
-        CONTENT="NFS SVR Check CRITICAL | ${critnum} nfs server check failed | ${result} "
+        CONTENT="$(gettext "NFS SVR Check CRITICAL") | $(eval_gettext "\${critnum} nfs server check failed") | ${result} "
   } || {
 	EXIT_STATUS="${STATE_OK}"
 	LEVEL="ok"
 	TYPE="str"
-	CONTENT="NFS SVR Check OK | ${total} nfs server check success | ${result} "
+	CONTENT="$(gettext "NFS SVR Check OK") | $(eval_gettext "\${total} nfs server check success") | ${result} "
   }
 }
 

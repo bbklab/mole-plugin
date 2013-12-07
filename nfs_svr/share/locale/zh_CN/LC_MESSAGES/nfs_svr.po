@@ -1,0 +1,44 @@
+msgid "utilite [/usr/sbin/rpcinfo] not prepared."
+msgstr "[/usr/sbin/rpcinfo] 不存在或没有执行权限."
+
+msgid "utilite [/usr/sbin/showmount] not prepared."
+msgstr "[/usr/sbin/showmount] 不存在或没有执行权限."
+
+msgid "File: [/etc/mtab] not prepared."
+msgstr "[/etc/mtab] 文件不存在或为空文件."
+
+msgid "NFS Server: [${nfs_server_ip}]" 
+msgstr "NFS服务器地址为: ${nfs_server_ip}"
+
+msgid "nfs server [${ip}], services: [${failed_server_services}] dead"
+msgstr "NFS服务器 ${ip} 的NFS服务 ${failed_server_services} 未运行"
+
+msgid "nfs server [${ip}], services: [${nfs_server_services}] alive"
+msgstr "NFS服务器 ${ip} 的NFS服务 ${nfs_server_services} 正常运行"
+
+msgid "nfs local client services: [${failed_client_services}] dead"
+msgstr "NFS本地客户端服务 ${failed_client_services} 未运行"
+
+msgid "nfs local client services: [${nfs_client_services}] alive"
+msgstr "NFS本地客户端服务 ${nfs_client_services} 正常运行"
+
+msgid "read nfs exports error: [${readerror}]"
+msgstr "读取NFS服务器的共享输出列表失败, 失败信息: ${readerror}"
+
+msgid "read nfs exports list: [${path_exports}]"
+msgstr "读取NFS服务器的共享输出列表: ${path_exports}"
+
+msgid "${ip}:${i} mounted on ${mpoint}"
+msgstr "NFS共享输出: ${ip}:${i} 挂载在本地的 ${mpoint}"
+
+msgid "NFS SVR Check CRITICAL"
+msgstr "NFS服务检查失败"
+
+msgid "${critnum} nfs server check failed" 
+msgstr "${critnum} 项检查失败."
+
+msgid "NFS SVR Check OK"
+msgstr "NFS服务检查正常"
+
+msgid "${total} nfs server check success"
+msgstr "${total} 项检查正常."
