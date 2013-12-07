@@ -1,13 +1,49 @@
 #!/usr/bin/env bash
 
 
+
 BASE_DIR="/usr/local/eminfo/"
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
-        source ${BASE_DIR}/bin/include 2>&-
+# === LOAD GETTEXT.SH FILE
+if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+        source "/usr/bin/gettext.sh" 2>&1
+        rc=$?
+        [ "$rc" != "0" ] && {
+                echo -en "{unknown}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                exit 3
+        }   
 else
-        echo -en "{unknown}:{str}:{include file not exists or empty}"
-	exit 3
+        echo -en "{unknown}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        exit 3
 fi
+
+# === LOAD INCLUDE FILE
+if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+        source ${BASE_DIR}/bin/include 2>&- 
+else    
+        echo -en "{unknown}:{str}:{include file not exists or empty}"
+        exit 3
+fi
+
+# === SET TEXTDOMAINDIR TEXTDOMAIN
+if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+        export TEXTDOMAINDIR="${LOCALE_DIR}"
+        export TEXTDOMAIN="process"
+else    
+        echo -en "{unknown}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        exit 3
+fi
+
+
+# === SET GLOBAL LOCALE
+glocale=$(read_eminfo_config process locale)
+if [ -z "${glocale}" ]; then
+        export LANG="${LANG}"           ## read from sysenv
+elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+        export LANG="zh_CN.UTF-8"
+elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+        export LANG="en_US.UTF-8"
+fi
+
 
 show_help(){
 cat <<EOF
@@ -54,7 +90,7 @@ if [ -z "${pslist_file}" ]; then
 	EXIT_STATUS=${STATE_UNKNOWN}
         LEVEL="unknown"
         TYPE="str"
-        CONTENT="Need pslist_file."
+        CONTENT="$(gettext "Need pslist_file.")"
         echo "{"${LEVEL}"}:{"${TYPE}"}:{"${CONTENT}"}"  | tr -d '\015\012'
         exit ${EXIT_STATUS}
 else 
@@ -66,7 +102,7 @@ else
                 EXIT_STATUS=${STATE_UNKNOWN}
                 LEVEL="unknown"
                 TYPE="str"
-                CONTENT="pslist_file [${pslist_file}] not exist or empty."
+                CONTENT="$(eval_gettext "pslist_file [\${pslist_file}] not exist or empty.")"
                 echo "{"${LEVEL}"}:{"${TYPE}"}:{"${CONTENT}"}"  | tr -d '\015\012'
                 exit ${EXIT_STATUS}
         fi
@@ -88,16 +124,16 @@ check() {
 	[ -z "${pnum}" -o ! -z "${pnum//[0-9]}" ] && local pnum=1	### check null/invalid
 
 	((total++)) 
-	result="${result} psname=[${pname}], psnum=[${pnum}], srchregx=[${pattern}] ### "
+	result="${result} $(eval_gettext "psname=[\${pname}], psnum=[\${pnum}], srchregx=[\${pattern}]") ### "
 	local psnum=$(echo -e "${ps_output}" | grep -E -o -x -c "${pattern}")
 	if [ "$(echo "${psnum} < ${pnum}" | bc 2>&-)" == "1" ]; then
 		((errnum++))
-		result="${result} $(html_red "CRIT:  [${pname}] (${psnum}) < (${pnum}).") ### ### "
+		result="${result} $(html_red "$(eval_gettext "CRIT:  [\${pname}] (\${psnum}) < (\${pnum}).")") ### ### "
 		if [ "${MODE}" == "1" ]; then
 			echo "1  ${pname}:${psnum}:${pnum}"
 		fi
 	else
-		result="${result} OK:  [${pname}] (${psnum}) >= (${pnum}). ### ### "
+		result="${result} $(eval_gettext "OK:  [\${pname}] (\${psnum}) >= (\${pnum}).") ### ### "
 		if [ "${MODE}" == "1" ]; then
 			echo "0  ${pname}:${psnum}:${pnum}"
 		fi
@@ -111,12 +147,12 @@ check() {
         EXIT_STATUS=${STATE_CRITICAL};
         LEVEL="crit";
         TYPE="str";
-        CONTENT="Check Process CRITICAL | ${errnum}/${total} Process Alert | ${result}"
+        CONTENT="$(gettext "Check Process CRITICAL") | $(eval_gettext "\${errnum}/\${total} Process Alert") | ${result}"
   } || {
         EXIT_STATUS="${STATE_OK}"
         LEVEL="ok"
         TYPE="str"
-        CONTENT="Check Process OK | ${total}/${total} Process OK | ${result}"
+        CONTENT="$(gettext "Check Process OK") | $(eval_gettext "\${total}/\${total} Process OK") | ${result}"
   }
 }
 

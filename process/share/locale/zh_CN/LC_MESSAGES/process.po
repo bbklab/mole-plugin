@@ -1,0 +1,26 @@
+msgid "Need pslist_file."
+msgstr "未设置参数 pslist_file"
+
+msgid "pslist_file [${pslist_file}] not exist or empty."
+msgstr "参数 pslist_file 所指定的文件 [${pslist_file}] 不存在或为空文件."
+
+msgid "psname=[${pname}], psnum=[${pnum}], srchregx=[${pattern}]"
+msgstr "进程:${pname}  最低运行数量:${pnum}  搜索正则表达式:${pattern}"
+
+msgid "CRIT:  [${pname}] (${psnum}) < (${pnum})."
+msgstr "警告: 进程${pname} 当前运行数${psnum} 小于 ${pnum}"
+
+msgid "OK:  [${pname}] (${psnum}) >= (${pnum})."
+msgstr "正常: 进程${pname} 当前运行数${psnum} 大于等于 ${pnum}"
+
+msgid "Check Process CRITICAL"
+msgstr "进程运行数检查告警"
+
+msgid "${errnum}/${total} Process Alert"
+msgstr "${errnum}/${total} 个进程告警."
+
+msgid "Check Process OK"
+msgstr "进程运行数检查正常"
+
+msgid "${total}/${total} Process OK"
+msgstr "${total}/${total}  个进程正常."
