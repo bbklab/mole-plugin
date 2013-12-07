@@ -1,13 +1,50 @@
 #!/usr/bin/env bash
 
 
+
 BASE_DIR="/usr/local/eminfo/"
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
-        source ${BASE_DIR}/bin/include 2>&-
+# === LOAD GETTEXT.SH FILE
+if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+        source "/usr/bin/gettext.sh" 2>&1
+        rc=$?
+        [ "$rc" != "0" ] && {
+                echo -en "{unknown}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                exit 3
+        }   
 else
-        echo -en "{unknown}:{str}:{include file not exists or empty}"
-	exit 3
+        echo -en "{unknown}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        exit 3
 fi
+
+# === LOAD INCLUDE FILE
+if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+        source ${BASE_DIR}/bin/include 2>&- 
+else    
+        echo -en "{unknown}:{str}:{include file not exists or empty}"
+        exit 3
+fi
+
+# === SET TEXTDOMAINDIR TEXTDOMAIN
+if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+        export TEXTDOMAINDIR="${LOCALE_DIR}"
+        export TEXTDOMAIN="mysql_ping"
+else    
+        echo -en "{unknown}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        exit 3
+fi
+
+
+# === SET GLOBAL LOCALE
+glocale=$(read_eminfo_config mysql_ping locale)
+if [ -z "${glocale}" ]; then
+        export LANG="${LANG}"           ## read from sysenv
+elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+        export LANG="zh_CN.UTF-8"
+elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+        export LANG="en_US.UTF-8"
+fi
+
+
 
 show_help(){
 cat <<EOF
@@ -63,7 +100,7 @@ check() {
 	EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="utitile [${mysqladmin_path}] not prepared."
+        CONTENT="$(eval_gettext "utitile [\${mysqladmin_path}] not prepared.")"
 	return
   } 
 
@@ -76,7 +113,7 @@ check() {
 	sepnum=$(echo -e "${pairs}" | awk -F"," 'END{print --NF}')
 	if [ "${sepnum}" != "3" ]; then
 		((unknum++))
-		result="${result} ### $(html_yellow "[${pairs}] is invalid") ### ### "
+		result="${result} ### $(html_yellow "$(eval_gettext "[\${pairs}] is invalid")") ### ### "
 		continue 1
 	fi
 
@@ -84,7 +121,7 @@ check() {
   	mysql_port="$(echo -e "${pairs}"|awk -F"," '{print $2}')"
   	mysql_user="$(echo -e "${pairs}"|awk -F"," '{print $3}')"
   	mysql_pass="$(echo -e "${pairs}"|awk -F"," '{print $4}')"
- 	result="${result} ping mysql [${mysql_host}:${mysql_port}] with user [${mysql_user}] ### "
+ 	result="${result} $(eval_gettext "ping mysql [\${mysql_host}:\${mysql_port}] with user [\${mysql_user}]") ### "
 
 	if [ -z "${mysql_pass}" ]; then
 		cmd="${mysqladmin_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} --connect-timeout ${mysql_time_out} "
@@ -96,10 +133,10 @@ check() {
 	ping_result=$(echo -e "${ping_result}" | sed -e '/password on the command line/d' |tr -d '\r\n')
 	if [ "$(echo "${ping_result}"|grep -E -o -i "is alive")" == "" ]; then
 		((errnum++))
-		result="${result} $(html_red "result: [${ping_result}]") ### ### "
+		result="${result} $(html_red "$(gettext "result:") [${ping_result}]") ### ### "
 	else
 		((oknum++))
-		result="${result} result: [${ping_result}] ### ### "
+		result="${result} $(gettext "result:") [${ping_result}] ### ### "
 	fi
 
 	# output data and exit if MODE=1 
@@ -116,19 +153,19 @@ check() {
 	EXIT_STATUS=${STATE_CRITICAL};
 	LEVEL="crit";
 	TYPE="str";
-	CONTENT="Mysql Ping CRITICAL | ${errnum}/${total} check failed | ${result} "
+	CONTENT="$(gettext "Mysql Ping CRITICAL") | $(eval_gettext "\${errnum}/\${total} check failed") | ${result} "
   } || {
 	[ "${oknum}" == "${total}" ] && {
 		EXIT_STATUS=${STATE_OK};
 		LEVEL="ok";
 		TYPE="str";
-		CONTENT="Mysql Ping OK | ${oknum}/${total} check success | ${result} "
+		CONTENT="$(gettext "Mysql Ping OK") | $(eval_gettext "\${oknum}/\${total} check success") | ${result} "
 	} || {
 		[ "${unknum}" != "0" ] && {
 			EXIT_STATUS=${STATE_UNKNOWN};
 			LEVEL="unknown";
 			TYPE="str";
-			CONTENT="Mysql Ping Unknown | ${unknum}/${total} check unknown | ${result} "
+			CONTENT="$(gettext "Mysql Ping Unknown") | $(eval_gettext "\${unknum}/\${total} check unknown") | ${result} "
 		}
 	}
   }

@@ -1,0 +1,29 @@
+msgid "utitile [${mysqladmin_path}] not prepared."
+msgstr "[${mysqladmin_path}] 不存在或没有执行权限."
+
+msgid "[${pairs}] is invalid"
+msgstr "配置项 [${pairs}] 不识别"
+
+msgid "ping mysql [${mysql_host}:${mysql_port}] with user [${mysql_user}]"
+msgstr "以用户${mysql_user} 登录Mysql并检查此地址 ${mysql_host}:${mysql_port} 的Mysql是否存活"
+
+msgid "result:"
+msgstr "检查结果:"
+
+msgid "Mysql Ping CRITICAL"
+msgstr "Mysql存活状态检查告警"
+
+msgid "${errnum}/${total} check failed"
+msgstr "${errnum}/${total} 项检查告警."
+
+msgid "Mysql Ping OK"
+msgstr "Mysql存活状态检查正常"
+
+msgid "${oknum}/${total} check success"
+msgstr "${oknum}/${total} 项检查正常."
+
+msgid "Mysql Ping Unknown"
+msgstr "Mysql存活状态检查未知"
+
+msgid "${unknum}/${total} check unknown"
+msgstr "${unknum}/${total} 项检查未知."
