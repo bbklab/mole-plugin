@@ -1,0 +1,17 @@
+msgid "FILE: [/proc/loadavg] or [/proc/cpuinfo] not prepared."
+msgstr "[/proc/loadavg] 或 [/proc/cpuinfo] 文件不存在."
+
+msgid "Retuen is not numberic: [${loadave}]"
+msgstr "获取到的系统负载非数字: [${loadave}]"
+
+msgid "System Load Check CRITICAL"
+msgstr "系统负载检查告警"
+
+msgid "load [${loadave} >= ${load_uplimit}]"
+msgstr "系统负载为${loadave}, 超出上限${load_uplimit}"
+
+msgid "System Load Check OK"
+msgstr "系统负载检查正常"
+
+msgid "load [${loadave} <= ${load_uplimit}]"
+msgstr "系统负载为${loadave}"
