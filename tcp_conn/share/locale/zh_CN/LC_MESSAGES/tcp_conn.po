@@ -1,0 +1,44 @@
+msgid "check [${s_port}:${limit}]: return: [${total}] is not numberic"
+msgstr "检查 ${s_port}:${limit} 返回结果非数字: [${total}]"
+
+msgid "Maybe port: [${s_port}] not listening"
+msgstr "或许端口 ${s_port} 并不在监听状态"
+
+msgid "Total: [${total}] >= Limit: [${limit}]"
+msgstr "当前连接数为 ${total}, 超出上限${limit}"
+
+msgid "Total: [${total}] < Limit: [${limit}]"
+msgstr "当前连接数为 ${total}"
+
+msgid "IP Connect Stat:"
+msgstr "连接数最高的IP来源:"
+
+msgid "Check List: [${port_list}]"
+msgstr "配置的检查列表: ${port_list}"
+
+msgid "netstat file: [${statfile}] not exist or empty."
+msgstr "状态文件 [${statfile}] 不存在或为空文件."
+
+msgid "Check Tcp-Port [${port}], Uplimit [${num}]"
+msgstr "检查端口: ${port}, 连接数上限: ${num}"
+
+msgid "[${port_num}] is invalid: [${port}] or [${num}] not numberic"
+msgstr "配置项 ${port_num} 不识别, [${port}] 或 [${num}] 不是数字"
+
+msgid "TCP-Connection Number Check CRITICAL"
+msgstr "TCP连接数检查告警"
+
+msgid "${errnum}/${total} check failed."
+msgstr "${errnum}/${total} 项检查告警."
+
+msgid "TCP-Connection Number Check OK"
+msgstr "TCP连接数检查正常"
+
+msgid "${oknum}/${total} check success."
+msgstr "${oknum}/${total} 项检查正常."
+
+msgid "TCP-Connection Number Check UNKNOWN"
+msgstr "TCP连接数检查未知"
+
+msgid "${unknum}/${total} check unknown."
+msgstr "${unknum}/${total} 项检查未知."
