@@ -1,0 +1,35 @@
+msgid "Mail Queue Directories Missing"
+msgstr "未找到邮件队列目录"
+
+msgid "{Local/Remote/Bounce}/Info not directory"
+msgstr "{Local/Remte/Bounce}/Info 目录不存在"
+
+msgid "Queuing Letters Number CRITICAL"
+msgstr "队列信件数检查告警"
+
+msgid "${total} letters"
+msgstr "队列中共有 ${total} 封信件"
+
+msgid "total: [${total}] not numberic"
+msgstr "队列信件数非数字 ${total}"
+
+msgid "Queuing Letters Number OK"
+msgstr "队列信件数检查正常"
+
+msgid "Queuing Letters Number Unknown"
+msgstr "队列信件数检查未知"
+
+msgid "letters in local: [${ln}]"
+msgstr "本地队列信件数 ${ln}"
+
+msgid "letters in remote: [${rn}]"
+msgstr "远程队列信件数 ${rn}"
+
+msgid "letters in bounce: [${bn}]"
+msgstr "退信队列信件数 ${bn}"
+
+msgid "letters in mlist: [${mn}]"
+msgstr "列表队列信件数 ${mn}"
+
+msgid "letters in tmp: [${tn}]"
+msgstr "队列临时目录信件数 ${tn}"
