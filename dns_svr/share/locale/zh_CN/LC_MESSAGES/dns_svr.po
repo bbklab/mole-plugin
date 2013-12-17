@@ -1,0 +1,26 @@
+msgid "Util: [/usr/bin/time] not prepared."
+msgstr "[/usr/bin/time] 不存在或没有执行权限."
+
+msgid "Util: [/usr/bin/host] not prepared."
+msgstr "[/usr/bin/host] 不存在或没有执行权限."
+
+msgid "DNS Check List: [${dns_check_lst}]" 
+msgstr "DNS检查项目列表: ${dns_check_lst}"
+
+msgid "dns resolving [${y}] record on [${target}] succeed in [${elapsed}] seconds"
+msgstr "解析${target}域名的${y}记录成功, 耗时${elapsed}秒"
+
+msgid "dns resolving [${y}] record on [${target}] returned [${error}]"
+msgstr "解析${target}域名的${y}记录失败, 错误信息: ${error}"
+
+msgid "DNS SVR Check WARNING"
+msgstr "DNS解析检查失败"
+
+msgid "${warnnum}/${total} check failed"
+msgstr "${warnnum}/${total} 项解析失败"
+
+msgid "DNS SVR Check OK"
+msgstr "DNS解析检查正常"
+
+msgid "${total}/${total} check success"
+msgstr "${total}/${total} 项解析正常."

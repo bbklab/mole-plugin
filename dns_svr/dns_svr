@@ -2,12 +2,47 @@
 
 
 BASE_DIR="/usr/local/eminfo/"
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
-        source ${BASE_DIR}/bin/include 2>&-
+# === LOAD GETTEXT.SH FILE
+if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+        source "/usr/bin/gettext.sh" 2>&1
+        rc=$?
+        [ "$rc" != "0" ] && {
+                echo -en "{unknown}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                exit 3
+        }   
 else
-        echo -en "{unknown}:{str}:{include file not exists or empty}"
-	exit 3
+        echo -en "{unknown}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        exit 3
 fi
+
+# === LOAD INCLUDE FILE
+if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+        source ${BASE_DIR}/bin/include 2>&- 
+else    
+        echo -en "{unknown}:{str}:{include file not exists or empty}"
+        exit 3
+fi
+
+# === SET TEXTDOMAINDIR TEXTDOMAIN
+if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+        export TEXTDOMAINDIR="${LOCALE_DIR}"
+        export TEXTDOMAIN="dns_svr"
+else    
+        echo -en "{unknown}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        exit 3
+fi
+
+
+# === SET GLOBAL LOCALE
+glocale=$(read_eminfo_config dns_svr locale)
+if [ -z "${glocale}" ]; then
+        export LANG="${LANG}"           ## read from sysenv
+elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+        export LANG="zh_CN.UTF-8"
+elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+        export LANG="en_US.UTF-8"
+fi
+
 
 show_help(){
 cat <<EOF
@@ -61,7 +96,7 @@ check(){
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="Util: [/usr/bin/time] not prepared.";
+        CONTENT="$(gettext "Util: [/usr/bin/time] not prepared.")"
         return
   }
 
@@ -69,13 +104,13 @@ check(){
 	EXIT_STATUS=${STATE_UNKNOWN};
 	LEVEL="unknown";
 	TYPE="str";
-	CONTENT="Util: [/usr/bin/host] not prepared.";
+	CONTENT="$(gettext "Util: [/usr/bin/host] not prepared.")"
 	return
   }
 
   local result= warnnum=0  unknnum=0 total=0
 
-  result="DNS Check List: [${dns_check_lst}] ### ###"
+  result="$(eval_gettext "DNS Check List: [\${dns_check_lst}]") ### ###"
   for x in `echo "${dns_check_lst}"`
   do
 	((total++))
@@ -89,10 +124,10 @@ check(){
 		rc=$?
 		if [ "${rc}" == "0" ]; then
 			elapsed=$(head -n1 "${tmpfile}")
-			result="${result} dns resolving [${y}] record on [${target}] succeed in [${elapsed}] seconds ### "
+			result="${result} $(eval_gettext "dns resolving [\${y}] record on [\${target}] succeed in [\${elapsed}] seconds") ### "
 		else
 			error=$(echo -e "${error}" | tr -d '\r\n')
-			result="${result} $(html_red "dns resolving [${y}] record on [${target}] returned [${error}]") ### "
+			result="${result} $(html_red "$(eval_gettext "dns resolving [\${y}] record on [\${target}] returned [\${error}]")") ### "
 			((flag++))
 		fi
 	done
@@ -107,12 +142,12 @@ check(){
 	EXIT_STATUS=${STATE_WARNING};
 	LEVEL="warn";
 	TYPE="str";
-	CONTENT="DNS SVR Check WARNING | ${warnnum}/${total} check failed | ${result} "
+	CONTENT="$(gettext "DNS SVR Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check failed") | ${result} "
   } || {
 	EXIT_STATUS="${STATE_OK}"
 	LEVEL="ok"
 	TYPE="str"
-	CONTENT="DNS SVR Check OK | ${total}/${total} check success | ${result} "
+	CONTENT="$(gettext "DNS SVR Check OK") | $(eval_gettext "\${total}/\${total} check success") | ${result} "
   }
 }
 

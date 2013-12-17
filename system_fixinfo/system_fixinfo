@@ -2,6 +2,7 @@
 use warnings;
 use strict;
 use utf8;
+use JSON;
 use Smart::Comments;
 
 my %product_info = (
@@ -496,6 +497,9 @@ if (-d $netdir && -r $netdir) {
   }
 }
 ### @inet_name
+
+my $json_text = JSON->new->utf8->encode(@inet_name);
+### $json_text
 
 __END__
 # smartctl -i /dev/sda
