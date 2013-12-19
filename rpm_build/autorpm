@@ -63,7 +63,7 @@ mkdir -p "${path}"/SOURCES/${name}-${version}
 for p in `echo "${plugins[*]}"`
 do
 	cp -a "${basedir}"/${p} "${path}"/SOURCES/${name}-${version}/
-	for d in conf handler opt
+	for d in conf handler opt share
 	do
 		[ -d "${path}"/SOURCES/${name}-${version}/${p}/${d} ] || {
 			mkdir -p "${path}"/SOURCES/${name}-${version}/${p}/${d}

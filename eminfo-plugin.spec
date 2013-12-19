@@ -1,13 +1,13 @@
 Summary: 	plugins for eminfo
 Name: 		eminfo-plugin
-Version: 	0.1
-Release: 	beta4
+Version: 	0.2
+Release: 	beta1
 License: 	GPLv3
 Group:  	Extension
 Packager: 	Zhang Guangzheng <zhang.elinks@gmail.com>
 BuildRoot: 	/var/tmp/%{name}-%{version}-%{release}-root
-Source0: 	eminfo-plugin-0.1-beta4.tgz
-Requires:		eminfo >= 1.0, setup >= 2.5.58
+Source0: 	eminfo-plugin-0.2-beta1.tgz
+Requires:		eminfo >= 2.0, setup >= 2.5.58
 Requires: 		coreutils >= 5.97, bash >= 3.1
 Requires:		e2fsprogs >= 1.39, procps >= 3.2.7
 Requires:		psmisc >= 22.2, util-linux >= 2.13
@@ -57,6 +57,7 @@ done
 /usr/local/eminfo/conf/
 /usr/local/eminfo/handler/
 /usr/local/eminfo/opt/
+/usr/local/eminfo/share/
 
 %post
 
@@ -65,6 +66,9 @@ done
 %postun
 
 %changelog
+* Fri Dec 20 2013 Guangzheng Zhang <zhang.elinks@gmail.com>
+- release eminfo-plugin-0.2-beta1.rpm 
+- multi language supported by gnu gettext
 * Tue Nov 12 2013 Guangzheng Zhang <zhang.elinks@gmail.com>
 - release eminfo-plugin-0.1-beta4.rpm
 - add plugin disk_iostat remote_mailtest
