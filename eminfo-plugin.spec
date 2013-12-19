@@ -40,12 +40,14 @@ mkdir -p $RPM_BUILD_ROOT/usr/local/eminfo/plugin/
 mkdir -p $RPM_BUILD_ROOT/usr/local/eminfo/conf/
 mkdir -p $RPM_BUILD_ROOT/usr/local/eminfo/handler/
 mkdir -p $RPM_BUILD_ROOT/usr/local/eminfo/opt/
+mkdir -p $RPM_BUILD_ROOT/usr/local/eminfo/share/
 for p in `ls`
 do
   cp -a ${p}/${p}	   $RPM_BUILD_ROOT/usr/local/eminfo/plugin/
   cp -a ${p}/conf/${p}.ini $RPM_BUILD_ROOT/usr/local/eminfo/conf/
   cp -a ${p}/handler/      $RPM_BUILD_ROOT/usr/local/eminfo/
   cp -a ${p}/opt/          $RPM_BUILD_ROOT/usr/local/eminfo/
+  cp -a ${p}/share/	   $RPM_BUILD_ROOT/usr/local/eminfo/
 done
 
 %clean
