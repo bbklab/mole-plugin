@@ -8,39 +8,55 @@ our ($state_ok,$state_warn,$state_crit,$state_unkn,$state_noop) = (0,1,2,3,4);
 # return stuff
 our ($rc, $result) = (0,'');
 
+our $eminfo = '/usr/local/eminfo/eminfo';
 our $filename = (split /\//, __FILE__)[-1];
 our $tracefile = "/var/tmp/$filename.trace";
 
-# read plugin config here
-our $deliverfile = `eminfo v $filename deliver_logfile`;
-if ($? != 0) {
-  $deliverfile = '/usr/local/eyou/mail/log/deliver_mail.log';
-} else {
-  chomp $deliverfile;
+# check eminfo
+unless (-f $eminfo && -x $eminfo) {
+  printf "{unknown}:{str}:{$eminfo not prepared.}";
+  exit $state_unkn;
 }
 
-our $eminfo_basedir = `eminfo basedir`;
-if ($? != 0) {
-  $eminfo_basedir = '/usr/local/eminfo/';
-} else {
-  chomp $eminfo_basedir;
+# read plugin config here
+our $deliverfile = '/usr/local/eyou/mail/log/deliver_mail.log';
+open my $fh, "$eminfo view $filename deliver_logfile 2>&- |";
+if($fh){
+  while(<$fh>){
+	chomp; $deliverfile = $_;
+	last;
+  }
+}
+
+our $eminfo_basedir = '/usr/local/eminfo/';
+open $fh, "$eminfo basedir 2>&- |";
+if($fh){
+  while(<$fh>){
+	chomp; $eminfo_basedir = $_;
+	last;
+  }
 }
 
 our @attendlst = ();
-our $attendlst = `eminfo v $filename attention_list`;
-if ($? == 0) {
-  chomp $attendlst;
+our $attendlst = '';
+open $fh, "$eminfo view $filename attention_list 2>&- |";
+if($fh){
+  while(<$fh>){
+  	chomp; $attendlst = $_;
+	last;
+  }
+}
+if (defined $attendlst && $attendlst ne ''){
   $attendlst =~ s/\A\s*file://;
   unless(-f $attendlst) {
-	if (-f $eminfo_basedir.$attendlst) {
-  		$attendlst = $eminfo_basedir.$attendlst;
+	if (-f $eminfo_basedir.'/'.$attendlst) {
+  		$attendlst = $eminfo_basedir.'/'.$attendlst;
 	}
   } 
   if (-f $attendlst) {
 	if(open FH, $attendlst) {
 		while (<FH>) {
 			chomp;
-			s/\s//g;
 			next if (/\A\s*\Z/ || /\A\s*#/ || /\A\s*;/);
 			push @attendlst,  split /\s+/;
 		}
@@ -50,7 +66,6 @@ if ($? == 0) {
 	@attendlst = split /\s+/, $attendlst;
   }
 }
-# print "@attendlst\n";
 
 # define dev, inode, position for {deliverfile}
 our ($dev, $inode, $position) = ();
