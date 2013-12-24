@@ -12,6 +12,12 @@ our $eminfo = '/usr/local/eminfo/eminfo';
 our $filename = (split /\//, __FILE__)[-1];
 our $tracefile = "/var/tmp/$filename.trace";
 
+# check eminfo
+unless (-f $eminfo && -x $eminfo) {
+  printf "{unknown}:{str}:{$eminfo not prepared.}";
+  exit $state_unkn;
+}
+
 # read plugin config here
 our $messagefile = '/var/log/messages';
 open my $fh, "$eminfo view $filename messagefile 2>&- |";

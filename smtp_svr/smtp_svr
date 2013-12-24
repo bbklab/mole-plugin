@@ -18,6 +18,12 @@ our ($rc, $result) = (0,'');
 our $eminfo = '/usr/local/eminfo/eminfo';
 our $filename = (split /\//, __FILE__)[-1];
 
+# check eminfo
+unless (-f $eminfo && -x $eminfo) {
+  printf "{unknown}:{str}:{$eminfo not prepared.}";
+  exit $state_unkn;
+}
+
 # read plugin config here
 our $addr_port = '127.0.0.1:25';
 open my $fh, "$eminfo view $filename addr_port 2>&- |";
