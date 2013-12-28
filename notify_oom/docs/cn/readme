@@ -1,0 +1,15 @@
+插件notify_oom:
+ 
+功能介绍：
+  本插件用于发现和提醒系统日志中出现的OOM事件
+ 
+使用介绍：
+  此插件共有一个参数：
+  messagefile		从哪个系统日志文件中抓取OOM事件
+可以通过命令行工具eminfo config 手工配置以上1个参数
+ 
+配置实例：
+  # eminfo u notify_oom messagefile "/var/log/messages"
+  
+测试运行： 
+  # eminfo run notify_oom 

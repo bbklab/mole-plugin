@@ -1,0 +1,21 @@
+插件smtp_svr:
+ 
+功能介绍：
+  本插件用于检查SMTP服务，通过模拟SMTP登录来测试SMTP服务状态和响应速度
+ 
+使用介绍：
+  此插件共有四个参数：
+  addr_port 	smtp地址和smtp端口，    格式:  地址1:端口1   地址2:端口2
+  time_out 	连接每个smtp地址的超时时间(单位秒)
+  smtp_user 	测试邮箱账户
+  smtp_pass 	测试邮箱密码
+可以通过命令行工具eminfo config 手工配置以上4个参数
+ 
+配置实例：
+  # eminfo u smtp_svr addr_port gateway.eyou.net:25
+  # eminfo u smtp_svr time_out 10
+  # eminfo u smtp_svr smtp_user zhangguangzheng@eyou.net
+  # eminfo u smtp_svr smtp_pass password!@#
+  
+测试运行： 
+  # eminfo run smtp_svr 

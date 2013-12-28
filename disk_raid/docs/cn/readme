@@ -1,0 +1,14 @@
+插件disk_raid:  (未完成)
+ 
+功能介绍：
+  本插件用于检查RAID卡的各项状态和配置数据
+ 
+使用介绍：
+  此插件共有?个参数：
+可以通过命令行工具eminfo config 手工配置以上?个参数
+ 
+配置实例：
+  # eminfo u disk_raid 
+  
+测试运行： 
+  # eminfo run disk_raid 

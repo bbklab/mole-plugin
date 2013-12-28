@@ -1,0 +1,14 @@
+插件notify_filechange:  (未完成)
+ 
+功能介绍：
+  本插件用于发现和提醒被关注文件的变更事件
+ 
+使用介绍：
+  此插件共有?个参数：
+可以通过命令行工具eminfo config 手工配置以上?个参数
+ 
+配置实例：
+  # eminfo u notify_filechange
+  
+测试运行： 
+  # eminfo run notify_filechange 

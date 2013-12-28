@@ -1,0 +1,14 @@
+插件mysql_perf:  (未完成)
+ 
+功能介绍：
+  本插件用于搜集Mysql运行实例的性能数据
+ 
+使用介绍：
+  此插件共有?个参数：
+可以通过命令行工具eminfo config 手工配置以上?个参数
+ 
+配置实例：
+  # eminfo u mysql_perf
+  
+测试运行： 
+  # eminfo run mysql_perf 

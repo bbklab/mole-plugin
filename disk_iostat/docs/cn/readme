@@ -1,0 +1,17 @@
+插件disk_iostat:
+
+功能介绍：
+  本插件用于检查各磁盘设备的IO读写繁忙度
+
+使用介绍：
+  此插件共有两个参数：
+  dev_list	要检查的磁盘设备编号，如： /dev/sda1 /dev/sda2
+  util_uplimit	IO繁忙度的阈值上限
+可以通过命令行工具eminfo config 手工配置以上2个参数
+
+配置实例：
+  # eminfo u disk_iostat dev_list  "/dev/sda1 /dev/sda2"
+  # eminfo u disk_iostat util_uplimit 50
+
+测试运行：
+  # eminfo run disk_iostat

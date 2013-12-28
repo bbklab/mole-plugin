@@ -1,0 +1,15 @@
+插件sysload:
+ 
+功能介绍：
+  本插件用于检查系统负载值
+ 
+使用介绍：
+  此插件共有一个参数：
+  load_uplimit		系统负载阀值上限
+可以通过命令行工具eminfo config 手工配置以上1个参数
+ 
+配置实例：
+  # eminfo u sysload load_uplimit 10
+  
+测试运行： 
+  # eminfo run sysload 

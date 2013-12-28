@@ -1,0 +1,17 @@
+插件http_svr:
+ 
+功能介绍：
+  本插件用于检查HTTP(s)服务，通过模拟HTTP(s) GET请求来测试HTTP(s)服务状态和响应速度
+ 
+使用介绍：
+  此插件共有两个参数：
+  addr_port	http(s)地址和http(s)端口，    格式:  类型:地址1:端口1    类型:地址2:端口2
+  time_out 	连接每个HTTP(s)地址的超时时间(单位秒)
+可以通过命令行工具eminfo config 手工配置以上2个参数
+ 
+配置实例：
+  # eminfo u http_svr addr_port "http:127.0.0.1:80  https:mail.eyou.net:443"
+  # eminfo u http_svr time_out 10
+  
+测试运行： 
+  # eminfo run http_svr 

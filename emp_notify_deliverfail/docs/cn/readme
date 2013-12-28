@@ -1,0 +1,23 @@
+插件emp_notify_deliverfail:
+ 
+功能介绍：
+  本插件用于发现和提醒eYouMail5/8邮件系统中被关注用户的信件投递失败事件
+ 
+使用介绍：
+  此插件共有两个参数：
+  deliver_logfile	从哪个文件中抓取用户的信件投递失败事件
+  attention_list	被关注的用户邮箱列表
+			格式:  	此配置可以为文件路径或字符串
+				1. 字符串则填写任意个数的邮箱地址, 空格分隔
+				2. 若为文件路径, 则文件格式为：
+					2.1  # 开头的为注释行
+					2.2  每个一个或多个邮箱地址, 多个地址空格分隔
+可以通过命令行工具eminfo config 手工配置以上2个参数
+ 
+配置实例：
+  # eminfo u emp_notify_deliverfail deliver_logfile "/usr/local/eyou/mail/log/deliver_mail.log"
+  # eminfo u emp_notify_deliverfail attention_list "wyb@yili.com  leader@yili.com boss@yili.com"
+  # eminfo u emp_notify_deliverfail attention_list "file:opt/attention.lst"
+  
+测试运行： 
+  # eminfo run emp_notify_deliverfail 

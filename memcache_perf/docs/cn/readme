@@ -1,0 +1,17 @@
+插件memcache_perf:
+ 
+功能介绍：
+  本插件用于检查Memcache服务的性能数据，通过Memcache的stats命令获取Memcache的状态和性能信息
+ 
+使用介绍：
+  此插件共有四个参数：
+  addr_port 	memcache地址和memcache端口，    格式:  地址1:端口1   地址2:端口2
+  time_out 	连接每个memcache地址的超时时间(单位秒)
+可以通过命令行工具eminfo config 手工配置以上2个参数
+ 
+配置实例：
+  # eminfo u memcache_perf addr_port "127.0.0.1:11211  127.0.0.1:11231  127.0.0.1:11251"
+  # eminfo u memcache_perf time_out 10
+  
+测试运行： 
+  # eminfo run memcache_perf 

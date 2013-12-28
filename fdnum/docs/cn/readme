@@ -1,0 +1,15 @@
+插件fdnum:
+ 
+功能介绍：
+  本插件用于检查操作系统打开的所有文件句柄数量
+ 
+使用介绍：
+  此插件共有一个参数：
+  max_limit		系统打开的最大文件句柄数量阀值上限
+可以通过命令行工具eminfo config 手工配置以上1个参数
+ 
+配置实例：
+  # eminfo u fdnum max_limit 7500
+  
+测试运行： 
+  # eminfo run fdnum 
