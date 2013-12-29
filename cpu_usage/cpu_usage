@@ -34,7 +34,7 @@ else
 fi
 
 # === SET GLOBAL LOCALE
-glocale=$(read_eminfo_config cpu_usage locale)
+glocale=$(get_locale cpu_usage)
 if [ -z "${glocale}" ]; then
         export LANG="${LANG}"           ## read from sysenv
 elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
