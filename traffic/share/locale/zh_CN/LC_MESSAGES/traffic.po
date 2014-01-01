@@ -1,0 +1,50 @@
+msgid "inet_face/ibytes_limit/obytes_limit required:"
+msgstr "至少需要如下三个参数: 网卡设备名inet_face, 入口流量限制ibytes_limit, 出口流量限制obytes_limit"
+
+msgid "[/sys/class/net/${inet_face}] not an exists direcoty, maybe interface [${inet_face}] not exists"
+msgstr "目录/sys/class/net/${inet_face}不存在, 或许并不存在网卡设备${inet_face}"
+
+msgid "ibytes_limit=[${ibytes_limit}] or obytes_limit=[${obytes_limit}] format unrecognised."
+msgstr "入口流量限制${ibytes_limit} 或 出口流量限制${obytes_limit} 格式不正确."
+
+msgid "not numberic"
+msgstr "不是整数数字"
+
+msgid "bytes flowin rate:"
+msgstr "网卡入口流量速度:"
+
+msgid "bytes flowout rate:"
+msgstr "网卡出口流量速度:"
+
+msgid "packs flowin rate:"
+msgstr "网卡入口数据包速度:"
+
+msgid "packs flowout rate:"
+msgstr "网卡出口数据包速度:"
+
+msgid "Check List:"
+msgstr "检查的网卡列表:"
+
+msgid "Pairs: [${pairs}] is invalid"
+msgstr "网卡检测配置格式不识别: ${pairs}"
+
+msgid "Check Pairs:"
+msgstr "检查网卡:"
+
+msgid "Traffic Flow Check WARNING"
+msgstr "网卡流量速度检查告警"
+
+msgid "total: ${warnnum}/${total} check failed."
+msgstr "${warnnum}/${total} 项检查告警."
+
+msgid "Traffic Flow Check OK"
+msgstr "网卡流量速度检查正常"
+
+msgid "total: ${oknum}/${total} check success."
+msgstr "${oknum}/${total} 项检查正常."
+
+msgid "Traffic Flow Check UNKNOWN"
+msgstr "网卡流量速度检查未知"
+
+msgid "total: ${unknum}/${total} check unknown."
+msgstr "${unknum}/${total} 项检查未知."

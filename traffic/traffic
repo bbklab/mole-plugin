@@ -2,18 +2,53 @@
 
 
 BASE_DIR="/usr/local/eminfo/"
+# === LOAD GETTEXT.SH FILE
+if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+        source "/usr/bin/gettext.sh" 2>&1
+        rc=$?
+        [ "$rc" != "0" ] && {
+                echo -en "{unknown}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                exit 3
+        }
+else
+        echo -en "{unknown}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        exit 3
+fi
+
+# === LOAD INCLUDE FILE
 if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
         source ${BASE_DIR}/bin/include 2>&-
 else
         echo -en "{unknown}:{str}:{include file not exists or empty}"
-	exit 3
+        exit 3
 fi
+
+# === SET TEXTDOMAINDIR TEXTDOMAIN
+if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+        export TEXTDOMAINDIR="${LOCALE_DIR}"
+        export TEXTDOMAIN="traffic"
+else
+        echo -en "{unknown}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        exit 3
+fi
+
+
+# === SET GLOBAL LOCALE
+glocale=$(get_locale traffic)
+if [ -z "${glocale}" ]; then
+        export LANG="${LANG}"           ## read from sysenv
+elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+        export LANG="zh_CN.UTF-8"
+elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+        export LANG="en_US.UTF-8"
+fi
+
 
 show_help(){
 cat <<EOF
-Arguments:   {d|data|h|help}  {ifdev}  {interval}  {number}
+Arguments:   {d|data|h|help}  {ifdev}  {interval}  {count}
 
-Usage:   data  eth0  1  10
+Usage:   data  eth0:5M/s:10M/s:0:0  1  10
 
 Output:   
 Example:
@@ -41,10 +76,12 @@ CONTENT=        ### { strings | /path/to/result.file }
 if [ "${MODE}" == "1" ]; then
         ifdev_lst="$2"
 	interval="$3"
-	number="$4"
+	count="$4"
 else
 	ifdev_lst=$( read_eminfo_config traffic ifdev_lst )
+	interval=1; count=10;	### set capture count and sleep interval.
 fi
+
 
 # if null or invalid set default.
 [ -z "${ifdev_lst}" ] && ifdev_lst=" eth0:5M/s:10M/s:0:0 "
@@ -62,35 +99,39 @@ check_single(){
   local return_code=0
   local output=
 
-  [ -z "${ipacks_limit}" ] && ipacks_limit=0  ### set default, 0 means unlimited
-  [ -z "${opacks_limit}" ] && opacks_limit=0  ### set default, 0 means unlimited
+  local iblimit_m=$( echo -e "${ibytes_limit}" | awk -F"[Mm]/s" '{print $1}' )
+  local oblimit_m=$( echo -e "${obytes_limit}" | awk -F"[Mm]/s" '{print $1}' )
+
+  [ -z "${ipacks_limit}" -o ! -z "${ipacks_limit//[0-9]}" ] && ipacks_limit=0  ### set default, 0 means unlimited
+  [ -z "${opacks_limit}" -o ! -z "${opacks_limit//[0-9]}" ] && opacks_limit=0  ### set default, 0 means unlimited
 
   if [ -z "${inet_face}" -o -z "${ibytes_limit}" -o -z "${obytes_limit}" ]; then     ### return UNKNOWN
-	((unknum++))
-	output="$(html_red "inet_face/ibytes_limit/obytes_limit required: inet_face=[${inet_face}] or ibytes_limit=[${ibytes_limit}] or obytes_limit=[${obytes_limit}] must be specified") ### ### "
+	output="$(html_red "$(gettext "inet_face/ibytes_limit/obytes_limit required:") inet_face=[${inet_face}], ibytes_limit=[${ibytes_limit}], obytes_limit=[${obytes_limit}]") ### ### "
 	return_code=2
   elif [ ! -d "/sys/class/net/${inet_face}" ]; then
-	((unknum++))
-	output="$(html_red "[/sys/class/net/${inet_face}] not an exists direcoty, maybe interface [${inet_face}] not exists") ### ### "
+	output="$(html_red "$(eval_gettext "[/sys/class/net/\${inet_face}] not an exists direcoty, maybe interface [\${inet_face}] not exists")") ### ### "
+	return_code=2
+  elif [ -z "${iblimit_m}" -o ! -z "${iblimit_m//[0-9.]}" -o -z "${oblimit_m}" -o ! -z "${oblimit_m//[0-9.]}" ]; then
+	output="$(html_red "$(eval_gettext "ibytes_limit=[\${ibytes_limit}] or obytes_limit=[\${obytes_limit}] format unrecognised.")") ### ### "
 	return_code=2
   else
-	local count=5 interval=1   ### set capture count and sleep interval.
 	local ibytes=0 obytes=0 ipacks=0 opacks=0
 	local l_ibytes=0 l_obytes=0 l_ipacks=0 l_opacks=0
 	local ib=0 ob=0 ip=0 op=0
-	### another way:  cat /proc/net/dev
+
  	for ((i=0;i<=${count};i++))
 	do 
+		### another way is reading file: /proc/net/dev
 		ibytes=$(cat /sys/class/net/${inet_face}/statistics/rx_bytes 2>&-)
 		obytes=$(cat /sys/class/net/${inet_face}/statistics/tx_bytes 2>&-)
 		ipacks=$(cat /sys/class/net/${inet_face}/statistics/rx_packets 2>&-)
 		opacks=$(cat /sys/class/net/${inet_face}/statistics/tx_packets 2>&-)
 		if [ -z "${ibytes}" -o ! -z "${ibytes//[0-9]}" -o -z "${obytes}" -o ! -z "${obytes//[0-9]}" ]; then
-			output="${output} $(html_red "[$i]: ibytes=[${ibytes}] or obytes=[${obytes}] not numberic") ### ### "
+			output="${output} $(html_red "[${inet_face}:${i}] ibytes=[${ibytes}], obytes=[${obytes}] $(gettext "not numberic")") ### ### "
 			echo -e "${output}"
 			return 2
 		elif [ -z "${ipacks}" -o ! -z "${ipacks//[0-9]}" -o -z "${opacks}" -o ! -z "${opacks//[0-9]}" ]; then
-			output="${output} $(html_red "[$i]: ipacks=[${ipacks}] or opacks=[${opacks}] not numberic") ### ### "
+			output="${output} $(html_red "[${inet_face}:${i}] ipacks=[${ipacks}], opacks=[${opacks}] $(gettext "not numberic")") ### ### "
 			echo -e "${output}"
 			return 2
 		else
@@ -98,24 +139,57 @@ check_single(){
 			[ "${l_obytes}" == "0" ] && l_obytes=${obytes}
 			[ "${l_ipacks}" == "0" ] && l_ipacks=${ipacks}
 			[ "${l_opacks}" == "0" ] && l_opacks=${opacks}
-			ib=$(echo "${ibytes} - ${l_ibytes}" | bc 2>&-)
-			ob=$(echo "${obytes} - ${l_obytes}" | bc 2>&-)
-			ip=$(echo "${ipacks} - ${l_ipacks}" | bc 2>&-)
-			op=$(echo "${opacks} - ${l_opacks}" | bc 2>&-)
-			((ib+=${ib}))
-			((ob+=${ob}))
-			((ip+=${ip}))
-			((op+=${op}))
+			ib=$(( ${ibytes} - ${l_ibytes} )); ((ib+=${ib}))
+			ob=$(( ${obytes} - ${l_obytes} )); ((ob+=${ob}))
+			ip=$(( ${ipacks} - ${l_ipacks} )); ((ip+=${ip}))
+			op=$(( ${opacks} - ${l_opacks} )); ((op+=${op}))
 			sleep ${interval}
 		fi
 	done
+	
+	ib_rate_b=$(( ${ib} / (${count} * ${interval}) ))
+	ib_rate_m=$( echo -e "scale=3; ${ib_rate_b}/1024/1024" | bc 2>&- )
+	ob_rate_b=$(( ${ob} / (${count} * ${interval}) ))
+	ob_rate_m=$( echo -e "scale=3; ${ob_rate_b}/1024/1024" | bc 2>&- )
+	ip_rate=$(( ${ip} / (${count} * ${interval}) ))
+	op_rate=$(( ${op} / (${count} * ${interval}) ))
+
+	if [ "$( echo "${ib_rate_m} >= ${iblimit_m}" | bc 2>&- )" == "1" ]; then
+		return_code=1
+		output="${output} $(html_red "$(gettext "bytes flowin rate:") ${ib_rate_m}M/s") ### "
+	else
+		output="${output} $(gettext "bytes flowin rate:") ${ib_rate_m}M/s ### "
+	fi
+	if [ "$( echo "${ob_rate_m} >= ${oblimit_m}" | bc 2>&- )" == "1" ]; then
+		return_code=1
+		output="${output} $(html_red "$(gettext "bytes flowout rate:") ${ob_rate_m}M/s") ### "
+	else
+		output="${output} $(gettext "bytes flowout rate:") ${ob_rate_m}M/s ### "
+	fi
+	if [ "${ipacks_limit}" == "0" ]; then
+		output="${output} $(gettext "packs flowin rate:") ${ip_rate}/s (unlimited) ### "
+	elif [ "$( echo "${ip_rate} >= ${ipacks_limit}" | bc 2>&- )" == "1" ]; then
+		return_code=1
+		output="${output} $(html_red "$(gettext "packs flowin rate:") ${ip_rate}/s") ### "
+	else
+		output="${output} $(gettext "packs flowin rate:") ${ip_rate}/s ### "
+	fi
+	if [ "${opacks_limit}" == "0" ]; then
+		output="${output} $(gettext "packs flowout rate:") ${op_rate}/s (unlimited) ### "
+	elif [ "$( echo "${op_rate} >= ${opacks_limit}" | bc 2>&- )" == "1" ]; then
+		return_code=1
+		output="${output} $(html_red "$(gettext "packs flowout rate:") ${op_rate}/s") ### "
+	else
+		output="${output} $(gettext "packs flowout rate:") ${op_rate}/s ### "
+	fi
+	output="${output} ### "
   fi
 
   echo -e "${output}"
   return ${return_code}
 }
 
-  local result=" ### Check List: [${ifdev_lst}] ### ### "
+  local result=" ### $(gettext "Check List:") [${ifdev_lst}] ### ### "
   local oknum=0 warnnum=0 unknum=0 total=0
 
   for pairs in `echo "${ifdev_lst}" | tr ',' ' '`
@@ -123,41 +197,27 @@ check_single(){
 	((total++))
 	sepnum=$(echo -e "${pairs}" | awk -F":" 'END{print --NF}')
 	case "${sepnum}" in
-	"1")
-		ptype=
-		ip=$(echo -e "${pairs}" | cut -d: -f1)
-		port=$(echo -e "${pairs}" | cut -d: -f2)
-		tmout=
-		;;
 	"2")
-		f1=$(echo -e "${pairs}" | cut -d: -f1)
-		if [ "${f1}" == "tcp" -o "${f1}" == "udp" ]; then
-			ptype=${f1} 
-			ip=$(echo -e "${pairs}" | cut -d: -f2)
-			port=$(echo -e "${pairs}" | cut -d: -f3)
-			tmout=
-		else
-			ptype=
-			ip=$(echo -e "${pairs}" | cut -d: -f1)
-			port=$(echo -e "${pairs}" | cut -d: -f2)
-			tmout=$(echo -e "${pairs}" | cut -d: -f3)
-		fi
+		dev=$(echo -e "${pairs}" | cut -d: -f1)
+		ib_limit=$(echo -e "${pairs}" | cut -d: -f2)
+		ob_limit=$(echo -e "${pairs}" | cut -d: -f3)
 		;;
-	"3")
-		ptype=$(echo -e "${pairs}" | cut -d: -f1)
-		ip=$(echo -e "${pairs}" | cut -d: -f2)
-		port=$(echo -e "${pairs}" | cut -d: -f3)
-		tmout=$(echo -e "${pairs}" | cut -d: -f4)
+	"4")
+		dev=$(echo -e "${pairs}" | cut -d: -f1)
+		ib_limit=$(echo -e "${pairs}" | cut -d: -f2)
+		ob_limit=$(echo -e "${pairs}" | cut -d: -f3)
+		ip_limit=$(echo -e "${pairs}" | cut -d: -f4)
+		op_limit=$(echo -e "${pairs}" | cut -d: -f5)
 		;;
 	*)
 		((unknum++))
-		result="${result} ### $(html_red "Pairs: [${pairs}] is invalid") ### ### "
+		result="${result} ### $(html_red "$(eval_gettext "Pairs: [\${pairs}] is invalid")") ### ### "
 		continue 1
 		;;
 	esac
-	result="${result} ### $(html_green "Check Pairs: [${pairs}]") ### "
+	result="${result} ### $(gettext "Check Pairs:") [${pairs}] ### "
 
-   	tmpstr=$(check_single "${ptype}" "${ip}" "${port}" "${tmout}")
+   	tmpstr=$(check_single "${dev}" "${ib_limit}" "${ob_limit}" "${ip_limit}" "${op_limit}")
 	rc=$?
 	case "${rc}" in
 	"0")
@@ -170,26 +230,26 @@ check_single(){
 	result="${result} "${tmpstr}" "
   done
 
-  [ "${warnnum}" != "0" ] && {
+  if [ "${warnnum}" != "0" ]; then
 	EXIT_STATUS=${STATE_WARNING};
 	LEVEL="warn";
 	TYPE="str";
-	CONTENT="Traffic Flow Check WARNING | total: ${warnnum}/${total} check failed. | "${result}" "
-  } || {
-	[ "${oknum}" == "${total}" ] && {
+	CONTENT="$(gettext  "Traffic Flow Check WARNING") | $(eval_gettext "total: \${warnnum}/\${total} check failed.") | "${result}" "
+  else
+	if [ "${oknum}" == "${total}" ]; then
 		EXIT_STATUS=${STATE_OK};
 		LEVEL="ok";
 		TYPE="str";
-		CONTENT="Traffic Flow Check OK | total: ${oknum}/${total} check success. | "${result}" "
-	} || {
-		[ "${unknum}" != "0" ] && {
+		CONTENT="$(gettext "Traffic Flow Check OK") | $(eval_gettext "total: \${oknum}/\${total} check success.") | "${result}" "
+	else
+		if [ "${unknum}" != "0" ]; then
 			EXIT_STATUS=${STATE_UNKNOWN};
 			LEVEL="unknown";
 			TYPE="str";
-			CONTENT="Traffic Flow Check UNKNOWN | total: ${unknum}/${total} check unknown. | "${result}" "
-		}
-	}
-  } 
+			CONTENT="$(gettext "Traffic Flow Check UNKNOWN") | $(eval_gettext "total: \${unknum}/\${total} check unknown.") | "${result}" "
+		fi
+	fi
+  fi
 }
 
 check
