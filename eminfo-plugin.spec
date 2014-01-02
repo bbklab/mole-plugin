@@ -38,6 +38,7 @@ plugins for eminfo
 mkdir -p $RPM_BUILD_ROOT/usr/local/eminfo/
 mkdir -p $RPM_BUILD_ROOT/usr/local/eminfo/plugin/
 mkdir -p $RPM_BUILD_ROOT/usr/local/eminfo/conf/
+mkdir -p $RPM_BUILD_ROOT/usr/local/eminfo/docs/{cn,en}/
 mkdir -p $RPM_BUILD_ROOT/usr/local/eminfo/handler/
 mkdir -p $RPM_BUILD_ROOT/usr/local/eminfo/opt/
 mkdir -p $RPM_BUILD_ROOT/usr/local/eminfo/share/
@@ -45,6 +46,8 @@ for p in `ls`
 do
   cp -a ${p}/${p}	   $RPM_BUILD_ROOT/usr/local/eminfo/plugin/
   cp -a ${p}/conf/${p}.ini $RPM_BUILD_ROOT/usr/local/eminfo/conf/
+  cp -a ${p}/docs/cn/readme  $RPM_BUILD_ROOT/usr/local/eminfo/docs/cn/${p}.readme
+  cp -a ${p}/docs/en/readme  $RPM_BUILD_ROOT/usr/local/eminfo/docs/en/${p}.readme
   cp -a ${p}/handler/      $RPM_BUILD_ROOT/usr/local/eminfo/
   cp -a ${p}/opt/          $RPM_BUILD_ROOT/usr/local/eminfo/
   cp -a ${p}/share/	   $RPM_BUILD_ROOT/usr/local/eminfo/
@@ -57,6 +60,7 @@ done
 %defattr(-,root,root,-)
 /usr/local/eminfo/plugin/
 /usr/local/eminfo/conf/
+/usr/local/eminfo/docs/
 /usr/local/eminfo/handler/
 /usr/local/eminfo/opt/
 /usr/local/eminfo/share/
