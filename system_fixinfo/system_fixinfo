@@ -188,17 +188,6 @@ if (-f $input_devfile && -r $input_devfile) {
 
 
 
-my %raid_info = (
-  'raid_vendor'		=> '',
-  'raid_memory'		=> '',
-  'raid_bbu'		=> '',
-  'raid_sid'		=> '',
-  'array_group'		=> '',
-);
-### %raid_info
-
-
-
 my %uname_info = (
   'arch'		=> '',
   'os'			=> '',
@@ -346,7 +335,7 @@ if (-f $userfile && -r $userfile) {
 	while(<$fh>){
 		chomp;
 		my ($name,$uid,$gid,$homedir,$shell) = (split /:/)[0,2,3,5,6];
-		if (-e $shell && $shell =~ /sh\Z/) {
+		if (defined $shell && -e $shell && $shell =~ /sh\Z/) {
 			push @sysuser, "name=$name, id=$uid, gid=$gid, homedir=$homedir, shell=$shell";
 		}
 	}
@@ -498,20 +487,254 @@ if (-d $netdir && -r $netdir) {
 }
 ### @inet_name
 
-my $json_text = JSON->new->utf8->encode(@inet_name);
-### $json_text
+
+my @raid_info = ();
+my $megacli = '/opt/MegaRAID/MegaCli/MegaCli64';
+$megacli = '/opt/MegaRAID/MegaCli/MegaCli' if ($os_info{'os_bitmode'} eq '32');
+if (-f $megacli && -x $megacli) {
+  my ($i,$raid_num) = (0,0);
+  open my $fh, "$megacli -adpCount -NoLog 2>&- | ";
+  if($fh){
+	while(<$fh>){
+		if (/\A\s*Controller Count:\s*(\d+)/i){
+			chomp; $raid_num = $1;
+			last;
+		}
+	}
+  }
+  for($i=0;$i<$raid_num;$i++){
+  	my %raid_single = (
+		'RAID_ID'			=> $i,
+  		'Product_Name'			=> '',
+  		'Serial_Number'			=> '',
+		'BIOS_Version'			=> '',
+		'RAID_BBU'			=> '',
+		'RAID_Memory'			=> '',
+		'RAID_Temp'			=> '',
+		'Current_Time'			=> '',
+		'RAID_Supported'		=> '',
+		'Supported_Drives'		=> '',
+		'Virtual_Drives_Number'		=> '',
+		'Virtual_Drives_Info'		=> '',
+		'Physical_Devices_Number'	=> '',
+		'Physical_Devices_Info'		=> '',
+		'Memory_Correctable_Errors'	=> '',
+		'Memory_Uncorrectable_Errors'	=> '',
+		'Default_Strip_Size'		=> '',
+		'Default_Write_Policy'		=> '',
+		'Default_Read_Policy'		=> '',
+		'Default_Cache_When_BBU_Bad'	=> '',
+  	);
+	open my $fh1, "$megacli -AdpAllInfo -a$i -NoLog 2>&- | ";
+	if($fh1){
+		while(<$fh1>){
+			chomp;
+			if(/\A\s*Product Name\s*:\s*(.+)\s*\Z/i){
+				$raid_single{'Product_Name'} = $1;
+				next;
+			}
+			if(/\A\s*Serial No\s*:\s*(.+)\s*\Z/i){
+				$raid_single{'Serial_Number'} = $1;
+				next;
+			}
+			if(/\A\s*BIOS Version\s*:\s*(.+)\s*\Z/i){
+				$raid_single{'BIOS_Version'} = $1;
+				next;
+			}
+			if(/\A\s*BBU\s*:\s*Present\s*\Z/i){
+				my %bbu_single = (
+					'Present'			=> 1,
+					'Voltage'			=> '',
+					'Temperature'			=> '',
+					'Charging_Status'		=> '',
+					'Learn_Cycle_Status'		=> '',
+					'Learn_Cycle_Active'		=> '',
+					'Relative_State_of_Charge' 	=> '',
+					'Charger_Status'		=> '',
+					'Auto_Learn_Mode'		=> '',
+					'Auto_Learn_Period'		=> '',
+					'Next_Learn_time'		=> '',
+				);
+				open my $fh2, "$megacli -AdpBbuCmd -a$i -NoLog 2>&- | ";
+				if($fh2){
+					while(<$fh2>){
+						chomp;
+						if(/\A\s*Voltage:\s*(.+)\s*\Z/i){
+							$bbu_single{'Voltage'} = $1;
+							next;
+						}
+						if(/\A\s*Temperature:\s*(.+)\s*\Z/i){
+							$bbu_single{'Temperature'} = $1;
+							next;
+						}
+						if(/\A\s*Charging Status\s*:\s*(.+)\s*\Z/i){
+							$bbu_single{'Charging_Status'} = $1;
+							next;
+						}
+						if(/\A\s*Learn Cycle Status\s*:\s*(.+)\s*\Z/i){
+							$bbu_single{'Learn_Cycle_Status'} = $1;
+							next;
+						}
+						if(/\A\s*Learn Cycle Active\s*:\s*(.+)\s*\Z/i){
+							$bbu_single{'Learn_Cycle_Active'} = $1;
+							next;
+						}
+						if(/\A\s*Relative State of Charge:\s*(.+)\s*\Z/i){
+							$bbu_single{'Relative_State_of_Charge'} = $1;
+							next;
+						}
+						if(/\A\s*Charger Status:\s*(.+)\s*\Z/i){
+							$bbu_single{'Charger_Status'} = $1;
+							next;
+						}
+						if(/\A\s*Auto-Learn Mode:\s*(.+)\s*\Z/i){
+							$bbu_single{'Auto_Learn_Mode'} = $1;
+							next;
+						}
+						if(/\A\s*Auto Learn Period:\s*(.+)\s*\Z/i){
+							$bbu_single{'Auto_Learn_Period'} = $1;
+							next;
+						}
+						if(/\A\s*Next Learn time:\s*(.+)\s*\Z/i){
+							$bbu_single{'Next_Learn_time'} = $1;
+							next;
+						}
+					}
+				}
+				$raid_single{'RAID_BBU'} = \%bbu_single;
+				next;
+			}
+			if(/\A\s*Memory Size\s*:\s*(.+)\s*\Z/i){
+				$raid_single{'RAID_Memory'} = $1;
+				next;
+			}
+			if(/\A\s*Temperature sensor for controller\s*:\s*(.+)\s*\Z/i){
+				$raid_single{'RAID_Temp'} = $1;
+				next;
+			}
+			if(/\A\s*Current Time\s*:\s*(.+)\s*\Z/i){
+				$raid_single{'Current_Time'} = $1;
+				next;
+			}
+			if(/\A\s*RAID Level Supported\s*:\s*(.+)\s*\Z/i){
+				my @raid_supported = split(/,\s+/,$1);
+				$raid_single{'RAID_Supported'} = \@raid_supported;
+				next;
+			}
+			if(/\A\s*Supported Drives\s*:\s*(.+)\s*\Z/i){
+				my @drive_supported = split(/,\s+/,$1);
+				$raid_single{'Supported_Drives'} = \@drive_supported;
+				next;
+			}
+			if(/\A\s*Virtual Drives\s*:\s*(\d+)\s*\Z/i){
+				$raid_single{'Virtual_Drives_Number'} = $1;
+				if ($raid_single{'Virtual_Drives_Number'} > 0) {
+					my @vd_array = ();
+					for(my $v=0;$v<$raid_single{'Virtual_Drives_Number'};$v++){
+						my %vd_single = (
+							'vd_id'			=> $v,
+							'raid_level'		=> '',
+							'size'			=> '',
+							'stripe_size'		=> '',
+							'pdnum'			=> '',
+							'depth'			=> '',
+							'encryption'		=> '',
+							'default_cache_policy'	=> '',
+							'current_cache_policy'	=> '',
+							'default_access_policy'	=> '',
+							'current_access_policy'	=> '',
+						);
+						open my $fh3, "$megacli -LDInfo -L$v -a$i 2>&- | ";
+						if($fh3){
+							while(<$fh3>){
+								chomp;
+								if(/\A\s*RAID Level\s*:\s*(.+)\s*\Z/i){
+									$vd_single{'raid_level'} = $1;
+									next;
+								}	
+								if(/\A\s*Size\s*:\s*(.+)\s*\Z/i){
+									$vd_single{'size'} = $1;
+									next;
+								}	
+								if(/\A\s*Strip Size\s*:\s*(.+)\s*\Z/i){
+									$vd_single{'stripe_size'} = $1;
+									next;
+								}	
+								if(/\A\s*Number Of Drives\s*:\s*(\d+)\s*\Z/i){
+									$vd_single{'pdnum'} = $1;
+									next;
+								}	
+								if(/\A\s*Span Depth\s*:\s*(\d+)\s*\Z/i){
+									$vd_single{'depth'} = $1;
+									next;
+								}	
+								if(/\A\s*Encryption Type\s*:\s*(.+)\s*\Z/i){
+									$vd_single{'encryption'} = $1;
+									next;
+								}	
+								if(/\A\s*Default Cache Policy\s*:\s*(.+)\s*\Z/i){
+									$vd_single{'default_cache_policy'} = $1;
+									next;
+								}	
+								if(/\A\s*Current Cache Policy\s*:\s*(.+)\s*\Z/i){
+									$vd_single{'current_cache_policy'} = $1;
+									next;
+								}	
+								if(/\A\s*Default Access Policy\s*:\s*(.+)\s*\Z/i){
+									$vd_single{'default_access_policy'} = $1;
+									next;
+								}	
+								if(/\A\s*Current Access Policy\s*:\s*(.+)\s*\Z/i){
+									$vd_single{'current_access_policy'} = $1;
+									next;
+								}	
+							}
+						}
+						push @vd_array, \%vd_single;
+					}
+					$raid_single{'Virtual_Drives_Info'} = \@vd_array;
+				}
+				next;
+			}
+			if(/\A\s*Physical Devices\s*:\s*(\d+)\s*\Z/i){
+				$raid_single{'Physical_Devices_Number'} = $1;
+				next;
+			}
+			if(/\A\s*Memory Correctable Errors\s*:\s*(\d+)\s*\Z/i){
+				$raid_single{'Memory_Correctable_Errors'} = $1;
+				next;
+			}
+			if(/\A\s*Memory Uncorrectable Errors\s*:\s*(\d+)\s*\Z/i){
+				$raid_single{'Memory_Uncorrectable_Errors'} = $1;
+				next;
+			}
+			if(/\A\s*Strip Size\s*:\s*(.+)\s*\Z/i){
+				$raid_single{'Default_Strip_Size'} = $1;
+				next;
+			}
+			if(/\A\s*Write Policy\s*:\s*(.+)\s*\Z/i){
+				$raid_single{'Default_Write_Policy'} = $1;
+				next;
+			}
+			if(/\A\s*Read Policy\s*:\s*(.+)\s*\Z/i){
+				$raid_single{'Default_Read_Policy'} = $1;
+				next;
+			}
+			if(/\A\s*Cache When BBU Bad\s*:\s*(.+)\s*\Z/i){
+				$raid_single{'Default_Cache_When_BBU_Bad'} = $1;
+				next;
+			}
+		}
+  	}
+  	push @raid_info, \%raid_single;
+  }
+}
+### @raid_info
+
 
 __END__
 # smartctl -i /dev/sda
 # cat /proc/scsi/scsi     
 /opt/MegaRAID/MegaCli/MegaCli64 -LDInfo -Lall -aALL	查raid级别
-/opt/MegaRAID/MegaCli/MegaCli64 -AdpBbuCmd -aAll	查看电池信息
-/opt/MegaRAID/MegaCli/MegaCli64 -adpCount	【显示适配器个数】
-/opt/MegaRAID/MegaCli/MegaCli64 -AdpAllInfo -aAll 【显示所有适配器信息】
-/opt/MegaRAID/MegaCli/MegaCli64 -cfgdsply -aALL   | grep "Memory" 	【内存大小】
 /opt/MegaRAID/MegaCli/MegaCli64 -LDGetProp -Cache -LALL -a0     【写策略】
 /opt/MegaRAID/MegaCli/MegaCli64 -PDList -aALL     查看所有物理硬盘信息
-/opt/MegaRAID/MegaCli/MegaCli64 -AdpBbuCmd -GetBbuStatus -aALL |grep ‘Charger Status’ 【查看充电状态】
-/opt/MegaRAID/MegaCli/MegaCli64 -AdpBbuCmd -GetBbuStatus -aALL【显示BBU状态信息】
-/opt/MegaRAID/MegaCli/MegaCli64 -AdpBbuCmd -GetBbuCapacityInfo -aALL【显示BBU容量信息】
-/opt/MegaRAID/MegaCli/MegaCli64 -cfgdsply -aALL 【显示Raid卡型号，Raid设置，Disk相关信息】

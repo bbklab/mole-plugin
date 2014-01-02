@@ -24,11 +24,14 @@ event notify on mail deliver fail for eyoumailv5/8
 mkdir -p $RPM_BUILD_ROOT/usr/local/eminfo/
 mkdir -p $RPM_BUILD_ROOT/usr/local/eminfo/plugin/
 mkdir -p $RPM_BUILD_ROOT/usr/local/eminfo/conf/
+mkdir -p $RPM_BUILD_ROOT/usr/local/eminfo/docs/{en,cn}/
 mkdir -p $RPM_BUILD_ROOT/usr/local/eminfo/handler/
 mkdir -p $RPM_BUILD_ROOT/usr/local/eminfo/opt/
 p="emp_notify_deliverfail"
 cp -a ${p}/${p}          $RPM_BUILD_ROOT/usr/local/eminfo/plugin/
 cp -a ${p}/conf/${p}.ini $RPM_BUILD_ROOT/usr/local/eminfo/conf/
+[ -f "${p}/docs/en/readme" ] && cp -a ${p}/docs/en/readme $RPM_BUILD_ROOT/usr/local/eminfo/docs/en/${p}.readme
+[ -f "${p}/docs/zh/readme" ] && cp -a ${p}/docs/zh/readme $RPM_BUILD_ROOT/usr/local/eminfo/docs/zh/${p}.readme 
 cp -a ${p}/handler/      $RPM_BUILD_ROOT/usr/local/eminfo/
 cp -a ${p}/opt/          $RPM_BUILD_ROOT/usr/local/eminfo/
 
@@ -39,6 +42,7 @@ cp -a ${p}/opt/          $RPM_BUILD_ROOT/usr/local/eminfo/
 %defattr(-,root,root,-)
 /usr/local/eminfo/plugin/
 /usr/local/eminfo/conf/
+/usr/local/eminfo/docs/
 /usr/local/eminfo/handler/
 /usr/local/eminfo/opt/
 
