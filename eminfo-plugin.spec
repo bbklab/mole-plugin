@@ -46,8 +46,8 @@ for p in `ls`
 do
   cp -a ${p}/${p}	   $RPM_BUILD_ROOT/usr/local/eminfo/plugin/
   cp -a ${p}/conf/${p}.ini $RPM_BUILD_ROOT/usr/local/eminfo/conf/
-  cp -a ${p}/docs/cn/readme  $RPM_BUILD_ROOT/usr/local/eminfo/docs/cn/${p}.readme
-  cp -a ${p}/docs/en/readme  $RPM_BUILD_ROOT/usr/local/eminfo/docs/en/${p}.readme
+  [ -f "${p}/docs/cn/readme" ] && cp -a ${p}/docs/cn/readme  $RPM_BUILD_ROOT/usr/local/eminfo/docs/cn/${p}.readme
+  [ -f "${p}/docs/en/readme" ] && cp -a ${p}/docs/en/readme  $RPM_BUILD_ROOT/usr/local/eminfo/docs/en/${p}.readme
   cp -a ${p}/handler/      $RPM_BUILD_ROOT/usr/local/eminfo/
   cp -a ${p}/opt/          $RPM_BUILD_ROOT/usr/local/eminfo/
   cp -a ${p}/share/	   $RPM_BUILD_ROOT/usr/local/eminfo/
