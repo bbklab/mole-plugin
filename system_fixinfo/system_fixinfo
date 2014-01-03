@@ -335,7 +335,7 @@ if (-f $userfile && -r $userfile) {
 	while(<$fh>){
 		chomp;
 		my ($name,$uid,$gid,$homedir,$shell) = (split /:/)[0,2,3,5,6];
-		if (-e $shell && $shell =~ /sh\Z/) {
+		if (defined $shell && -e $shell && $shell =~ /sh\Z/) {
 			push @sysuser, "name=$name, id=$uid, gid=$gid, homedir=$homedir, shell=$shell";
 		}
 	}
@@ -514,8 +514,10 @@ if (-f $megacli && -x $megacli) {
 		'Current_Time'			=> '',
 		'RAID_Supported'		=> '',
 		'Supported_Drives'		=> '',
-		'Virtual_Drives'		=> '',
-		'Physical_Devices'		=> '',
+		'Virtual_Drives_Number'		=> '',
+		'Virtual_Drives_Info'		=> '',
+		'Physical_Devices_Number'	=> '',
+		'Physical_Devices_Info'		=> '',
 		'Memory_Correctable_Errors'	=> '',
 		'Memory_Uncorrectable_Errors'	=> '',
 		'Default_Strip_Size'		=> '',
@@ -625,11 +627,77 @@ if (-f $megacli && -x $megacli) {
 				next;
 			}
 			if(/\A\s*Virtual Drives\s*:\s*(\d+)\s*\Z/i){
-				$raid_single{'Virtual_Drives'} = $1;
+				$raid_single{'Virtual_Drives_Number'} = $1;
+				if ($raid_single{'Virtual_Drives_Number'} > 0) {
+					my @vd_array = ();
+					for(my $v=0;$v<$raid_single{'Virtual_Drives_Number'};$v++){
+						my %vd_single = (
+							'vd_id'			=> $v,
+							'raid_level'		=> '',
+							'size'			=> '',
+							'stripe_size'		=> '',
+							'pdnum'			=> '',
+							'depth'			=> '',
+							'encryption'		=> '',
+							'default_cache_policy'	=> '',
+							'current_cache_policy'	=> '',
+							'default_access_policy'	=> '',
+							'current_access_policy'	=> '',
+						);
+						open my $fh3, "$megacli -LDInfo -L$v -a$i 2>&- | ";
+						if($fh3){
+							while(<$fh3>){
+								chomp;
+								if(/\A\s*RAID Level\s*:\s*(.+)\s*\Z/i){
+									$vd_single{'raid_level'} = $1;
+									next;
+								}	
+								if(/\A\s*Size\s*:\s*(.+)\s*\Z/i){
+									$vd_single{'size'} = $1;
+									next;
+								}	
+								if(/\A\s*Strip Size\s*:\s*(.+)\s*\Z/i){
+									$vd_single{'stripe_size'} = $1;
+									next;
+								}	
+								if(/\A\s*Number Of Drives\s*:\s*(\d+)\s*\Z/i){
+									$vd_single{'pdnum'} = $1;
+									next;
+								}	
+								if(/\A\s*Span Depth\s*:\s*(\d+)\s*\Z/i){
+									$vd_single{'depth'} = $1;
+									next;
+								}	
+								if(/\A\s*Encryption Type\s*:\s*(.+)\s*\Z/i){
+									$vd_single{'encryption'} = $1;
+									next;
+								}	
+								if(/\A\s*Default Cache Policy\s*:\s*(.+)\s*\Z/i){
+									$vd_single{'default_cache_policy'} = $1;
+									next;
+								}	
+								if(/\A\s*Current Cache Policy\s*:\s*(.+)\s*\Z/i){
+									$vd_single{'current_cache_policy'} = $1;
+									next;
+								}	
+								if(/\A\s*Default Access Policy\s*:\s*(.+)\s*\Z/i){
+									$vd_single{'default_access_policy'} = $1;
+									next;
+								}	
+								if(/\A\s*Current Access Policy\s*:\s*(.+)\s*\Z/i){
+									$vd_single{'current_access_policy'} = $1;
+									next;
+								}	
+							}
+						}
+						push @vd_array, \%vd_single;
+					}
+					$raid_single{'Virtual_Drives_Info'} = \@vd_array;
+				}
 				next;
 			}
 			if(/\A\s*Physical Devices\s*:\s*(\d+)\s*\Z/i){
-				$raid_single{'Physical_Devices'} = $1;
+				$raid_single{'Physical_Devices_Number'} = $1;
 				next;
 			}
 			if(/\A\s*Memory Correctable Errors\s*:\s*(\d+)\s*\Z/i){
