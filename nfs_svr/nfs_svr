@@ -134,7 +134,7 @@ check(){
 
 	for i in ${path_exports}
 	do
-		mpoint=$(/bin/awk '($1~/'$ip':'$i'\>/ && $3~/\<nfs\>){print $2}' /etc/mtab 2>&-)
+		mpoint=$(/bin/awk '($1=="'$ip':'$i'" && $3~/\<nfs\>/){print $2;exit;}' /etc/mtab 2>&-)
 		if [ ! -z "${mpoint}" -a -d "${mpoint}" ]; then
 			result="${result} ${ip}:${i} mounted on ${mpoint} ### "
 		fi
