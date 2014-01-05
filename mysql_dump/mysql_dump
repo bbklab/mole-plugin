@@ -145,6 +145,7 @@ check() {
 		errstuff=$( ${cmd} ${db} ${tb} 2>&1 1>${dirpath}/${db}.${tb}.sql )
 		[ "$?" != "0" ] && {
 			((errnum++))
+			errstuff=$(echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n')
 			result="${result} $(html_red "Dump Table [${db}.${tb}] return [${errstuff}]") ###"
 		} || {
 			((succnum++))

@@ -92,7 +92,8 @@ check() {
 		cmd="${mysqladmin_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} -p"${mysql_pass}" --connect-timeout ${mysql_time_out} "
 	fi
 
-	ping_result=$( ${cmd} ping 2>&1| tr '\n' ' ' )
+	ping_result=$( ${cmd} ping 2>&1 )
+	ping_result=$(echo -e "${ping_result}" | sed -e '/password on the command line/d' |tr -d '\r\n')
 	if [ "$(echo "${ping_result}"|grep -E -o -i "is alive")" == "" ]; then
 		((errnum++))
 		result="${result} $(html_red "result: [${ping_result}]") ### ### "
