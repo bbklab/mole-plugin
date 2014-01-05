@@ -126,6 +126,7 @@ check() {
 	for dbname in ${dblst}
 	do
 		dbtb_tmp=$( awk -v db=${dbname} '\
+				($0~/^[ \t]*$/){next;}\
 				($0~/^ *\[ *'${dbname}' *\] *$/){k=1;x=1;next}\
 				(x==1 && $0~/^ *\[ *.* *\] *$/ && $0!~/^ *\[ *'${dbname}' *\] *$/ ){exit;}\
 				( k==1 && x==1 ){printf "%s %s ",db,$0;}'  "${dbtb_file}" 2>&- )
