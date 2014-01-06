@@ -1,13 +1,10 @@
 # Copyright (C) 2013 EMINFO LANGUAGE FILE FOR GETTEXT
-# FIRST AUTHOR <zhangguangzheng@eyou.net>, 2013.
+# FIRST AUTHOR <zhangguangzheng@eyou.net>,<zhang.elinks@gmail.com> 2013.
 # This file is distributed under the same license as the eminfo package.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 1.0-beta6\n"
 "Report-Msgid-Bugs-To: zhangguangzheng@eyou.net\n"
-"POT-Creation-Date: 2013-11-29 17:16+0800\n"
-"PO-Revision-Date: 2013-11-29 17:16+0800\n"
 "Last-Translator: Guangzheng Zhang <zhang.elinks@gmail.com>\n"
 "Language-Team: EMINFO-LANGUAGE <zhang.elinks@gmail.com>\n"
 "MIME-Version: 1.0\n"
