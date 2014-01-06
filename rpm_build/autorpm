@@ -45,6 +45,7 @@ if [ -z "${1}" ]; then
 	nfs_svr
 	dns_svr
 	memcache_perf
+	traffic
   )
 else
   if [ -d "${basedir}/${1}" ]; then
