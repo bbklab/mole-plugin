@@ -2,13 +2,14 @@
 use strict;
 use warnings;
 use utf8;
-use Net::SMTP;
 use Encode;
+use Net::SMTP;
 use Time::HiRes;
 use Benchmark ':hireswallclock';
 use Locale::Messages qw (textdomain bindtextdomain gettext);
 binmode(STDIN, ":encoding(utf8)");
 binmode(STDOUT, ":encoding(utf8)");
+binmode(STDERR, ":encoding(utf8)");
 binmode STDOUT, ':raw';
 
 # return codes

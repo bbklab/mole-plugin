@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 use utf8;
+use Encode;
 use IO::Socket;
 use IO::Socket::INET;
 use Time::HiRes;
@@ -9,6 +10,7 @@ use Benchmark ':hireswallclock';
 use Locale::Messages qw (textdomain bindtextdomain gettext);
 binmode(STDIN, ":encoding(utf8)");
 binmode(STDOUT, ":encoding(utf8)");
+binmode(STDERR, ":encoding(utf8)");
 binmode STDOUT, ':raw';
 
 $| = 1;
