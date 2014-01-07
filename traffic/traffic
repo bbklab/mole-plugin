@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 
+
 BASE_DIR="/usr/local/eminfo/"
 # === LOAD GETTEXT.SH FILE
 if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
@@ -41,7 +42,10 @@ elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" 
         export LANG="zh_CN.UTF-8"
 elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
         export LANG="en_US.UTF-8"
+else
+        export LANG="zh_CN.UTF-8"
 fi
+
 
 
 show_help(){
