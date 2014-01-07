@@ -510,14 +510,16 @@ if (-f $megacli && -x $megacli) {
 		'BIOS_Version'			=> '',
 		'RAID_BBU'			=> '',
 		'RAID_Memory'			=> '',
-		'RAID_Temp'			=> '',
+		'RAID_Temp_Sensor'		=> '',
 		'Current_Time'			=> '',
 		'RAID_Supported'		=> '',
 		'Supported_Drives'		=> '',
-		'Virtual_Drives_Number'		=> '',
-		'Virtual_Drives_Info'		=> '',
-		'Physical_Devices_Number'	=> '',
-		'Physical_Devices_Info'		=> '',
+		'Virtual_Disk_Number'		=> '',
+		'Virtual_Disk_Info'		=> '',
+		'Physical_Disk_Number'		=> '',
+		'Physical_Disks_Critical'	=> '',
+		'Physical_Disks_Failed'		=> '',
+		'Physical_Disk_Info'		=> '',
 		'Memory_Correctable_Errors'	=> '',
 		'Memory_Uncorrectable_Errors'	=> '',
 		'Default_Strip_Size'		=> '',
@@ -525,6 +527,10 @@ if (-f $megacli && -x $megacli) {
 		'Default_Read_Policy'		=> '',
 		'Default_Cache_When_BBU_Bad'	=> '',
   	);
+	my %raid_temp_sensor = (	### init  %raid_temp_sensor
+		'Present'	=> 0,
+		'Temperature'	=> '',
+	);
 	open my $fh1, "$megacli -AdpAllInfo -a$i -NoLog 2>&- | ";
 	if($fh1){
 		while(<$fh1>){
@@ -608,8 +614,12 @@ if (-f $megacli && -x $megacli) {
 				$raid_single{'RAID_Memory'} = $1;
 				next;
 			}
-			if(/\A\s*Temperature sensor for controller\s*:\s*(.+)\s*\Z/i){
-				$raid_single{'RAID_Temp'} = $1;
+			if(/\A\s*Temperature sensor for controller\s*:\s*Present\s*\Z/i){
+				$raid_temp_sensor{'Present'} = 1;
+				next;
+			}
+			if(/\A\s*Controller temperature\s*:\s*(.+)\s*\Z/i){
+				$raid_temp_sensor{'Temperature'} = $1;
 				next;
 			}
 			if(/\A\s*Current Time\s*:\s*(.+)\s*\Z/i){
@@ -627,14 +637,15 @@ if (-f $megacli && -x $megacli) {
 				next;
 			}
 			if(/\A\s*Virtual Drives\s*:\s*(\d+)\s*\Z/i){
-				$raid_single{'Virtual_Drives_Number'} = $1;
-				if ($raid_single{'Virtual_Drives_Number'} > 0) {
+				$raid_single{'Virtual_Disk_Number'} = $1;
+				if ($raid_single{'Virtual_Disk_Number'} > 0) {
 					my @vd_array = ();
-					for(my $v=0;$v<$raid_single{'Virtual_Drives_Number'};$v++){
+					for(my $v=0;$v<$raid_single{'Virtual_Disk_Number'};$v++){
 						my %vd_single = (
-							'vd_id'			=> $v,
+							'vd_id'			=> 0,
 							'raid_level'		=> '',
 							'size'			=> '',
+							'state'			=> '',
 							'stripe_size'		=> '',
 							'pdnum'			=> '',
 							'depth'			=> '',
@@ -644,16 +655,24 @@ if (-f $megacli && -x $megacli) {
 							'default_access_policy'	=> '',
 							'current_access_policy'	=> '',
 						);
-						open my $fh3, "$megacli -LDInfo -L$v -a$i 2>&- | ";
+						open my $fh3, "$megacli -LDInfo -L$v -a$i -NoLog 2>&- | ";
 						if($fh3){
 							while(<$fh3>){
 								chomp;
+								if(/\A\s*Virtual Drive\s*:\s*(\d+)\s*/i){
+									$vd_single{'vd_id'} = $1;
+									next;
+								}
 								if(/\A\s*RAID Level\s*:\s*(.+)\s*\Z/i){
 									$vd_single{'raid_level'} = $1;
 									next;
 								}	
 								if(/\A\s*Size\s*:\s*(.+)\s*\Z/i){
 									$vd_single{'size'} = $1;
+									next;
+								}	
+								if(/\A\s*State\s*:\s*(.+)\s*\Z/i){
+									$vd_single{'state'} = $1;
 									next;
 								}	
 								if(/\A\s*Strip Size\s*:\s*(.+)\s*\Z/i){
@@ -692,12 +711,110 @@ if (-f $megacli && -x $megacli) {
 						}
 						push @vd_array, \%vd_single;
 					}
-					$raid_single{'Virtual_Drives_Info'} = \@vd_array;
+					$raid_single{'Virtual_Disk_Info'} = \@vd_array;
 				}
 				next;
 			}
-			if(/\A\s*Physical Devices\s*:\s*(\d+)\s*\Z/i){
-				$raid_single{'Physical_Devices_Number'} = $1;
+			if(/\A\s*Disks\s*:\s*(\d+)\s*\Z/i){
+				$raid_single{'Physical_Disk_Number'} = $1;
+				if ($raid_single{'Physical_Disk_Number'} > 0) {
+					my @pd_array = ();
+					my %pd_single = (
+						'pd_id'			=> 'X',	# init
+						'pd_type'		=> '',
+						'position'		=> '',
+						'raw_size'		=> '',
+						'coerced_size'		=> '',
+						'media_type'		=> '',
+						'media_error'		=> '',
+						'other_error'		=> '',
+						'predictive_failure'	=> '',
+						'firmware_state'	=> '',
+						'inquiry_data'		=> '',
+						'temperature'		=> '',
+						'write_cache'		=> '',
+					);
+					my $pd_finish_flag = 0;
+					open my $fh4, "$megacli -PDList -a$i -NoLog 2>&- | ";
+					if($fh4){
+						while(<$fh4>){
+							chomp;
+							# if blank-line, check if single physical disk finished.
+							if(/\A\s*\Z/i){	
+								if($pd_single{'pd_id'} ne 'X' && $pd_finish_flag == 0){
+									$pd_finish_flag = 1;
+									my %tmp_pd_single = %pd_single;
+									push @pd_array, \%tmp_pd_single;
+								}else{
+									$pd_finish_flag = 0;
+									$pd_single{'pd_id'} = 'X';
+								}
+								next;
+							}
+							if(/\A\s*Device Id\s*:\s*(\d+)\s*\Z/i){
+								$pd_single{'pd_id'} = $1;
+								next;
+							}	
+							if(/\A\s*PD Type\s*:\s*(.+)\s*\Z/i){
+								$pd_single{'pd_type'} = $1;
+								next;
+							}	
+							if(/\A\s*Drive\'s postion\s*:\s*(.+)\s*\Z/i){
+								$pd_single{'position'} = $1;
+								next;
+							}	
+							if(/\A\s*Raw Size\s*:\s*(.+)\s*\Z/i){
+								$pd_single{'raw_size'} = $1;
+								next;
+							}	
+							if(/\A\s*Coerced Size\s*:\s*(.+)\s*\Z/i){
+								$pd_single{'coerced_size'} = $1;
+								next;
+							}	
+							if(/\A\s*Media Type\s*:\s*(.+)\s*\Z/i){
+								$pd_single{'media_type'} = $1;
+								next;
+							}	
+							if(/\A\s*Media Error Count\s*:\s*(.+)\s*\Z/i){
+								$pd_single{'media_error'} = $1;
+								next;
+							}	
+							if(/\A\s*Other Error Count\s*:\s*(.+)\s*\Z/i){
+								$pd_single{'other_error'} = $1;
+								next;
+							}	
+							if(/\A\s*Predictive Failure Count\s*:\s*(.+)\s*\Z/i){
+								$pd_single{'predictive_failure'} = $1;
+								next;
+							}	
+							if(/\A\s*Firmware state\s*:\s*(.+)\s*\Z/i){
+								$pd_single{'firmware_state'} = $1;
+								next;
+							}	
+							if(/\A\s*Inquiry Data\s*:\s*(.+)\s*\Z/i){
+								$pd_single{'inquiry_data'} = $1;
+								next;
+							}	
+							if(/\A\s*Drive Temperature\s*:\s*(.+)\s*\Z/i){
+								$pd_single{'temperature'} = $1;
+								next;
+							}	
+							if(/\A\s*Drive\'s write cache\s*:\s*(.+)\s*\Z/i){
+								$pd_single{'write_cache'} = $1;
+								next;
+							}	
+						}
+					}
+					$raid_single{'Physical_Disk_Info'} = \@pd_array;
+				}
+				next;
+			}
+			if(/\A\s*Critical Disks\s*:\s*(\d+)\s*\Z/i){
+				$raid_single{'Physical_Disks_Critical'} = $1;
+				next;
+			}
+			if(/\A\s*Failed Disks\s*:\s*(\d+)\s*\Z/i){
+				$raid_single{'Physical_Disks_Failed'} = $1;
 				next;
 			}
 			if(/\A\s*Memory Correctable Errors\s*:\s*(\d+)\s*\Z/i){
@@ -726,15 +843,8 @@ if (-f $megacli && -x $megacli) {
 			}
 		}
   	}
+	$raid_single{'RAID_Temp_Sensor'} = \%raid_temp_sensor;
   	push @raid_info, \%raid_single;
   }
 }
 ### @raid_info
-
-
-__END__
-# smartctl -i /dev/sda
-# cat /proc/scsi/scsi     
-/opt/MegaRAID/MegaCli/MegaCli64 -LDInfo -Lall -aALL	查raid级别
-/opt/MegaRAID/MegaCli/MegaCli64 -LDGetProp -Cache -LALL -a0     【写策略】
-/opt/MegaRAID/MegaCli/MegaCli64 -PDList -aALL     查看所有物理硬盘信息
