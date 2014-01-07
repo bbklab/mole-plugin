@@ -6,7 +6,7 @@ use Encode;
 use Net::SMTP;
 use Time::HiRes;
 use Benchmark ':hireswallclock';
-use Locale::Messages qw (textdomain bindtextdomain gettext);
+use Locale::Messages qw (textdomain bindtextdomain gettext nl_putenv);
 binmode(STDIN, ":encoding(utf8)");
 binmode(STDOUT, ":encoding(utf8)");
 binmode(STDERR, ":encoding(utf8)");
@@ -36,6 +36,35 @@ if($fh){
         last;
   }
 }
+
+# read plugin locale setting
+our $locale = 'zh_CN.UTF-8';
+open $fh, "$eminfo view $filename locale 2>&- |";
+if($fh){
+  while(<$fh>){
+        chomp; $locale = $_;
+        last;
+  }
+  if(!defined $locale || $locale eq ''){
+        open my $fh1, "$eminfo view default locale 2>&- |";
+        if($fh1){
+                while(<$fh1>){
+                        chomp; $locale = $_;
+                        last;
+                }
+        }
+  }
+}
+if(!defined $locale || $locale eq ''){
+        $locale = 'zh_CN.UTF-8';
+}elsif($locale eq 'zh_CN' || $locale eq 'zh_CN.UTF-8' || $locale eq 'zh'){
+        $locale = 'zh_CN.UTF-8';
+}elsif($locale eq 'en_US' || $locale eq 'en_US.UTF-8' || $locale eq 'en'){
+        $locale = 'en_US.UTF-8';
+}else{
+        $locale = 'zh_CN.UTF-8';
+}
+nl_putenv("LANGUAGE=$locale");
 
 # set textdomain; bindtextdomain
 sub _ ($) { &gettext; }
