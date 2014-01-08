@@ -284,6 +284,37 @@ if (-f $clockfile && -r $clockfile) {
 }
 ### %sys_clock
 
+
+my %sys_lang = (
+  'lang_default'	=> '',
+  'lang_supported'	=> '',
+  'font_default'	=> '',
+);
+my $i18nfile = '/etc/sysconfig/i18n';
+if (-f $i18nfile && -r $i18nfile) {
+  open my $fh, "<", $i18nfile;
+  if ($fh) {
+	while(<$fh>){
+		chomp;
+		if (m/\ALANG=/){
+			s/"//g;
+			$sys_lang{'lang_default'} = (split/=/)[1];
+		}
+		if (m/\ASUPPORTED=/){
+			s/"//g;
+			$sys_lang{'lang_supported'} = (split/=/)[1];
+		}
+		if (m/\ASYSFONT=/){
+			s/"//g;
+			$sys_lang{'font_default'} = (split/=/)[1];
+		}
+	}
+  }
+}
+### %sys_lang
+
+
+
 my %selinux = (
   'status'		=> '',
   'type'		=> '',
