@@ -40,7 +40,7 @@ if (-f $dmidecode && -x $dmidecode) {
     open my $fh, "$dmidecode -s $product_info{$key} 2>&1 |";
     if ($fh) {
 	while (<$fh>){
-		chomp; $product_info{$key} = $_;
+		chomp; s/\A\s*//; s/\s*\Z//g; $product_info{$key} = $_;
 		last;
 	}
     }
@@ -208,7 +208,7 @@ if (-f $uname && -x $uname) {
    open my $fh, "$uname $uname_info{$key} 2>&1 |";
    if ($fh) {
 	while(<$fh>){
-		chomp; $uname_info{$key} = $_;
+		chomp; s/\A\s*//; s/\s*\Z//g; $uname_info{$key} = $_;
 		last;
 	}
    }
@@ -245,7 +245,7 @@ if (-f $getconf && -x $getconf) {
   open my $fh, "$getconf LONG_BIT 2>&1 |";
   if ($fh) {
 	while(<$fh>){
-		chomp; $os_info{'os_bitmode'} = $_;
+		chomp; s/\A\s*//; s/\s*\Z//g; $os_info{'os_bitmode'} = $_;
 	}
   }
 }
@@ -344,11 +344,10 @@ if (-f $userfile && -r $userfile) {
 ### @sysuser
 
 
-my $runlevel = '';
+my $runlevel = 'X';
 my $inittab = '/etc/inittab';
 if (-f $inittab && -r $inittab) {
-  open my $fh, "<", $inittab;
-  if ($fh) {
+  if(open my $fh, "<", $inittab){
 	while(<$fh>){
 		chomp;
 		if (m/\Aid:/){
@@ -356,9 +355,26 @@ if (-f $inittab && -r $inittab) {
 			last;
 		}
 	}
+	close $fh;
   }
 }
 ### $runlevel
+
+
+my @startups = ();
+my $startdir = "/etc/rc$runlevel.d/";
+if (-d $startdir && -r $startdir) {
+  my @start_files = (glob "$startdir/S*");
+  foreach(@start_files){
+	my $start_file = (split /\//)[-1];
+	if(defined $start_file){
+		$start_file =~ s/\AS\d+//;
+		next if $start_file eq 'local';
+		push @startups, $start_file;
+	}
+  }
+}
+### @startups
 
 
 
@@ -393,17 +409,24 @@ my $netcard_num = scalar keys %netcard;
 
 
 my @inet_name = ();
-my $netdir = '/etc/sysconfig/network-scripts/';
+my $netfile = '/proc/net/dev';
 my $ethtool = '/sbin/ethtool';
 my $ifconfig = '/sbin/ifconfig';
-if (-d $netdir && -r $netdir) {
-  my @netfiles =(glob "$netdir/ifcfg-*" );
-  foreach(@netfiles){
+if (-f $netfile && -r $netfile) {
+  my @netfaces = ();
+  if(open FH1, "<", $netfile){
+	while(<FH1>){
+		chomp;
+		if(/\A\s*(\w+?):\s*(\d+)/i){
+			next if ($1 eq 'lo' || $1 eq 'sit0' || $1 =~ m/range/i);
+			push @netfaces, $1;
+		}
+	}
+	close FH1;
+  }
+  foreach(@netfaces){
 	chomp;
-	next if m/(~|\.bak|\.orig|\.rpmnew|\.rpmorig|\.rpmsave)\Z/; 
-	next if m/(ifcfg-lo|:|ifcfg-.*-range)/;
-	my $inet_name = (split/\//)[-1];
-  	$inet_name =~ s/\Aifcfg-//g if $inet_name;
+	my $inet_name = $_;
 	my %inet_info = (
 		'name'			=> $inet_name,
 		'speed'			=> '',
@@ -763,14 +786,14 @@ if (-f $megacli && -x $megacli) {
 								$pd_single{'position'} = $1;
 								next;
 							}	
-							if(/\A\s*Raw Size\s*:\s*(.+)\s*\Z/i){
-								$pd_single{'raw_size'} = $1;
-								next;
-							}	
-							if(/\A\s*Coerced Size\s*:\s*(.+)\s*\Z/i){
-								$pd_single{'coerced_size'} = $1;
-								next;
-							}	
+                                                        if(/\A\s*Raw Size\s*:\s*([\d.]+\s+(\w)+)\s*/i){
+                                                                $pd_single{'raw_size'} = $1;
+                                                                next;
+                                                        }
+                                                        if(/\A\s*Coerced Size\s*:\s*([\d.]+\s+(\w)+)\s*/i){
+                                                                $pd_single{'coerced_size'} = $1;
+                                                                next;
+                                                        }
 							if(/\A\s*Media Type\s*:\s*(.+)\s*\Z/i){
 								$pd_single{'media_type'} = $1;
 								next;
@@ -791,7 +814,7 @@ if (-f $megacli && -x $megacli) {
 								$pd_single{'firmware_state'} = $1;
 								next;
 							}	
-							if(/\A\s*Inquiry Data\s*:\s*(.+)\s*\Z/i){
+							if(/\A\s*Inquiry Data\s*:\s*(.+?)\s*\Z/i){
 								$pd_single{'inquiry_data'} = $1;
 								next;
 							}	
