@@ -59,3 +59,35 @@ DECLARE $domain_name CHAR(255);
                	VALUES (NEW.acct_id,$acct_name,$domain_name,NEW.password,'MOD',UNIX_TIMESTAMP() );
         END IF;
 END;
+
+
+/*	VPN on/off trigger
+-- {{{ trigger_sync_user_mod_on_off
+DROP TRIGGER IF EXISTS trigger_sync_user_mod_on_off //
+CREATE TRIGGER trigger_sync_user_mod_on_off AFTER UPDATE
+ON user_personal FOR EACH ROW
+BEGIN
+DECLARE $acct_name CHAR(64);
+DECLARE $domain_name CHAR(255);
+DECLARE $sync_flag CHAR(64);
+DECLARE $password CHAR(128);
+
+        IF OLD.extra_h <> NEW.extra_h THEN
+                        SELECT domain_key.domain_name INTO $domain_name FROM domain_key,acct_key
+                                WHERE acct_key.domain_id=domain_key.domain_id
+                                AND domain_key.domain_type=0 -- ignore alias domain
+                                AND acct_key.acct_id=NEW.acct_id;
+                        SELECT acct_key.acct_name INTO $acct_name FROM acct_key
+                                WHERE acct_key.acct_id=NEW.acct_id;
+                        SELECT user_basic.password INTO $password FROM user_basic
+                                WHERE user_basic.acct_id=NEW.acct_id;
+                IF OLD.extra_h = 1 && NEW.extra_h = 0 THEN   --  turn off vpn: delete user
+                        INSERT INTO user_sync
+                        VALUES (NEW.acct_id,$acct_name,$domain_name,$password,'DEL_OFF',UNIX_TIMESTAMP() );
+                ELSEIF OLD.extra_h = 0 && NEW.extra_h = 1 THEN  -- turn on vpn: add user
+                        INSERT INTO user_sync
+                        VALUES (NEW.acct_id,$acct_name,$domain_name,$password,'ADD_ON',UNIX_TIMESTAMP() );
+                END IF;
+        END IF;
+END;
+*/
