@@ -1,6 +1,8 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
+use Locale::Messages qw (textdomain bindtextdomain gettext);
+binmode STDOUT, ':raw';
 
 # return codes
 our ($state_ok,$state_warn,$state_crit,$state_unkn,$state_noop) = (0,1,2,3,4);
@@ -18,9 +20,24 @@ unless (-f $eminfo && -x $eminfo) {
   exit $state_unkn;
 }
 
+# read eminfo locale_def
+our $localdir = '/usr/local/eminfo/share/locale/';
+open my $fh, "$eminfo printdef LOCALE_DIR 2>&- |";
+if($fh){
+  while(<$fh>){
+        chomp; $localdir = $_;
+        last;
+  }
+}
+
+# set textdomain; bindtextdomain
+sub _ ($) { &gettext; }
+textdomain "$filename";
+bindtextdomain "$filename", "$localdir";
+
 # read plugin config here
 our $messagefile = '/var/log/messages';
-open my $fh, "$eminfo view $filename messagefile 2>&- |";
+open $fh, "$eminfo view $filename messagefile 2>&- |";
 if ($fh) {
   while(<$fh>){
   	chomp; $messagefile = $_;
@@ -57,7 +74,7 @@ sub loadpos {
 
 # Main body begin
 unless (-f $messagefile) {
-  print "{noop}:{str}:{ message file [$messagefile] not exists. }";
+  printf _"{noop}:{str}:{ message file [%s] not exists. }",$messagefile;
   exit $state_noop;
 }
 # 1. load position from tracefile
@@ -74,7 +91,7 @@ if ($dev ne $nowdev || $inode ne $nowinode) {	# maybe messagefile logrotated
 }
 # 3. open message file and goto last position directly
 unless (open FH, "<$messagefile") {
-  print "{noop}:{str}:{ open message file [$messagefile] failed. }";
+  printf _"{noop}:{str}:{ open message file [%s] failed. }",$messagefile;
   exit $state_noop;
 }
 seek (FH,$position,0);		# directly goto last position
@@ -92,13 +109,13 @@ savepos ($messagefile, $newpos, $tracefile);
 close FH;
 # 6. prepare last output
 unless (@record) {
-  print "{noop}:{str}:{no oom event captured}";
+  printf _"{noop}:{str}:{no oom event captured}";
   exit $state_noop;
 } else {
   while (@record) {
   	$result .= shift @record;
   }
-  $result = "oom event | captured oom event | " . $result;
-  print "{crit}:{str}:{$result}";
+  $result = sprintf(_"oom event | captured oom event | ") . $result;
+  printf _"{crit}:{str}:{%s}",$result;
   exit $state_crit;
 }
