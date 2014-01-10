@@ -6,8 +6,10 @@ use Net::SMTP;
 use Encode;
 use Time::HiRes;
 use Benchmark ':hireswallclock';
+use Locale::Messages qw (textdomain bindtextdomain gettext);
 binmode(STDIN, ":encoding(utf8)");
 binmode(STDOUT, ":encoding(utf8)");
+binmode STDOUT, ':raw';
 
 # return codes
 our ($state_ok,$state_warn,$state_crit,$state_unkn,$state_noop) = (0,1,2,3,4);
@@ -24,9 +26,24 @@ unless (-f $eminfo && -x $eminfo) {
   exit $state_unkn;
 }
 
+# read eminfo locale_def
+our $localdir = '/usr/local/eminfo/share/locale/';
+open my $fh, "$eminfo printdef LOCALE_DIR 2>&- |";
+if($fh){
+  while(<$fh>){
+        chomp; $localdir = $_;
+        last;
+  }
+}
+
+# set textdomain; bindtextdomain
+sub _ ($) { &gettext; }
+textdomain "$filename";
+bindtextdomain "$filename", "$localdir";
+
 # read plugin config here
 our $addr_port = '127.0.0.1:25';
-open my $fh, "$eminfo view $filename addr_port 2>&- |";
+open $fh, "$eminfo view $filename addr_port 2>&- |";
 if ($fh) {
   while(<$fh>){
   	chomp; $addr_port = $_;
@@ -66,19 +83,19 @@ if ($fh) {
 my ($total,$critnum,$unknnum) = (0,0,0);
 my ($time_start,$time_stop,$time_duration);
 
-$result = "check list: $addr_port ### ### ";
+$result = sprintf(_"check list: %s ### ### ",$addr_port);
 
 my @addr_pair = split /\s+/, $addr_port;
 while(@addr_pair) {
   $total++;
   my ($smtp_host, $smtp_port) = (split /:/, shift @addr_pair)[0,1];
   if (!defined $smtp_host || !defined $smtp_port) {
-	$result .= "<font color=yellow> smtp_host or smtp_port not defined </font> ### ### ";
+	$result .= sprintf(_"<font color=yellow> smtp_host or smtp_port not defined </font> ### ### ");
 	$unknnum++;
 	next;
   }
   if ($smtp_port =~ /\D/) {
-	$result .= "<font color=yellow> $smtp_host:$smtp_port smtp port not numberic </font> ### ### ";
+	$result .= sprintf(_"<font color=yellow> %s:%d smtp port not numberic </font> ### ### ",$smtp_host,$smtp_port);
 	$unknnum++;
 	next;
   }
@@ -94,9 +111,9 @@ while(@addr_pair) {
 	if ($@) {
 		$@ =~ s/[\r\n]//g;
 		$@ = Encode::decode("gb2312",$@);
-		$result .= "<font color=red> connect [$smtp_host:$smtp_port] failed in $time_out seconds, return [$@] </font> ";
+		$result .= sprintf(_"<font color=red> connect [%s:%d] failed in %d seconds, return [%s] </font> ",$smtp_host,$smtp_port,$time_out,$@);
 	} else {
-		$result .= "<font color=red> connect [$smtp_host:$smtp_port] failed in $time_out seconds, maybe in black ip list </font> ";
+		$result .= sprintf(_"<font color=red> connect [%s:%d] failed in %d seconds, maybe in black ip list </font> ",$smtp_host,$smtp_port,$time_out);
 	}
 	$critnum++;
 	goto ERREND;
@@ -105,7 +122,7 @@ while(@addr_pair) {
 	$time_stop = Benchmark->new();
 	$time_duration = timestr(timediff($time_stop,$time_start),'noc');
 	$time_duration = (split /\s+/, $time_duration )[0];
-	$result .= "connect [$smtp_host:$smtp_port] return welcome banner: ### [$welcome] ($time_duration seconds) ### ";
+	$result .= sprintf(_"connect [%s:%d] return welcome banner: ### [%s] (%f seconds) ### ",$smtp_host,$smtp_port,$welcome,$time_duration);
 	$time_start = Benchmark->new();		## reset time_start
   }
   if($smtp_user && $smtp_pass) {
@@ -116,18 +133,18 @@ while(@addr_pair) {
 	$rcode = $smtp->code();
 	unless (defined $rcode && $rcode =~ m/\A2/) {
 		$rcode = '' if (!defined $rcode);
-		$result .= "<font color=red> smtp command: AUTH LOGIN return [code=$rcode message=$response] </font> ";
+		$result .= sprintf(_"<font color=red> smtp command: AUTH LOGIN return [code=%d message=%s] </font> ",$rcode,$response);
 		$critnum++;
 		goto ERREND;
 	} else {
 		$time_stop = Benchmark->new();
 		$time_duration = timestr(timediff($time_stop,$time_start),'noc');
 		$time_duration = (split /\s+/, $time_duration )[0];
-		$result .= "smtp command: AUTH LOGIN return [code=$rcode message=$response] ($time_duration seconds) ### ### ";
+		$result .= sprintf(_"smtp command: AUTH LOGIN return [code=%d message=%s] (%f seconds) ### ### ",$rcode,$response,$time_duration);
 		$time_start = Benchmark->new();         ## reset time_start
 	}
   } else {
-	$result .= " smtp_user or smtp_pass not defined, smtp login test skip ### ### ";
+	$result .= sprintf(_" smtp_user or smtp_pass not defined, smtp login test skip ### ### ");
   }
   next;
 
@@ -135,18 +152,18 @@ while(@addr_pair) {
 	$time_stop = Benchmark->new();
 	$time_duration = timestr(timediff($time_stop,$time_start),'noc');
 	$time_duration = (split /\s+/, $time_duration )[0];
-	$result .= " ($time_duration seconds) ### ### ";
+	$result .= sprintf(_" (%f seconds) ### ### ",$time_duration);
 	next;
   }
 }
 # prepare last output
 if ($critnum > 0) {
-  print "{crit}:{str}:{ SMTP SVR CRITICAL | $critnum/$total smtp check critical | $result }";
+  printf _"{crit}:{str}:{ SMTP SVR CRITICAL | %d/%d smtp check critical | %s }",$critnum,$total,$result;
   exit $state_crit;
 } elsif ($unknnum > 0) {
-  print "{unknown}:{str}:{ SMTP SVR UNKNOWN | $unknnum/$total smtp check unknown | $result }";
+  printf _"{unknown}:{str}:{ SMTP SVR UNKNOWN | %d/%d smtp check unknown | %s }",$unknnum,$total,$result;
   exit $state_unkn;
 } else {
-  print "{ok}:{str}:{ SMTP SVR OK | $total/$total smtp check success | $result }";
+  printf _"{ok}:{str}:{ SMTP SVR OK | %d/%d smtp check success | %s }",$total,$total,$result;
   exit $state_ok;
 }
