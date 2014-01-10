@@ -1,0 +1,17 @@
+msgid "{noop}:{str}:{ authpriv file [%s] not exists. }"
+msgstr "{noop}:{str}:{ 系统Auth文件 [%s] 不存在. }"
+
+msgid "{noop}:{str}:{ open authpriv file [%s] failed. }"
+msgstr "{noop}:{str}:{ 打开系统Auth文件 [%s] 失败. }"
+
+msgid "%s: user [%s] login from [%s:%d] ###"
+msgstr "%s: 用户 %s 从地址 %s:%d 登录操作系统 ### "
+
+msgid "{noop}:{str}:{no login event found}"
+msgstr "{noop}:{str}:{未发现用户登录操作系统事件}"
+
+msgid "%d login event | %d login event | "
+msgstr "%d 起用户登录事件 | %d 起用户登录事件 | "
+
+msgid "{ok}:{str}:{%s}"
+msgstr "{ok}:{str}:{%s}"

@@ -1,0 +1,14 @@
+msgid "{noop}:{str}:{ message file [%s] not exists. }"
+msgstr "{noop}:{str}:{ 系统Message文件 [%s] 不存在. }"
+
+msgid "{noop}:{str}:{ open message file [%s] failed. }"
+msgstr "{noop}:{str}:{ 打开系统Message文件 [%s] 失败. }"
+
+msgid "{noop}:{str}:{no oom event captured}"
+msgstr "{noop}:{str}:{ 未发现OOM事件. }"
+
+msgid "oom event | captured oom event | "
+msgstr "发现系统OOM事件 | 发现系统OOM事件 | "
+
+msgid "{crit}:{str}:{%s}"
+msgstr "{crit}:{str}:{%s}"

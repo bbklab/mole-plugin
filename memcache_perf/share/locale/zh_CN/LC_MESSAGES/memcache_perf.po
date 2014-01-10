@@ -1,0 +1,44 @@
+msgid "check list: %s ### ### "
+msgstr "要检查的Memcache地址列表: %s ### ### "
+
+msgid "<font color=yellow> memcache_host or memcache_port not defined </font> ### ### "
+msgstr "<font color=yellow> Memcache主机地址或Memcache端口未指定 </font> ### ### "
+
+msgid "<font color=yellow> %s:%d memcache port not numberic </font> ### ### "
+msgstr "<font color=yellow> %s:%s Memcache端口不是整数数字 </font> ### ### "
+
+msgid "<font color=red> connect [%s:%d] failed in %d seconds, return [%s] </font>"
+msgstr "<font color=red> 连接 [%s:%d] 在 %d 秒内失败, 失败信息: [%s] </font>"
+
+msgid "<font color=red> connect [%s:%d] failed in %d seconds. </font> "
+msgstr "<font color=red> 连接 [%s:%d] 在 %d 秒内失败. </font> "
+
+msgid "connect memcache server [%s:%d] succeed. (%f seconds) ### "
+msgstr "连接Memcache服务器 [%s:%d] 成功. 耗时 %f 秒 ### "
+
+msgid " memcache return error: %s ### "
+msgstr " Memcache服务器返回错误: %s ### "
+
+msgid "get response: (%f seconds) ### "
+msgstr "Memcache响应返回耗时 %f 秒 ###  "
+
+msgid "Version=%s  PID=%d  Uptime=%d ### "
+msgstr "版本:%s  进程号:%d  运行时长:%d秒 ###  "
+
+msgid "Size=%d  Item=%d  Connection=%d ### "
+msgstr "内存占用:%d字节  缓存数据条目:%d  连接数:%d ### "
+
+msgid "Hit=%d  Request=%d  HitRate="
+msgstr "GET命中次数:%d  GET请求次数:%d  GET命中率:"
+
+msgid " (%f seconds) ### ### "
+msgstr " 耗时 %f 秒 ### ### "
+
+msgid "{crit}:{str}:{ Memcache SVR CRITICAL | %d/%d memcache check critical | %s }"
+msgstr "{crit}:{str}:{ Memcache服务异常 | %d/%d 项检查异常 | %s }"
+
+msgid "{unknown}:{str}:{ Memcache SVR UNKNOWN | %d/%d memcache check unknown | %s }"
+msgstr "{unknown}:{str}:{ Memcache服务未知 | %d/%d 项检查未知 | %s }"
+
+msgid "{ok}:{str}:{ Memcache SVR OK | %d/%d memcache check success | %s }"
+msgstr "{ok}:{str}:{ Memcache服务正常 | %d/%d 项检查正常 | %s }"
