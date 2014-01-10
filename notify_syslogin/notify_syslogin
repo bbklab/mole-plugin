@@ -1,6 +1,8 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
+use Locale::Messages qw (textdomain bindtextdomain gettext);
+binmode STDOUT, ':raw';
 
 # return codes
 our ($state_ok,$state_warn,$state_crit,$state_unkn,$state_noop) = (0,1,2,3,4);
@@ -18,9 +20,24 @@ unless (-f $eminfo && -x $eminfo) {
   exit $state_unkn;
 }
 
+# read eminfo locale_def
+our $localdir = '/usr/local/eminfo/share/locale/';
+open my $fh, "$eminfo printdef LOCALE_DIR 2>&- |";
+if($fh){
+  while(<$fh>){
+        chomp; $localdir = $_;
+        last;
+  }
+}
+
+# set textdomain; bindtextdomain
+sub _ ($) { &gettext; }
+textdomain "$filename";
+bindtextdomain "$filename", "$localdir";
+
 # read plugin config here
 our $authfile = '/var/log/secure';
-open my $fh, "$eminfo view $filename authfile 2>&- |";
+open $fh, "$eminfo view $filename authfile 2>&- |";
 if ($fh) {
   while(<$fh>){
   	chomp; $authfile = $_;
@@ -57,7 +74,7 @@ sub loadpos {
 
 # Main body begin
 unless (-f $authfile) {
-  print "{noop}:{str}:{ authpriv file [$authfile] not exists. }";
+  printf _"{noop}:{str}:{ authpriv file [%s] not exists. }",$authfile;
   exit $state_noop;
 }
 # 1. load position from tracefile
@@ -74,7 +91,7 @@ if ($dev ne $nowdev || $inode ne $nowinode) {	# maybe authfile logrotated
 }
 # 3. open authpri file and goto last position directly
 unless (open FH, "<$authfile") {
-  print "{noop}:{str}:{ open authpriv file [$authfile] failed. }";
+  printf _"{noop}:{str}:{ open authpriv file [%s] failed. }",$authfile;
   exit $state_noop;
 }
 seek (FH,$position,0);		# directly goto last position
@@ -83,7 +100,7 @@ my @record = ();
 while (<FH>) {
   chomp;
   if (m/\A(\w+ +\d+ +.+? ).*Accepted password for (\w+) from (.+) port (\d+) .*\Z/i) {
-	push @record,  "$1: user [$2] login from [$3:$4] ###";
+	push @record,  sprintf(_"%s: user [%s] login from [%s:%d] ###",$1,$2,$3,$4);
   }
 }
 # 5. read nower position and save again.
@@ -93,13 +110,13 @@ close FH;
 # 6. prepare last output
 my $number = @record;
 if ($number == 0) {
-  print "{noop}:{str}:{no login event found}";
+  printf _"{noop}:{str}:{no login event found}";
   exit $state_noop;
 } else {
   while (@record) {
   	$result .= shift @record;
   }
-  $result = "$number login event | $number login event | " . $result;
-  print "{ok}:{str}:{$result}";
+  $result = sprintf(_"%d login event | %d login event | ",$number,$number,) . $result;
+  printf _"{ok}:{str}:{%s}",$result;
   exit $state_ok;
 }
