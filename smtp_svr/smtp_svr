@@ -148,21 +148,30 @@ while(@addr_pair) {
 	$critnum++;
 	goto ERREND;
   } else {
-	(my $welcome = $smtp->banner()) =~ s/[\r\n]//g;
-	$time_stop = Benchmark->new();
-	$time_duration = timestr(timediff($time_stop,$time_start),'noc');
-	$time_duration = (split /\s+/, $time_duration )[0];
-	$result .= sprintf(_"connect [%s:%d] return welcome banner: ### [%s] (%f seconds) ### ",$smtp_host,$smtp_port,$welcome,$time_duration);
-	$time_start = Benchmark->new();		## reset time_start
+	my $welcome = $smtp->banner();
+	if ($welcome) {
+		$welcome =~ s/[\r\n]//g;
+		$time_stop = Benchmark->new();
+		$time_duration = timestr(timediff($time_stop,$time_start),'noc');
+		$time_duration = (split /\s+/, $time_duration )[0];
+		$result .= sprintf(_"connect [%s:%d] return welcome banner: ### [%s] (%f seconds) ### ",$smtp_host,$smtp_port,$welcome,$time_duration);
+		$time_start = Benchmark->new();		## reset time_start
+	} else {
+		$result .= sprintf(_"connect [%s:%d] didn't return welcome banner ### ",$smtp_host,$smtp_port);
+		$critnum++;
+		goto ERREND;
+	}
   }
   if($smtp_user && $smtp_pass) {
 	my ($rcode,$response);
 	$smtp->auth($smtp_user,$smtp_pass);
-	($response = $smtp->message()) =~ s/[\r\n]//g;
-	$response = Encode::decode("gb2312",$response);
+	$response = $smtp->message();
+	$response =~ s/[\r\n]//g if defined $response;
+	$response = Encode::decode("gb2312",$response) if defined $response;
 	$rcode = $smtp->code();
 	unless (defined $rcode && $rcode =~ m/\A2/) {
 		$rcode = '' if (!defined $rcode);
+		$response = '' if (!defined $response);
 		$result .= sprintf(_"<font color=red> smtp command: AUTH LOGIN return [code=%d message=%s] </font> ",$rcode,$response);
 		$critnum++;
 		goto ERREND;
@@ -170,6 +179,7 @@ while(@addr_pair) {
 		$time_stop = Benchmark->new();
 		$time_duration = timestr(timediff($time_stop,$time_start),'noc');
 		$time_duration = (split /\s+/, $time_duration )[0];
+		$response = '' if (!defined $response);
 		$result .= sprintf(_"smtp command: AUTH LOGIN return [code=%d message=%s] (%f seconds) ### ### ",$rcode,$response,$time_duration);
 		$time_start = Benchmark->new();         ## reset time_start
 	}

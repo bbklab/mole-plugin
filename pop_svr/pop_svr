@@ -147,20 +147,29 @@ while(@addr_pair) {
 	$critnum++;
 	goto ERREND;
   } else {
-	(my $welcome = $pop->banner()) =~ s/[\r\n]//g;
-	$time_stop = Benchmark->new();
-	$time_duration = timestr(timediff($time_stop,$time_start),'noc');
-	$time_duration = (split /\s+/, $time_duration )[0];
-	$result .= sprintf(_"connect [%s:%d] return welcome banner: ### [%s] (%f seconds) ### ",$pop_host,$pop_port,$welcome,$time_duration);
-	$time_start = Benchmark->new();		## reset time_start
+	my $welcome = $pop->banner();
+	if ($welcome) {
+		$welcome =~ s/[\r\n]//g;
+		$time_stop = Benchmark->new();
+		$time_duration = timestr(timediff($time_stop,$time_start),'noc');
+		$time_duration = (split /\s+/, $time_duration )[0];
+		$result .= sprintf(_"connect [%s:%d] return welcome banner: ### [%s] (%f seconds) ### ",$pop_host,$pop_port,$welcome,$time_duration);
+		$time_start = Benchmark->new();		## reset time_start
+	} else {
+		$result .= sprintf(_"connect [%s:%d] didn't return welcome banner ### ",$pop_host,$pop_port);
+		$critnum++;
+		goto ERREND;
+	}
   }
   if($pop_user && $pop_pass) {
 	my ($rcode,$response);
 	$pop->user($pop_user);
-	($response = $pop->message()) =~ s/[\r\n]//g;
+	$response = $pop->message();
+	$response =~ s/[\r\n]//g if defined $response;
 	$rcode = $pop->code();
 	unless (defined $rcode && $rcode =~ m/\A2/) {
 		$rcode = '' if (!defined $rcode);
+		$response = '' if (!defined $response);
 		$result .= sprintf(_"<font color=red> pop command: USER return [code=%d message=%s] </font> ",$rcode,$response);
 		$critnum++;
 		goto ERREND;
@@ -168,14 +177,17 @@ while(@addr_pair) {
 		$time_stop = Benchmark->new();
 		$time_duration = timestr(timediff($time_stop,$time_start),'noc');
 		$time_duration = (split /\s+/, $time_duration )[0];
+		$response = '' if (!defined $response);
 		$result .= sprintf(_"pop command: USER return [code=%d message=%s] (%f seconds) ### ",$rcode,$response,$time_duration);
 		$time_start = Benchmark->new();         ## reset time_start
 	}
 	$pop->pass($pop_pass);
-	($response = $pop->message()) =~ s/[\r\n]//g;
+	$response = $pop->message();
+	$response =~ s/[\r\n]//g if defined $response;
 	$rcode = $pop->code();
 	unless (defined $rcode && $rcode =~ m/\A2/) {
 		$rcode = '' if (!defined $rcode);
+		$response = '' if (!defined $response);
 		$result .= sprintf(_"<font color=red> pop command: PASS return [code=%d message=%s] </font> ",$rcode,$response);
 		$critnum++;
 		goto ERREND;

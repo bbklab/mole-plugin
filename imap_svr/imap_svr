@@ -151,16 +151,24 @@ while(@addr_pair) {
 	$critnum++;
 	goto ERREND;
   } else {
-	(my $welcome = <$imap>) =~ s/[\r\n]//g;
-	$time_stop = Benchmark->new();
-	$time_duration = timestr(timediff($time_stop,$time_start),'noc');
-	$time_duration = (split /\s+/, $time_duration )[0];
-	$result .= sprintf(_"connect [%s:%d] return welcome banner ### [%s] (%f seconds) ### ",$imap_host,$imap_port,$welcome,$time_duration);
-	$time_start = Benchmark->new();		## reset time_start
+	my $welcome = <$imap>;
+	if ($welcome) {
+		$welcome =~ s/[\r\n]//g;
+		$time_stop = Benchmark->new();
+		$time_duration = timestr(timediff($time_stop,$time_start),'noc');
+		$time_duration = (split /\s+/, $time_duration )[0];
+		$result .= sprintf(_"connect [%s:%d] return welcome banner ### [%s] (%f seconds) ### ",$imap_host,$imap_port,$welcome,$time_duration);
+		$time_start = Benchmark->new();		## reset time_start
+	} else {
+		$result .= sprintf(_"connect [%s:%d] didn't return welcome banner ### ",$imap_host,$imap_port);
+		$critnum++;
+		goto ERREND;
+	}
   }
   if($imap_user && $imap_pass) {
 	print $imap "A01 LOGIN $imap_user $imap_pass\n\r";	## if without \r, will hang up for 30s.
-	(my $response = <$imap>) =~ s/[\r\n]//g;
+	my $response = <$imap>;
+	$response =~ s/[\r\n]//g if defined $response;
 	unless (defined $response && $response =~ m/\AA01 (OK|SUCC|LOGIN|LOGON) /i) {
 		$response = '' if (!defined $response);
 		$result .= sprintf(_"<font color=red> imap command: A01 LOGIN return [message=%s] </font> ",$response);
