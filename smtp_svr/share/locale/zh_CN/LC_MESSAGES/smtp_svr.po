@@ -37,6 +37,9 @@ msgstr "<font color=red> 连接SMTP地址 %s:%d 在 %d 秒内失败 (有可能�
 msgid "connect [%s:%d] return welcome banner: ### [%s] (%f seconds) ### "
 msgstr "连接SMTP地址 %s:%d 返回欢迎信息: ### [%s] (耗时 %f 秒) ###"
 
+msgid "connect [%s:%d] didn't return welcome banner ### "
+msgstr "连接SMTP地址 [%s:%d] 未返回欢迎信息 ### "
+
 msgid "<font color=red> smtp command: AUTH LOGIN return [code=%d message=%s] </font> "
 msgstr "<font color=red> SMTP命令AUTH LOGIN: 返回代码:%d, 返回信息:%s </font> "
 
