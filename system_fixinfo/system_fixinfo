@@ -3,7 +3,23 @@ use warnings;
 use strict;
 use utf8;
 use JSON;
-use Smart::Comments;
+# use Smart::Comments;
+binmode(STDIN, ":encoding(utf8)");
+binmode(STDOUT, ":encoding(utf8)");
+
+$| = 1;
+
+# return codes
+our ($state_ok,$state_warn,$state_crit,$state_unkn,$state_noop) = (0,1,2,3,4);
+
+# return stuff
+our ($rc, $result) = (0,'');
+
+our $filename = (split /\//, __FILE__)[-1];
+
+#
+#  BEGIN to COLLECT SYSTEM INFORMATION 
+#
 
 my %product_info = (
   'manufacturer'		=> '',
@@ -923,3 +939,29 @@ if (-f $megacli && -x $megacli) {
   }
 }
 ### @raid_info
+
+
+
+# PREPARE LAST RESULT HASH
+my %result = (
+	'product_info'		=> \%product_info,
+	'mem_info'		=> \%mem_info,
+	'cpu_info'		=> \%cpu_info,
+	'input_dev'		=> \@input_dev,
+	'os_info'		=> \%os_info,
+	'sys_clock'		=> \%sys_clock,
+	'sys_lang'		=> \%sys_lang,
+	'selinux'		=> \%selinux,
+	'sysuser'		=> \@sysuser,
+	'runlevel'		=> $runlevel,
+	'startups'		=> \@startups,
+	'dns'			=> \@dns,
+	'route'			=> \@route,
+	'inet_name'		=> \@inet_name,
+	'raid_info'		=> \@raid_info,
+);
+### %result
+
+$result = JSON->new->allow_nonref->utf8(1)->ascii(1)->encode(\%result);
+print "{ok}:{str}:{$filename|$filename|$result}";
+exit $state_ok;
