@@ -2,7 +2,6 @@
 use strict;
 use warnings;
 use utf8;
-use Encode;
 use Net::SMTP;
 use Time::HiRes;
 use Benchmark ':hireswallclock';
@@ -135,12 +134,12 @@ while(@addr_pair) {
 	Host    =>	$smtp_host,
 	Port	=> 	$smtp_port,
 	Timeout =>	($time_out =~ /\D/)?10:$time_out,
+	# Debug	=> 	1,
 	# Hello   =>      'bbklab.hello',
   );
   unless (defined $smtp) {
 	if ($@) {
 		$@ =~ s/[\r\n]//g;
-		$@ = Encode::decode("gb2312",$@);
 		$result .= sprintf(_"<font color=red> connect [%s:%d] failed in %d seconds, return [%s] </font> ",$smtp_host,$smtp_port,$time_out,$@);
 	} else {
 		$result .= sprintf(_"<font color=red> connect [%s:%d] failed in %d seconds, maybe in black ip list </font> ",$smtp_host,$smtp_port,$time_out);
@@ -167,7 +166,6 @@ while(@addr_pair) {
 	$smtp->auth($smtp_user,$smtp_pass);
 	$response = $smtp->message();
 	$response =~ s/[\r\n]//g if defined $response;
-	$response = Encode::decode("gb2312",$response) if defined $response;
 	$rcode = $smtp->code();
 	unless (defined $rcode && $rcode =~ m/\A2/) {
 		$rcode = '' if (!defined $rcode);

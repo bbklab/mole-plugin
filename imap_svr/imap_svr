@@ -2,7 +2,6 @@
 use strict;
 use warnings;
 use utf8;
-use Encode;
 use IO::Socket;
 use IO::Socket::INET;
 use Time::HiRes;
@@ -143,7 +142,6 @@ while(@addr_pair) {
   unless (defined $imap) {
 	if ($@) {
 		$@ =~ s/[\r\n]//g;
-		$@ = Encode::decode("gb2312",$@);
 		$result .= sprintf(_"<font color=red> connect [%s:%d] failed in %d seconds, return [%s] </font> ",$imap_host,$imap_port,$time_out,$@);
 	} else {
 		$result .= sprintf(_"<font color=red> connect [%s:%d] failed in %d seconds. </font> ",$imap_host,$imap_port,$time_out);

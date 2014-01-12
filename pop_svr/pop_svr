@@ -2,7 +2,6 @@
 use strict;
 use warnings;
 use utf8;
-use Encode;
 use Net::POP3;
 use Time::HiRes;
 use Benchmark ':hireswallclock';
@@ -139,7 +138,6 @@ while(@addr_pair) {
   unless (defined $pop) {
 	if ($@) {
 		$@ =~ s/[\r\n]//g;
-		$@ = Encode::decode("gb2312",$@);
 		$result .= sprintf(_"<font color=red> connect [%s:%d] failed in %d seconds, return [%s] </font> ",$pop_host,$pop_port,$time_out,$@);
 	} else {
 		$result .= sprintf(_"<font color=red> connect [%s:%d] failed in %d seconds </font> ",$pop_host,$pop_port,$time_out);
