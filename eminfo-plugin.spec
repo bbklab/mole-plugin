@@ -1,12 +1,12 @@
 Summary: 	plugins for eminfo
 Name: 		eminfo-plugin
 Version: 	0.2
-Release: 	beta1
+Release: 	beta2
 License: 	GPLv3
 Group:  	Extension
 Packager: 	Zhang Guangzheng <zhang.elinks@gmail.com>
 BuildRoot: 	/var/tmp/%{name}-%{version}-%{release}-root
-Source0: 	eminfo-plugin-0.2-beta1.tgz
+Source0: 	eminfo-plugin-0.2-beta2.tgz
 Requires:		eminfo >= 2.0, setup >= 2.5.58
 Requires: 		coreutils >= 5.97, bash >= 3.1
 Requires:		e2fsprogs >= 1.39, procps >= 3.2.7
@@ -17,6 +17,9 @@ Requires:		perl >= 5.8.8, grep >= 2.5.1
 Requires:		tar >= 1.15.1, gzip >= 1.3.5
 Requires:		curl >= 7.15.5, bc >= 1.06
 Requires:		findutils >= 4.2.27, net-tools >= 1.60
+Requires:		dmidecode >= 2.7, redhat-lsb >= 3.1
+Requires:		glibc-common >= 2.5, pciutils >= 2.2.3
+Requires:		ethtool >= 5, MegaCli >= 8.02.21
 Requires:		bind-utils >= 9.3.3
 Requires(post): 	chkconfig
 Requires(preun): 	chkconfig, initscripts
@@ -72,6 +75,12 @@ done
 %postun
 
 %changelog
+* Sun Jan 12 2014 Guangzheng Zhang <zhang.elinks@gmail.com>
+- release eminfo-plugin-0.2-beta2.rpm
+- finish perl plugin system_fixinfo
+- bugfix on {smtp/pop/imap}_svr plugins
+- translate 7 perl plugins and 19 shell plugins
+- add docs/{en,cn}/readme for all plugins
 * Fri Dec 20 2013 Guangzheng Zhang <zhang.elinks@gmail.com>
 - release eminfo-plugin-0.2-beta1.rpm 
 - multi language supported by gnu gettext
