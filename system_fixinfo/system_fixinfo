@@ -962,6 +962,6 @@ my %result = (
 );
 ### %result
 
-$result = JSON->new->utf8(1)->encode(\%result);
+$result = JSON->new->utf8(1)->ascii(1)->encode(\%result);
 print "{ok}:{str}:{$filename|$filename|$result}";
 exit $state_ok;
