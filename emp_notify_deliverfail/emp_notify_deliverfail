@@ -1,6 +1,13 @@
 #!/usr/bin/env perl
-use strict;
 use warnings;
+use strict;
+use utf8;
+use Locale::Messages qw (textdomain bindtextdomain gettext nl_putenv);
+binmode(STDIN, ":encoding(utf8)");
+binmode(STDOUT, ":encoding(utf8)");
+binmode(STDERR, ":encoding(utf8)");
+binmode STDOUT, ':raw';
+
 
 # return codes
 our ($state_ok,$state_warn,$state_crit,$state_unkn,$state_noop) = (0,1,2,3,4);
@@ -18,9 +25,53 @@ unless (-f $eminfo && -x $eminfo) {
   exit $state_unkn;
 }
 
+# read eminfo locale_def
+our $localdir = '/usr/local/eminfo/share/locale/';
+open my $fh, "$eminfo printdef LOCALE_DIR 2>&- |";
+if($fh){
+  while(<$fh>){
+        chomp; $localdir = $_; 
+        last;
+  }
+}
+
+# read plugin locale setting
+our $locale = 'zh_CN.UTF-8';
+open $fh, "$eminfo view $filename locale 2>&- |";
+if($fh){
+  while(<$fh>){
+        chomp; $locale = $_;
+        last;
+  }
+  if(!defined $locale || $locale eq ''){
+        open my $fh1, "$eminfo view default locale 2>&- |";
+        if($fh1){
+                while(<$fh1>){
+                        chomp; $locale = $_;
+                        last;
+                }
+        }
+  }
+}
+if(!defined $locale || $locale eq ''){
+        $locale = 'zh_CN.UTF-8';
+}elsif($locale eq 'zh_CN' || $locale eq 'zh_CN.UTF-8' || $locale eq 'zh'){
+        $locale = 'zh_CN.UTF-8';
+}elsif($locale eq 'en_US' || $locale eq 'en_US.UTF-8' || $locale eq 'en'){
+        $locale = 'en_US.UTF-8';
+}else{
+        $locale = 'zh_CN.UTF-8';
+}
+nl_putenv("LANGUAGE=$locale");
+
+# set textdomain; bindtextdomain
+sub _ ($) { &gettext; }
+textdomain "$filename";
+bindtextdomain "$filename", "$localdir";
+
 # read plugin config here
 our $deliverfile = '/usr/local/eyou/mail/log/deliver_mail.log';
-open my $fh, "$eminfo view $filename deliver_logfile 2>&- |";
+open $fh, "$eminfo view $filename deliver_logfile 2>&- |";
 if($fh){
   while(<$fh>){
 	chomp; $deliverfile = $_;
@@ -96,7 +147,7 @@ sub loadpos {
 
 # Main body begin
 unless (-f $deliverfile) {
-  print "{noop}:{str}:{ deliver log file [$deliverfile] not exists. }";
+  printf _"{noop}:{str}:{ deliver log file [%s] not exists. }",$deliverfile;
   exit $state_noop;
 }
 # 1. load position from tracefile
@@ -112,8 +163,8 @@ if ($dev ne $nowdev || $inode ne $nowinode) {	# maybe deliverfile logrotated
   loadpos ($tracefile);				# load position again
 }
 # 3. open authpri file and goto last position directly
-unless (open FH, "<$deliverfile") {
-  print "{noop}:{str}:{ open deliver log file [$deliverfile] failed. }";
+unless (open FH, "<", $deliverfile) {
+  printf _"{noop}:{str}:{ open deliver log file [%s] failed. }",$deliverfile;
   exit $state_noop;
 }
 seek (FH,$position,0);				# directly goto last position
@@ -139,11 +190,11 @@ while (<FH>) {
 		my ($sec,$min,$hour,$day,$mon,$year) = localtime($time);
 		$time = sprintf("%d-%d-%d %d:%d:%d",$year+1900,$mon+1,$day,$hour,$min,$sec);
 		if (grep(/\A\Q$from\E\Z/i, @attendlst) || grep(/\A\Q$to\E\Z/i, @attendlst)) {
-			my $record = "$time [$from] -> [$to] ### ";
-			$record .= "subject: [$subject] ### ";
-			$record .= "size: [$size] ### ";
-			$record .= "type: [$mtype] ### ";
-			$record .= "<font color=red>result: [$result]</font> ### ";
+			my $record = sprintf(_"%s [%s] -> [%s] ### ",$time,$from,$to);
+			$record .= sprintf(_"subject: [%s] ### ",$subject);
+			$record .= sprintf(_"size: [%d] ### ",$size);
+			$record .= sprintf(_"type: [%s] ### ",$mtype);
+			$record .= sprintf(_"<font color=red>result: [%s]</font> ### ",$result);
 			$record .= "###";
 			push @record, $record;
 		}
@@ -158,13 +209,13 @@ close FH;
 # 6. prepare last output
 my $number = @record;
 if ($number == 0) {
-  print "{noop}:{str}:{no deliver fail event found}";
+  printf _"{noop}:{str}:{no deliver fail event found}";
   exit $state_noop;
 } else {
   while (@record) {
   	$result .= shift @record;
   }
-  $result = "$number deliver fail event | $number deliver fail event | " . $result;
+  $result = sprintf(_"%d deliver fail event | %d deliver fail event | ",$number,$number) . $result;
   print "{ok}:{str}:{$result}";
   exit $state_ok;
 }
