@@ -25,8 +25,14 @@ msgstr "[/proc/meminfo] 文件不存在或不可读."
 msgid "memory total=[${total}] or memory free=[${free}] is not numberic."
 msgstr "内存总大小${total} 或内存使用大小${free} 非数字"
 
+msgid "memory total=[0]. how could it be ?"
+msgstr "内存总大小为0, 这怎么可能呢?"
+
 msgid "swap total=[${total}] or swap free=[${free}] is not numberic."
 msgstr "交换总大小${total} 或交换使用大小${free} 非数字"
+
+msgid "swap total=[0]. how could it be ?"
+msgstr "交换总大小为0, 这怎么可能呢?"
 
 msgid "Retuen is not numberic: [${mem_percent}] or [${swp_percent}]"
 msgstr "内存使用率${mem_percent} 或交换使用率${swp_percent} 非数字"

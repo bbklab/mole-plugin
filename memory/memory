@@ -112,11 +112,27 @@ check(){
 	return
   }
 
+  [ "${mem_total}" == "0" ] && {
+	EXIT_STATUS=${STATE_WARNING};
+	LEVEL="warn";
+	TYPE="str";
+	CONTENT="$(gettext "memory total=[0]. how could it be ?")";
+	return
+  }
+
   [ -z "${swp_total}" -o ! -z "${swp_total//[0-9]}" -o -z "${swp_free}" -o ! -z "${swp_free//[0-9]}" ] && {
 	EXIT_STATUS=${STATE_UNKNOWN};
 	LEVEL="unknown";
 	TYPE="str";
 	CONTENT="$(eval_gettext "swap total=[\${total}] or swap free=[\${free}] is not numberic.")";
+	return
+  }
+
+  [ "${swp_total}" == "0" ] && {
+	EXIT_STATUS=${STATE_WARNING};
+	LEVEL="warn";
+	TYPE="str";
+	CONTENT="$(gettext "swap total=[0]. how could it be ?")";
 	return
   }
 
