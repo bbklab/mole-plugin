@@ -1,0 +1,77 @@
+# Copyright (C) 2013 EMINFO LANGUAGE FILE FOR GETTEXT
+# FIRST AUTHOR <zhangguangzheng@eyou.net>,<zhang.elinks@gmail.com> 2013.
+# This file is distributed under the same license as the eminfo package.
+#
+msgid ""
+msgstr ""
+"Report-Msgid-Bugs-To: zhangguangzheng@eyou.net\n"
+"Last-Translator: Guangzheng Zhang <zhang.elinks@gmail.com>\n"
+"Language-Team: EMINFO-LANGUAGE <zhang.elinks@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Chinese\n"
+"X-Poedit-Country: CHINA\n"
+
+msgid "\t%+#D"
+msgstr "\t%+#D"
+
+msgid "\n"
+msgstr "\n"
+
+msgid "util: [/usr/bin/iconv] not prepared."
+msgstr " 程序 [/usr/bin/iconv] 未就绪. "
+
+msgid "util: [/usr/bin/nc] not prepared."
+msgstr " 程序 [/usr/bin/nc] 未就绪. "
+
+msgid "util: [/var/eyou/sbin/eyou_control] not prepared."
+msgstr " 程序 [/var/eyou/sbin/eyou_control] 未就绪. "
+
+msgid "util: [${mysqlcli_path}] not prepared."
+msgstr " 程序 [${mysqlcli_path}] 未就绪. "
+
+msgid "file: [${Mailv4_ConfigFile}] not prepared."
+msgstr " 配置文件 [${Mailv4_ConfigFile}] 未就绪. "
+
+msgid "config: [ldaphost] not prepared in file: [${Mailv4_ConfigFile}]."
+msgstr " 配置文件 [${Mailv4_ConfigFile}] 中的配置项 ldaphost 未就绪. "
+
+msgid "GET User Changes ERROR"
+msgstr " 无法获取变更事件 "
+
+msgid "select mailv5 user changes error"
+msgstr " 从数据库中SELECT用户变更事件失败 "
+
+msgid "LDAP Connect ERROR"
+msgstr " LDAP地址连接失败 "
+
+msgid "check ldaphost connection failed:"
+msgstr " 检查LDAPHOST的连通性失败: "
+
+msgid "No Changes. Nothing to do"
+msgstr " 没有变更. 什么都不需要做. "
+
+msgid "caught mailv5 user change event:"
+msgstr " 获取到用户变更事件: "
+
+msgid "generating eyouv4 script strings error. NEXT"
+msgstr " 生成4版接口调用请求失败. 跳过 "
+
+msgid "generating eyouv4 script strings"
+msgstr " 生成4版接口调用请求成功 "
+
+msgid "eyouv4 script result:"
+msgstr " 4版接口调用执行结果: "
+
+msgid "SYNC USER CHANGES OK"
+msgstr " 用户同步成功 "
+
+msgid "${total} changes sync succeed: ADD:${addnum}  DEL:${delnum}  MOD:${modnum}"
+msgstr " ${total} 起同步事件成功:  新增用户:${addnum}  删除用户:${delnum}  密码修改:${modnum}"
+
+msgid "SYNC USER CHANGES CRITICAL"
+msgstr " 用户同步失败 "
+
+msgid "${errnum}/${total} changes sync failed: ADD:${addnum}  DEL:${delnum}  MOD:${modnum}"
+msgstr "${errnum}/${total} 起同步事件失败: 新增用户:${addnum}  删除用户:${delnum}  密码修改:${modnum}"
