@@ -21,3 +21,26 @@
   
 测试运行： 
   # eminfo run emp_notify_deliverfail 
+
+
+插件输出样例：
+
+Plugin   : emp_notify_deliverfail
+Time     : 2014-01-16_14:08:06
+Result   :
+Level    : OK
+Type     : Strings
+Title    : 发现 2 起信件投递失败事件 
+Summary  : 发现 2 起信件投递失败事件 
+Details  :
+2014-1-16 14:4:3  发件人[zhangguangzheng@126.com]  -> 收件人[zhangguangzheng2@eyou.ne]
+主题: 附件：小五台穿越攻略.pdf
+信件大小: [4618398]
+投递类型: [remote]
+投递结果: [Sorry, I couldn't find a MX or IP address for eyou.ne. (#5.4.2)]
+
+2014-1-16 14:5:2  发件人[zhangguangzheng@126.com]  -> 收件人[zhangguangzheng1@163.com]
+主题: 附件：小五台穿越攻略.pdf
+信件大小: [4618398]
+投递类型: [remote]
+投递结果: [554 DT:SPM mx42, XMCowEAJ9lsQd9dS0SigAA--.1180S2 1389852479 http://mail.163.com/help/help_spam_16.htm?ip=117.79.226.81&hostid=mx42&time=1389852479 ]

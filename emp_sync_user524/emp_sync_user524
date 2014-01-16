@@ -2,11 +2,46 @@
 
 
 BASE_DIR="/usr/local/eminfo/"
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
-        source ${BASE_DIR}/bin/include 2>&-
+# === LOAD GETTEXT.SH FILE
+if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+        source "/usr/bin/gettext.sh" 2>&1
+        rc=$?
+        [ "$rc" != "0" ] && {
+                echo -en "{unknown}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                exit 3
+        }
 else
+        echo -en "{unknown}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        exit 3
+fi
+
+# === LOAD INCLUDE FILE
+if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+        source ${BASE_DIR}/bin/include 2>&- 
+else        
         echo -en "{unknown}:{str}:{include file not exists or empty}"
         exit 3
+fi
+
+# === SET TEXTDOMAINDIR TEXTDOMAIN
+if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+        export TEXTDOMAINDIR="${LOCALE_DIR}"
+        export TEXTDOMAIN="emp_sync_user524"
+else        
+        echo -en "{unknown}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        exit 3
+fi
+
+# === SET GLOBAL LOCALE
+glocale=$(get_locale emp_sync_user524)
+if [ -z "${glocale}" ]; then
+        export LANG="${LANG}"           ## read from sysenv
+elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+        export LANG="zh_CN.UTF-8"
+elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+        export LANG="en_US.UTF-8"
+else
+        export LANG="zh_CN.UTF-8"
 fi
 
 # Return Codes
@@ -45,7 +80,7 @@ check(){
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="util: [/usr/bin/iconv] not prepared.";
+        CONTENT="$(gettext "util: [/usr/bin/iconv] not prepared.")";
         return
   }
 
@@ -53,7 +88,7 @@ check(){
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="util: [/usr/bin/nc] not prepared.";
+        CONTENT="$(gettext "util: [/usr/bin/nc] not prepared.")";
         return
   }
 
@@ -61,7 +96,7 @@ check(){
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="util: [/var/eyou/sbin/eyou_control] not prepared.";
+        CONTENT="$(gettext "util: [/var/eyou/sbin/eyou_control] not prepared.")";
         return
   }
 
@@ -69,7 +104,7 @@ check(){
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="util: [${mysqlcli_path}] not prepared.";
+        CONTENT="$(eval_gettext "util: [\${mysqlcli_path}] not prepared.")";
         return
   }
 
@@ -78,7 +113,7 @@ check(){
 	EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="file: [${Mailv4_ConfigFile}] not prepared.";
+        CONTENT="$(eval_gettext "file: [\${Mailv4_ConfigFile}] not prepared.")";
         return
   } 
 
@@ -87,7 +122,7 @@ check(){
 	EXIT_STATUS=${STATE_CRITICAL};
         LEVEL="crit";
         TYPE="str";
-        CONTENT="config: [ldaphost] not prepared in file: [${Mailv4_ConfigFile}].";
+        CONTENT="$(eval_gettext "config: [ldaphost] not prepared in file: [\${Mailv4_ConfigFile}].")";
         return
   }
 
@@ -169,7 +204,7 @@ check(){
 	EXIT_STATUS=${STATE_CRITICAL};
         LEVEL="crit";
         TYPE="str";
-        CONTENT="GET User Changes ERROR | select mailv5 user changes error | ["${err}"] "
+        CONTENT="$(gettext "GET User Changes ERROR") | $(gettext "select mailv5 user changes error") | ["${err}"] "
 	write_log -f ${logfile} "${CONTENT}"
 	return 
   else
@@ -182,7 +217,7 @@ check(){
 	EXIT_STATUS=${STATE_CRITICAL};
         LEVEL="crit";
         TYPE="str";
-        CONTENT="LDAP Connect ERROR | check ldaphost connection failed: [${Ldap_Host}:389] | [${info}] "
+        CONTENT="$(gettext "LDAP Connect ERROR") | $(gettext "check ldaphost connection failed:") [${Ldap_Host}:389] | [${info}] "
         write_log -f ${logfile} "${CONTENT}"
         return
   else
@@ -194,7 +229,7 @@ check(){
 	EXIT_STATUS=${STATE_NOOP};
         LEVEL="noop";
         TYPE="str";
-        CONTENT="No Changes. Nothing to do"
+        CONTENT="$(gettext "No Changes. Nothing to do")"
 	write_log -f ${logfile} "${CONTENT}"
 	return 
   }
@@ -216,33 +251,33 @@ check(){
 
 	write_log -f ${logfile} ""
 	write_log -f ${logfile} "caught mailv5 user change event: [${line[@]}]"
-	result="${result} caught mailv5 user change event: ["${line[@]//[\{\}]/%}"] ### "
+	result="${result} $(gettext "caught mailv5 user change event:") ["${line[@]//[\{\}]/%}"] ### "
 	
 	script_str=$( genstr ${line[@]} )
 	if [ "$?" != "0" ]; then
 		write_log -f ${logfile} "generating eyouv4 script strings error. NEXT"
-		result="${result} $(html_red "generating eyouv4 script strings error. NEXT") ### "
+		result="${result} $(html_red "$(gettext "generating eyouv4 script strings error. NEXT")") ### "
 		write_log -f ${savefail_file} "generating eyouv4 script strings error on [${line[@]}]"
 		del_log_items  ${line[@]}
 		((errnum++))
 		continue 
 	else
 		write_log -f ${logfile} "generating eyouv4 script strings [${script_str}] OK"
-		result="${result} generating eyouv4 script strings ["${script_str//[\{\}]/%}"] OK ###"
+		result="${result} $(gettext "generating eyouv4 script strings") ["${script_str//[\{\}]/%}"] OK ###"
 	fi
 	
 	script_result=$( echo -e "${script_str}" | /var/eyou/sbin/eyou_control -a 2>&1 | /usr/bin/iconv -f gbk -t utf8 2>&1)
 	write_log -f ${logfile} "eyouv4 script result: [${script_result}]"
 	if [ "$(echo -e "${script_result}" | grep -E -o "\+000")" == "" ]; then
 		write_log -f ${logfile} "SYNC USER CHANGES ERROR"
-		result="${result} $(html_red "eyouv4 script result: [${script_result}]") ###"
+		result="${result} $(html_red "$(gettext "eyouv4 script result:") [${script_result}]") ###"
 		write_log -f ${savefail_file} "eyouv4 script result error on [${line[@]}]"
 		del_log_items  ${line[@]}
 		((errnum++))
 		continue
 	else
 		write_log -f ${logfile} "SYNC USER CHANGES SUCCESS"
-		result="${result} eyouv4 script result: [${script_result}] ###"
+		result="${result} $(gettext "eyouv4 script result:") [${script_result}] ###"
 		del_log_items  ${line[@]}
 	fi
 
@@ -259,12 +294,12 @@ check(){
 	EXIT_STATUS=${STATE_OK};
         LEVEL="ok";
         TYPE="str";
-        CONTENT="SYNC USER CHANGES OK | ${total} changes sync succeed: ADD:${addnum}  DEL:${delnum}  MOD:${modnum} | ${result} "
+        CONTENT="$(gettext "SYNC USER CHANGES OK") | $(eval_gettext "\${total} changes sync succeed: ADD:\${addnum}  DEL:\${delnum}  MOD:\${modnum}") | ${result} "
   } || {
 	EXIT_STATUS=${STATE_CRITICAL};
         LEVEL="crit";
         TYPE="str";
-        CONTENT="SYNC USER CHANGES CRITICAL | ${errnum}/${total} changes sync failed: ADD:${addnum}  DEL:${delnum}  MOD:${modnum} | ${result} "
+        CONTENT="$(gettext "SYNC USER CHANGES CRITICAL") | $(eval_gettext "\${errnum}/\${total} changes sync failed: ADD:\${addnum}  DEL:\${delnum}  MOD:\${modnum}") | ${result} "
   }
 }
 
