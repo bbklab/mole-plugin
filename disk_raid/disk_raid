@@ -10,7 +10,6 @@ binmode(STDERR, ":encoding(utf8)");
 binmode STDOUT, ':raw';
 
 
-
 # return codes
 our ($state_ok,$state_warn,$state_crit,$state_unkn,$state_noop) = (0,1,2,3,4);
 
@@ -269,4 +268,10 @@ if (-f $megacli && -x $megacli) {
   printf _"{unknown}:{str}:{ RAID Information UNKNOWN | util megacli not prepared | %s not prepared }",$megacli;
   exit $state_unkn;
 }
-### @raid_info
+
+if (@raid_info){
+  ### @raid_info
+} else {
+  printf _"{unknown}:{str}:{ RAID Information UNKNOWN | collected nothing about raid | collected nothing about raid ### maybe raid controller card not recoginized or exist. }";
+  exit $state_unkn;
+}
