@@ -64,7 +64,7 @@ if (-f $dmidecode && -x $dmidecode) {
     open my $fh, "$dmidecode -s $product_info{$key} 2>&1 |";
     if ($fh) {
 	while (<$fh>) {
-		chomp; 
+		chomp; s/(\A\s+|\s+\Z)//g;
 		next if m/\A\s*#/;
 		s/\A\s*//; s/\s*\Z//g; $product_info{$key} = $_;
 		last;
@@ -78,7 +78,7 @@ if (-f $dmidecode && -x $dmidecode) {
 	my @meminstalledsize = ();
 	my (%memtype,%memspeed);
 	while(<$fh>){
-		chomp;
+		chomp; s/(\A\s+|\s+\Z)//g;
 		if (m/\A\s*\Z/){
 			$memdev_start = 0;
 			next;
@@ -123,7 +123,7 @@ my $mem_file = '/proc/meminfo';
 if (-f $mem_file && -r $mem_file) {
   if(open my $fh, "<", $mem_file){
   	while(<$fh>){
-		chomp;
+		chomp; s/(\A\s+|\s+\Z)//g;
 		if (m/\AMemTotal:/i) {
 			$mem_info{'os_mem_total'} = int((split /\s+/)[1]/1024).' MB';
 		}
@@ -151,7 +151,7 @@ if (-f $cpu_file && -r $cpu_file) {
   if (open my $fh, "<", $cpu_file) {
 	my (%cpu_phyid, %cpu_speed, %cpu_vendor, %cpu_type);
         while(<$fh>){
-                chomp;
+                chomp; s/(\A\s+|\s+\Z)//g;
 		if (m/\Aprocessor\s+/i) {
 			$cpu_info{'logical'}++;
 		}
@@ -190,7 +190,7 @@ if (-f $input_devfile && -r $input_devfile) {
   open my $fh, "<", $input_devfile;
   if ($fh) {
 	while(<$fh>){
-		chomp;
+		chomp; s/(\A\s+|\s+\Z)//g;
 		if (m/\AN: /i) {
 			s/[\"\']//g;
 			push @input_dev, (split/=/)[1];
@@ -219,7 +219,7 @@ if (-f $lsb_release && -x $lsb_release) {
   open my $fh, "$lsb_release -a 2>&1 |";
   if ($fh) {
 	while(<$fh>){
-		chomp;
+		chomp; s/(\A\s+|\s+\Z)//g;
 		next if m/\ALSB Version/i;
 		my ($key,$value) = split /:/;
 		$key = 'os_distribute' if $key =~ /\ADistributor ID/i;
@@ -280,7 +280,7 @@ my $clockfile = '/etc/sysconfig/clock';
 if (-f $clockfile && -r $clockfile) {
   if(open my $fh, "<", $clockfile){
 	while(<$fh>){
-		chomp;
+		chomp; s/(\A\s+|\s+\Z)//g;
 		if (m/\AZONE=/) {
 			s/"//g;
 			$sys_clock{'timezone'} = (split/=/)[1];
@@ -304,7 +304,7 @@ my $i18nfile = '/etc/sysconfig/i18n';
 if (-f $i18nfile && -r $i18nfile) {
   if(open my $fh, "<", $i18nfile){
 	while(<$fh>){
-		chomp;
+		chomp; s/(\A\s+|\s+\Z)//g;
 		if (m/\ALANG=/){
 			s/"//g;
 			$sys_lang{'lang_default'} = (split/=/)[1];
@@ -333,7 +333,7 @@ my $selinuxfile = '/etc/selinux/config';
 if (-f $selinuxfile && -r $selinuxfile) {
   if (open my $fh, "<", $selinuxfile) {
 	while(<$fh>){
-		chomp;
+		chomp; s/(\A\s+|\s+\Z)//g;
 		next if /\A\s*#/;
 		if (m/\A\s*SELINUX\b/) {
 			$selinux{'status'} = (split/=/)[1];
@@ -353,7 +353,7 @@ my $userfile = '/etc/passwd';
 if (-f $userfile && -r $userfile) {
   if(open my $fh, "<", $userfile){
 	while(<$fh>){
-		chomp;
+		chomp; s/(\A\s+|\s+\Z)//g;
 		my ($name,$uid,$gid,$homedir,$shell) = (split /:/)[0,2,3,5,6];
 		if (defined $shell && -e $shell && $shell =~ /sh\Z/) {
 			my %sysuser = (
@@ -377,7 +377,7 @@ my $inittab = '/etc/inittab';
 if (-f $inittab && -r $inittab) {
   if(open my $fh, "<", $inittab){
 	while(<$fh>){
-		chomp;
+		chomp; s/(\A\s+|\s+\Z)//g;
 		if (m/\A\s*id:/){
 			$runlevel = (split /:/)[1];
 			last;
@@ -429,7 +429,7 @@ if (-f $route && -x $route) {
    open my $fh, "$route -n 2>&- |"; 
    if ($fh) {
 	while(<$fh>){
-		chomp;
+		chomp; s/(\A\s+|\s+\Z)//g;
 		if(m/\A\s*\d/i){
 			my ($dest,$gateway,$genmask,$flag,$metric,$ref,$use,$iface) = (split /\s+/);
 			my %route_way = (
@@ -459,7 +459,7 @@ if (-f $lspci && -x $lspci) {
   open my $fh, "$lspci 2>&1 | /bin/grep -i -E \"Ethernet controller:\" | ";
   if ($fh) {
 	while(<$fh>){
-		chomp;
+		chomp; s/(\A\s+|\s+\Z)//g;
 		my $busid = (split /\s+/)[0];
 		my $desc = (split /Ethernet controller:\s+/i)[1];
 		$netcard{$busid} = $desc;
@@ -475,7 +475,7 @@ if (-f $netfile && -r $netfile) {
   my @netfaces = ();
   if(open FH1, "<", $netfile){
 	while(<FH1>){
-		chomp;
+		chomp; s/(\A\s+|\s+\Z)//g;
 		if(/\A\s*(\w+?):\s*(\d+)/i){
 			next if ($1 eq 'lo' || $1 eq 'sit0' || $1 =~ m/range/i);
 			push @netfaces, $1;
@@ -484,7 +484,7 @@ if (-f $netfile && -r $netfile) {
 	close FH1;
   }
   foreach(@netfaces){
-	chomp;
+	chomp; s/(\A\s+|\s+\Z)//g;
 	my $inet_name = $_;
 	my %inet_info = (
 		'name'			=> $inet_name,
@@ -508,7 +508,7 @@ if (-f $netfile && -r $netfile) {
 		open my $fh, "$ethtool $inet_name 2>&1 | ";
 		if ($fh) {
 			while(<$fh>){
-				chomp;
+				chomp; s/(\A\s+|\s+\Z)//g;
 				$inet_info{'speed'} = (split/:\s+/)[1] if m/\A\s*Speed:/;
 				$inet_info{'duplex'} = (split/:\s+/)[1] if m/\A\s*Duplex:/;
 				$inet_info{'is_autoneg'} = (split/:\s+/)[1] if m/\A\s*Auto-negotiation:/;
@@ -518,7 +518,7 @@ if (-f $netfile && -r $netfile) {
 		open my $fh1, "$ethtool -i $inet_name 2>&1 | ";
 		if ($fh1) {
 			while(<$fh1>){
-				chomp;
+				chomp; s/(\A\s+|\s+\Z)//g;
 				$inet_info{'driver'} = (split/:\s+/)[1] if m/\A\s*driver:/;
 				$inet_info{'driver_version'} = (split/:\s+/)[1] if m/\A\s*version:/;
 				$inet_info{'firmware_version'} = (split/:\s+/)[1] if m/\A\s*firmware-version:/;
@@ -539,7 +539,7 @@ if (-f $netfile && -r $netfile) {
 		open my $fh, "$ifconfig $inet_name 2>&1 | ";
 		if ($fh) {
 			while(<$fh>){
-				chomp;
+				chomp; s/(\A\s+|\s+\Z)//g;
 				if(m/^$inet_name\s+Link encap:(\w+)\s+HWaddr ((?:[A-Fa-f0-9]{2}:){5}(?:[A-Fa-f0-9]{2}))\s*\Z/){
 					$inet_info{'encapsulation'} = $1;			
 					$inet_info{'mac_address'} = $2;
@@ -578,8 +578,9 @@ if (-f $megacli && -x $megacli) {
   open my $fh, "$megacli -adpCount -NoLog 2>&- | ";
   if($fh){
 	while(<$fh>){
+		chomp; s/(\A\s+|\s+\Z)//g;
 		if (/\A\s*Controller Count:\s*(\d+)/i){
-			chomp; $raid_num = $1;
+			$raid_num = $1;
 			last;
 		}
 	}
@@ -616,7 +617,7 @@ if (-f $megacli && -x $megacli) {
 	open my $fh1, "$megacli -AdpAllInfo -a$i -NoLog 2>&- | ";
 	if($fh1){
 		while(<$fh1>){
-			chomp;
+			chomp; s/(\A\s+|\s+\Z)//g;
 			if(/\A\s*Product Name\s*:\s*(.+)\s*\Z/i){
 				$raid_single{'Product_Name'} = $1;
 				next;
@@ -646,7 +647,7 @@ if (-f $megacli && -x $megacli) {
 				open my $fh2, "$megacli -AdpBbuCmd -a$i -NoLog 2>&- | ";
 				if($fh2){
 					while(<$fh2>){
-						chomp;
+						chomp; s/(\A\s+|\s+\Z)//g;
 						if(/\A\s*Voltage:\s*(.+)\s*\Z/i){
 							$bbu_single{'Voltage'} = $1;
 							next;
@@ -740,7 +741,7 @@ if (-f $megacli && -x $megacli) {
 						open my $fh3, "$megacli -LDInfo -L$v -a$i -NoLog 2>&- | ";
 						if($fh3){
 							while(<$fh3>){
-								chomp;
+								chomp; s/(\A\s+|\s+\Z)//g;
 								if(/\A\s*Virtual Drive\s*:\s*(\d+)\s*/i){
 									$vd_single{'vd_id'} = $1;
 									next;
@@ -829,7 +830,7 @@ if (-f $megacli && -x $megacli) {
 					open my $fh4, "$megacli -PDList -a$i -NoLog 2>&- | ";
 					if($fh4){
 						while(<$fh4>){
-							chomp;
+							chomp; s/(\A\s+|\s+\Z)//g;
 							# if blank-line, check if single physical disk finished.
 							if(/\A\s*\Z/i){	
 								if($pd_single{'pd_id'} ne 'X' && $pd_finish_flag == 0){

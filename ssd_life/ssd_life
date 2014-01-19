@@ -1,3 +1,170 @@
 #!/usr/bin/env perl
 use warnings;
 use strict;
+use utf8;
+use Locale::Messages qw (textdomain bindtextdomain gettext nl_putenv);
+use Smart::Comments;
+binmode(STDIN, ":encoding(utf8)");
+binmode(STDOUT, ":encoding(utf8)");
+binmode(STDERR, ":encoding(utf8)");
+binmode STDOUT, ':raw';
+
+
+# return codes
+our ($state_ok,$state_warn,$state_crit,$state_unkn,$state_noop) = (0,1,2,3,4);
+
+# return stuff
+our ($rc, $result) = (0,'');
+
+our $eminfo = '/usr/local/eminfo/eminfo';
+our $filename = (split /\//, __FILE__)[-1];
+
+# check eminfo
+unless (-f $eminfo && -x $eminfo) {
+  printf "{unknown}:{str}:{$eminfo not prepared.}";
+  exit $state_unkn;
+}
+
+# read eminfo locale_def
+our $localdir = '/usr/local/eminfo/share/locale/';
+open my $fh, "$eminfo printdef LOCALE_DIR 2>&- |";
+if($fh){
+  while(<$fh>){
+  	chomp; $localdir = $_;
+  	last;
+  }
+}
+
+# read plugin locale setting
+our $locale = 'zh_CN.UTF-8';
+open $fh, "$eminfo view $filename locale 2>&- |";
+if($fh){
+  while(<$fh>){
+        chomp; $locale = $_;
+        last;
+  }
+  if(!defined $locale || $locale eq ''){
+        open my $fh1, "$eminfo view default locale 2>&- |";
+        if($fh1){
+                while(<$fh1>){
+                        chomp; $locale = $_;
+                        last;
+                }
+        }
+  }
+}
+if(!defined $locale || $locale eq ''){
+        $locale = 'zh_CN.UTF-8';
+}elsif($locale eq 'zh_CN' || $locale eq 'zh_CN.UTF-8' || $locale eq 'zh'){
+        $locale = 'zh_CN.UTF-8';
+}elsif($locale eq 'en_US' || $locale eq 'en_US.UTF-8' || $locale eq 'en'){
+        $locale = 'en_US.UTF-8';
+}else{
+        $locale = 'zh_CN.UTF-8';
+}
+nl_putenv("LANGUAGE=$locale");
+
+# set textdomain; bindtextdomain
+sub _ ($) { &gettext; }
+textdomain "$filename";
+bindtextdomain "$filename", "$localdir";
+
+# read plugin config here
+our $max_limit = 7500;
+open $fh, "$eminfo view $filename max_limit 2>&- |";
+if($fh){
+  while(<$fh>){
+  	chomp; $max_limit = $_;
+  	last;
+  }
+}
+$max_limit = 7500 if $max_limit =~ /\D/;
+
+# Main body begin
+my @ssd_info = ();
+my $os_bitmode = '64';
+my $getconf = "/usr/bin/getconf";
+if (-f $getconf && -x $getconf) {
+  open my $fh, "$getconf LONG_BIT 2>&1 |";
+  if ($fh) {
+	while(<$fh>){
+		chomp; s/\A\s*//; s/\s*\Z//g; $os_bitmode = $_;
+	}
+  }
+}
+my $megacli = '/opt/MegaRAID/MegaCli/MegaCli64'; 
+$megacli = '/opt/MegaRAID/MegaCli/MegaCli' if ($os_bitmode eq '32');
+if (-f $megacli && -x $megacli) {
+  my ($i,$raid_num) = (0,0);
+  open my $fh, "$megacli -adpCount -NoLog 2>&- | ";
+  if($fh){
+        while(<$fh>){
+                if (/\A\s*Controller Count:\s*(\d+)/i){
+                        chomp; $raid_num = $1; 
+                        last;
+                }   
+        } 
+  }
+  for($i=0;$i<$raid_num;$i++){
+	my %raid_single = (
+		'RAID_ID'                       => $i,
+		'Physical_Disk_Info'		=> '',
+	);	
+	my %ssd_single = (
+		'pd_id'                 => 'X', # init
+		'inquiry_data'          => '',  # Info
+		'position'		=> '',
+		'temperature'           => '',
+	);
+	my $pd_finish_flag = 0;
+        open my $fh4, "$megacli -PDList -a$i -NoLog 2>&- | ";
+	if($fh4){
+		while(<$fh4>){
+                	chomp;
+                        # if blank-line, check if single physical disk finished.
+                        if(/\A\s*\Z/i){ 
+                        	if($pd_single{'pd_id'} ne 'X' && $pd_finish_flag == 0){
+                               		$pd_finish_flag = 1;
+                                        my %tmp_pd_single = %pd_single;
+                                        push @pd_array, \%tmp_pd_single;
+                                }else{
+                                        $pd_finish_flag = 0;
+                                        $pd_single{'pd_id'} = 'X';
+                                }
+                                next;
+                        }
+			if(/\A\s*Device Id\s*:\s*(\d+)\s*\Z/i){
+                               $pd_single{'pd_id'} = $1;
+                               next;
+                        }       
+			if(/\A\s*Drive\'s postion\s*:\s*(.+)\s*\Z/i){
+				$pd_single{'position'} = $1;
+				next;
+			}
+			if(/\A\s*Predictive Failure Count\s*:\s*(.+)\s*\Z/i){
+				$pd_single{'predictive_failure'} = $1;
+				next;
+			}
+			if(/\A\s*Inquiry Data\s*:\s*(.+?)\s*\Z/i){
+				$pd_single{'inquiry_data'} = $1;
+				next;
+			}       
+			if(/\A\s*Drive Temperature\s*:\s*(.+)\s*\Z/i){
+				$pd_single{'temperature'} = $1;
+				next;
+			}
+			next;
+		}
+		push @ssd_info, \%ssd_single;
+	}
+} else {
+  printf _"{unknown}:{str}:{ RAID Information UNKNOWN | util megacli not prepared | %s not prepared }",$megacli;
+  exit $state_unkn;
+}
+
+if (@raid_info){
+  ### @raid_info
+} else {
+  printf _"{unknown}:{str}:{ RAID Information UNKNOWN | collected nothing about raid | collected nothing about raid ### maybe raid controller card not recoginized or exist. }";
+  exit $state_unkn;
+}

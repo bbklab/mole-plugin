@@ -128,7 +128,7 @@ if (-f $megacli && -x $megacli) {
 	open my $fh1, "$megacli -AdpAllInfo -a$i -NoLog 2>&- | ";
 	if($fh1){
 		while(<$fh1>){
-			chomp;
+			chomp; s/(\A\s+|\s+\Z)//g;
                         if(/\A\s*Product Name\s*:\s*(.+)\s*\Z/i){
                                 $raid_single{'Product_Name'} = $1; 
                                 next;
@@ -154,7 +154,7 @@ if (-f $megacli && -x $megacli) {
                                         open my $fh4, "$megacli -PDList -a$i -NoLog 2>&- | ";
                                         if($fh4){
                                                 while(<$fh4>){
-                                                        chomp;
+                                                        chomp; s/(\A\s+|\s+\Z)//g;
                                                         # if blank-line, check if single physical disk finished.
                                                         if(/\A\s*\Z/i){ 
                                                                 if($pd_single{'pd_id'} ne 'X' && $pd_finish_flag == 0){
@@ -209,31 +209,6 @@ if (-f $megacli && -x $megacli) {
                                 $raid_single{'RAID_Memory'} = $1;
                                 next;
                         }
-			if(/\A\s*BBU\s*:\s*Present\s*\Z/i){
-				my %bbu_single = (
-					'Temperature'                   => '',
-					'Learn_Cycle_Active'            => '',
-					'Relative_State_of_Charge'      => '',	
-				);
-				open my $fh2, "$megacli -AdpBbuCmd -a$i -NoLog 2>&- | ";
-				if($fh2){
-                                        while(<$fh2>){
-                                                chomp;
-                                                if(/\A\s*Temperature:\s*(.+)\s*\Z/i){
-                                                        $bbu_single{'Temperature'} = $1;
-                                                        next;
-                                                }
-                                                if(/\A\s*Learn Cycle Active\s*:\s*(.+)\s*\Z/i){
-                                                        $bbu_single{'Learn_Cycle_Active'} = $1;
-                                                        next;
-                                                }
-                                                if(/\A\s*Relative State of Charge:\s*(.+)\s*\Z/i){
-                                                        $bbu_single{'Relative_State_of_Charge'} = $1;
-                                                        next;
-                                                }
-					}
-				}
-			}
                         if(/\A\s*Temperature sensor for controller\s*:\s*Present\s*\Z/i){
                                 $raid_temp_sensor{'Present'} = 1;
                                 next;
@@ -258,7 +233,31 @@ if (-f $megacli && -x $megacli) {
                                 $raid_single{'Memory_Uncorrectable_Errors'} = $1;
                                 next;
                         }
-
+			if(/\A\s*BBU\s*:\s*Present\s*\Z/i){
+				my %bbu_single = (
+					'Temperature'                   => '',
+					'Learn_Cycle_Active'            => '',
+					'Relative_State_of_Charge'      => '',	
+				);
+				open my $fh2, "$megacli -AdpBbuCmd -a$i -NoLog 2>&- | ";
+				if($fh2){
+                                        while(<$fh2>){
+                                                chomp; s/(\A\s+|\s+\Z)//g;
+                                                if(/\A\s*Temperature:\s*(.+)\s*\Z/i){
+                                                        $bbu_single{'Temperature'} = $1;
+                                                        next;
+                                                }
+                                                if(/\A\s*Learn Cycle Active\s*:\s*(.+)\s*\Z/i){
+                                                        $bbu_single{'Learn_Cycle_Active'} = $1;
+                                                        next;
+                                                }
+                                                if(/\A\s*Relative State of Charge:\s*(.+)\s*\Z/i){
+                                                        $bbu_single{'Relative_State_of_Charge'} = $1;
+                                                        next;
+                                                }
+					}
+				}
+			}
 		}
 	}
 	$raid_single{'RAID_Temp_Sensor'} = \%raid_temp_sensor;
@@ -270,7 +269,13 @@ if (-f $megacli && -x $megacli) {
 }
 
 if (@raid_info){
-  ### @raid_info
+  while(@raid_info){
+	my $raid = shift @raid_info;
+	my $raidinfo = '';
+	$raidinfo = sprintf(_"RAID ID: %d, Product Name: %s ### ",$raid->{'RAID_ID'},$raid->{'Product_Name'});
+	$raidinfo .= sprintf(_"Serial Number: %s, RAID_Memory: %s ### ",$raid->{'Serial_Number'},$raid->{'RAID_Memory'});
+	$raidinfo .= sprintf(_"VD Number: %d, PD Number: %d ### ### ",$raid->{'Virtual_Disk_Number'},$raid->{'Physical_Disk_Number'});
+  }
 } else {
   printf _"{unknown}:{str}:{ RAID Information UNKNOWN | collected nothing about raid | collected nothing about raid ### maybe raid controller card not recoginized or exist. }";
   exit $state_unkn;
