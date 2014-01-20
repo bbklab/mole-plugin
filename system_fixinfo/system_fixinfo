@@ -674,11 +674,11 @@ if (-f $megacli && -x $megacli) {
 							$bbu_single{'Relative_State_of_Charge'} = $1;
 							next;
 						}
-						if(/\A\s*Battery Replacement required:\s*(.+)\s*\Z/i){
+						if(/\A\s*Battery Replacement required\s*:\s*(.+)\s*\Z/i){
 							$bbu_single{'Battery_Replacement_Required'} = $1;
 							next;
 						}
-						if(/\A\s*Remaining Capacity Low:\s*(.+)\s*\Z/i){
+						if(/\A\s*Remaining Capacity Low\s*:\s*(.+)\s*\Z/i){
 							$bbu_single{'Remaining_Capacity_Low'} = $1;
 							next;
 						}
