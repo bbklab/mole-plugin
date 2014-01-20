@@ -635,10 +635,12 @@ if (-f $megacli && -x $megacli) {
 					'Present'			=> 1,
 					'Voltage'			=> '',
 					'Temperature'			=> '',
-					'Charging_Status'		=> '',
+					'Charging_Status'		=> '',   # Charing, Discharing, None
 					'Learn_Cycle_Status'		=> '',
-					'Learn_Cycle_Active'		=> '',
+					'Learn_Cycle_Active'		=> '',	 # Yes, No
 					'Relative_State_of_Charge' 	=> '',
+					'Battery_Replacement_Required'	=> '',   # Yes, No
+					'Remaining_Capacity_Low'	=> '',   # Yes, No
 					'Charger_Status'		=> '',
 					'Auto_Learn_Mode'		=> '',
 					'Auto_Learn_Period'		=> '',
@@ -670,6 +672,14 @@ if (-f $megacli && -x $megacli) {
 						}
 						if(/\A\s*Relative State of Charge:\s*(.+)\s*\Z/i){
 							$bbu_single{'Relative_State_of_Charge'} = $1;
+							next;
+						}
+						if(/\A\s*Battery Replacement required:\s*(.+)\s*\Z/i){
+							$bbu_single{'Battery_Replacement_Required'} = $1;
+							next;
+						}
+						if(/\A\s*Remaining Capacity Low:\s*(.+)\s*\Z/i){
+							$bbu_single{'Remaining_Capacity_Low'} = $1;
 							next;
 						}
 						if(/\A\s*Charger Status:\s*(.+)\s*\Z/i){
