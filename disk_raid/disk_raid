@@ -425,6 +425,7 @@ if (@raid_info) {
   $total = scalar @raid_info;
   while(@raid_info){
 	my $raid = shift @raid_info;
+	my ($critflag,$warnflag) = (0,0);
 
 	$result  = sprintf(_"RAID ID: %d, Product Name: %s ### ",$raid->{'RAID_ID'},$raid->{'Product_Name'});
 	$result .= sprintf(_"Serial: %s, RAID Memory: %s ### ",$raid->{'Serial_Number'},$raid->{'RAID_Memory'});
@@ -435,6 +436,7 @@ if (@raid_info) {
 		if (defined $raid->{'RAID_Temp_Sensor'}->{'Temperature'} && $raid->{'RAID_Temp_Sensor'}->{'Temperature'} ne '') {
 			if ($raid->{'RAID_Temp_Sensor'}->{'Temperature'} =~ m/(\d+)\s*degree\s+celcius/i) {
 				if ($1 >= $raidtemp_uplimit) {
+					$warnflag ++;
 					$result .= sprintf(_"<font color=red> Raid Controller Temperature: %d degree Celcius </font> ### ",$1);
 				} else {
 					$result .= sprintf(_"Raid Controller Temperature: %d degree Celcius ### ",$1);
@@ -452,6 +454,7 @@ if (@raid_info) {
 	# 2. check raid Physical_Disks_Critical
 	if (defined $raid->{'Physical_Disks_Critical'} && $raid->{'Physical_Disks_Critical'} ne '') {
 		if ($raid->{'Physical_Disks_Critical'} > $diskcrit_uplimit) {
+			$critflag ++;
 			$result .= sprintf(_"<font color=red> Critical Physical Disk: %d </font> ### ",$raid->{'Physical_Disks_Critical'});
 		} else {
 			$result .= sprintf(_"Critical Physical Disk: %d ### ",$raid->{'Physical_Disks_Critical'});
@@ -463,6 +466,7 @@ if (@raid_info) {
 	# 3. check raid Physical_Disks_Failed
 	if (defined $raid->{'Physical_Disks_Failed'} && $raid->{'Physical_Disks_Failed'} ne '') {
 		if ($raid->{'Physical_Disks_Failed'} > $diskfail_uplimit) {
+			$critflag ++;
 			$result .= sprintf(_"<font color=red> Failed Physical Disk: %d </font> ### ",$raid->{'Physical_Disks_Failed'});
 		} else {
 			$result .= sprintf(_"Failed Physical Disk: %d ### ",$raid->{'Physical_Disks_Failed'});
@@ -474,6 +478,7 @@ if (@raid_info) {
 	# 4. check raid Memory_Uncorrectable_Errors
 	if (defined $raid->{'Memory_Uncorrectable_Errors'} && $raid->{'Memory_Uncorrectable_Errors'} ne '') {
 		if ($raid->{'Memory_Uncorrectable_Errors'} > $memcrit_uplimit) {
+			$critflag ++;
 			$result .= sprintf(_"<font color=red> Memory Uncorrectable Error: %d </font> ### ",$raid->{'Memory_Uncorrectable_Errors'});
 		} else {
 			$result .= sprintf(_"Memory Uncorrectable Error: %d ### ",$raid->{'Memory_Uncorrectable_Errors'});
@@ -485,6 +490,7 @@ if (@raid_info) {
 	# 5. check raid Memory_Correctable_Errors
 	if (defined $raid->{'Memory_Correctable_Errors'} && $raid->{'Memory_Correctable_Errors'} ne '') {
 		if ($raid->{'Memory_Correctable_Errors'} > $memfail_uplimit) {
+			$critflag ++;
 			$result .= sprintf(_"<font color=red> Memory Correctable Error: %d </font> ### ",$raid->{'Memory_Correctable_Errors'});
 		} else {
 			$result .= sprintf(_"Memory Correctable Error: %d ### ",$raid->{'Memory_Correctable_Errors'});
@@ -499,6 +505,7 @@ if (@raid_info) {
 		if ($bbu_learn_check) {
 			if (defined $raid->{'RAID_BBU'}->{'Learn_Cycle_Active'} && $raid->{'RAID_BBU'}->{'Learn_Cycle_Active'} ne '') {
 				if (lc($raid->{'RAID_BBU'}->{'Learn_Cycle_Active'}) eq 'yes') {
+					$warnflag ++;
 					$result .= sprintf(_"<font color=red> Attention! Raid BBU Learning Now Actived! </font> ### ");
 				} else {
 					$result .= sprintf(_"Raid BBU Learning not Actived Now. ### ");
@@ -513,7 +520,8 @@ if (@raid_info) {
 		# 7. check raid bbu Relative_State_of_Charge
 		if (defined $raid->{'RAID_BBU'}->{'Relative_State_of_Charge'} && $raid->{'RAID_BBU'}->{'Relative_State_of_Charge'} ne '') {
 			if ($raid->{'RAID_BBU'}->{'Relative_State_of_Charge'} =~ m/(\d+)\s*%/i) {
-				if ($1 >= $bbu_charge_status) {
+				if ($1 <= $bbu_charge_status) {
+					$warnflag ++;
 					$result .= sprintf(_"<font color=red> Raid BBU Charger Status: %d",$1).'% <font> ### ';
 				} else {
 					$result .= sprintf(_"Raid BBU Charger Status: %d",$1).'% ### ';
@@ -529,6 +537,7 @@ if (@raid_info) {
 		if (defined $raid->{'RAID_BBU'}->{'Temperature'} && $raid->{'RAID_BBU'}->{'Temperature'} ne '') {
 			if ($raid->{'RAID_BBU'}->{'Temperature'} =~ m/(\d+)\s+C/i) {
 				if ($1 >= $bbutemp_uplimit) {
+					$warnflag ++;
 					$result .= sprintf(_"<font color=red> Raid BBU Temperature: %d degree Celcius </font> ### ",$1);
 				} else {
 					$result .= sprintf(_"Raid BBU Temperature: %d degree Celcius ### ",$1);
@@ -544,6 +553,7 @@ if (@raid_info) {
 		if ($bbu_replace_check) {
 			if (defined $raid->{'RAID_BBU'}->{'Battery_Replacement_Required'} && $raid->{'RAID_BBU'}->{'Battery_Replacement_Required'} ne '') {
 				if (lc($raid->{'RAID_BBU'}->{'Battery_Replacement_Required'}) eq 'yes') {
+					$warnflag ++;
 					$result .= sprintf(_"<font color=red> Attention! Raid BBU Battery Need to be Replaced! </font> ### ");
 				} else {
 					$result .= sprintf(_"Raid BBU Battery Still Working Well. ### ");
@@ -559,6 +569,7 @@ if (@raid_info) {
 		if ($bbu_lowcap_check) {
 			if (defined $raid->{'RAID_BBU'}->{'Remaining_Capacity_Low'} && $raid->{'RAID_BBU'}->{'Remaining_Capacity_Low'} ne '') {
 				if (lc($raid->{'RAID_BBU'}->{'Remaining_Capacity_Low'}) eq 'yes') {
+					$warnflag ++;
 					$result .= sprintf(_"<font color=red> Attention! Raid BBU Remaining Capacity Low! </font> ### ");
 				} else {
 					$result .= sprintf(_"Raid BBU Remaining Capacity Normal. ### ");
@@ -575,26 +586,84 @@ if (@raid_info) {
 	}
 
 	## physical disks check
-	my @pd = $raid->{'Physical_Disk_Info'};
-	my $pdresult = '';
-	if (@pd) {
-		while(@pd){
-			my $single_pd = shift @pd;
+	my ($pdcritnum,$pdwarnnum,$pdtotal,$pdresult) = (0,0,0,'');
+	# my @pds = $raid->{'Physical_Disk_Info'};  # wrong!
+	my @pds = @{$raid->{'Physical_Disk_Info'}};
+	if (@pds) {
+		$pdtotal = scalar @pds;
+		while(@pds){
+			my $pd = shift @pds;
 
-			### 11. check raid pd temperature
-			
+			my $pdinfo = sprintf(_"PD ID: %d, Meida Type: %s ### ",$pd->{'pd_id'},$pd->{'media_type'});
+			$pdinfo   .= sprintf(_"PD Position: %s ### ",$pd->{'position'});
+			$pdinfo   .= sprintf(_"PD Manufacturer: %s ### ",$pd->{'inquiry_data'});
+			my $flag = 0;
 
-			### 12. check raid pd media_error
+			# 11. check raid pd temperature
+			if (defined $pd->{'temperature'} && $pd->{'temperature'} ne '') {
+				if ($pd->{'temperature'} =~ m/(\d+)C\s+/i) {
+					if ($1 >= $disktemp_uplimit) {
+						$pdwarnnum ++;
+						if (!$flag) {
+							$pdresult .= $pdinfo;
+							$flag = 1;
+						}
+						$pdresult .= sprintf(_"<font color=red> Physical Disk Temperature: %d C </font> ### ",$1);
+					}
+				}
+			} 
 
-			### 13. check raid pd other_error 
+			# 12. check raid pd media_error
+			if (defined $pd->{'media_error'} && $pd->{'media_error'} ne '') {
+				if ($pd->{'media_error'} > $pdmedia_error_uplimit) {
+					$pdcritnum ++;
+					if (!$flag) {
+						$pdresult .= $pdinfo;
+						$flag = 1;
+					}
+					$pdresult .= sprintf(_"<font color=red> Pyhsical Disk Media Error: %d </font> ### ",$raid->{'media_error'});
+				}
+			}
 
-			### 14. check raid pd predictive_failure 
+			# 13. check raid pd other_error 
+			if (defined $pd->{'other_error'} && $pd->{'other_error'} ne '') {
+				if ($pd->{'other_error'} > $pdother_error_uplimit) {
+					$pdwarnnum ++;
+					if (!$flag) {
+						$pdresult .= $pdinfo;
+						$flag = 1;
+					}
+					$pdresult .= sprintf(_"<font color=red> Pyhsical Disk Other Error: %d </font> ### ",$raid->{'other_error'});
+				}
+			}
+
+			# 14. check raid pd predictive_failure 
+			if (defined $pd->{'predictive_failure'} && $pd->{'predictive_failure'} ne '') {
+				if ($pd->{'predictive_failure'} > $pdprd_failure_uplimit) {
+					$pdwarnnum ++;
+					if (!$flag) {
+						$pdresult .= $pdinfo;
+						$flag = 1;
+					}
+					$pdresult .= sprintf(_"<font color=red> Pyhsical Disk Predictive Failure: %d </font> ### ",$raid->{'pdprd_failure_uplimit'});
+				}
+			}
 		}
+		if($pdcritnum == 0 && $pdwarnnum == 0){
+			$pdresult .= sprintf(_"Total %d Physical Disks Status All Right ###",$pdtotal);
+		} else {
+			$warnflag ++ if $pdwarnnum > 0;
+			$critflag ++ if $pdcritnum > 0;
+		}
+
 	} else {
-		$result .= sprintf(_"No Physical Disks Found ?! Maybe Something Unknown Occured ... ### ");
+		$pdresult .= sprintf(_"No Physical Disks Found ?! Maybe Something Unknown Occured ... ### ");
 	}
 	$result .= $pdresult;
-	$result .= " ### ### ";
+	$result .= " ### ### ### ### ";
+
+	$critnum ++ if $critflag > 0;
+	$warnnum ++ if $warnflag > 0;
   }
 } else {
   printf _"{unknown}:{str}:{ RAID Information UNKNOWN | collected nothing about raid | collected nothing about raid ### maybe raid controller card not recoginized or not exist. }";
