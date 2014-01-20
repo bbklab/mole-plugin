@@ -92,7 +92,7 @@ if (-f $dmidecode && -x $dmidecode) {
 			$mem_info{'memmaxdevnum'}++;
 			next;
 		}
-		if (m/\A\s+Size:/i) {
+		if (m/\A\s*Size:/i) {
 			(my $size = (split /:/)[1]) =~ s/\A\s*//g;
 			if ($size =~ /\d+ MB/i) {
 				$mem_info{'meminstallednum'}++;
