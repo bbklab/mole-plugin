@@ -3,7 +3,7 @@ use warnings;
 use strict;
 use utf8;
 use JSON;
-# use Smart::Comments;
+use Smart::Comments;
 binmode(STDIN, ":encoding(utf8)");
 binmode(STDOUT, ":encoding(utf8)");
 
@@ -26,9 +26,16 @@ my %load_avg = (
   '15min'	=> '',
 );
 
-my %online_user = (
-
+my %cpu_usage = (
+  'time'	=> '',
+  'interval'	=> '',
+  'user'	=> '',
+  'sys'		=> '',
+  'wait'	=> '',
+  'idle'	=> '',
 );
+
+my @online_user = ();
 
 my %runtime = (
   'boottime'	=> '',
@@ -41,12 +48,36 @@ my %mem_usage = (
   'swp_usage'	=> '',
 );
 
-my @prt_usgage = '';
+my @prt_usage = ();
 
+my %process = (
+  'total_num'	=> '',
+  'state_R'	=> '', 
+  'stare_S'	=> '',
+  'state_Z'	=> '',
+  'state_D'	=> '',
+);
 
+my %netstat = (
+  'total_num'	=> '',
+);
+
+my %lastlogin = (
+  'number'	=> '',
+  'result'	=> '',
+);
 
 # PREPARE LAST RESULT HASH
 my %result = (
+  'load_avg'	=> \%load_avg,
+  'cpu_usage'	=> \%cpu_usage,
+  'online_user'	=> \@online_user,
+  'runtime'	=> \%runtime,
+  'mem_usage'	=> \%mem_usage,
+  'prt_usage'	=> \@prt_usage,
+  'process'	=> \%process,
+  'netstat'	=> \%netstat,
+  'lastlogin'	=> \%lastlogin,
 );
 ### %result
 
