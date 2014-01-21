@@ -86,7 +86,7 @@ msgid "<font color=red> Attention! Raid BBU Learning Now Actived! </font> ### "
 msgstr "<font color=red> 请注意! RAID电池正在进行自动校正! 可能会影响磁盘写性能! </font> ### "
 
 msgid "Raid BBU Learning not Actived Now. ### "
-msgstr "RAID电池当前没有进行自动校正! 性能无影响! ### "
+msgstr "RAID电池当前没有进行自动校正, 性能无影响 ### "
 
 msgid "Raid BBU Learning Active Status not detected. ### "
 msgstr "RAID电池自动校正状态未探测到  ### "
@@ -134,13 +134,13 @@ msgid "<font color=red> Attention! Raid BBU Remaining Capacity Low! </font> ### 
 msgstr "<font color=red> 请注意! RAID剩余电池容量过低! </font> ### "
 
 msgid "Raid BBU Remaining Capacity Normal. ### "
-msgstr "RAID剩余电池容量正常 ### "
+msgstr "RAID电池剩余容量正常 ### "
 
 msgid "Raid BBU Remaining Capacity Low Status not detected. ### "
-msgstr "RAID剩余电池容量未探测到 ### "
+msgstr "RAID电池剩余容量未探测到 ### "
 
 msgid "Raid BBU Remaining Capacity Low Check Disabled in Plugin Config. ### "
-msgstr "RAID剩余电池容量检查已关闭 ### "
+msgstr "RAID电池剩余容量检查已关闭 ### "
 
 msgid "Raid BBU not exists, Raid BBU Information Unknown. ### "
 msgstr "RAID电池不存在, RAID电池的信息未知 ### "
@@ -167,7 +167,7 @@ msgid "<font color=red> Pyhsical Disk Predictive Failure: %d </font> ### "
 msgstr "<font color=red> 物理硬盘可预期的错误个数: %d </font> ### "
 
 msgid "Total %d Physical Disks Temperature Normal and No Errors ###"
-msgstr "共计 %d 物理硬盘的温度正常, 且没有其它错误 ### "
+msgstr "共计 %d 块物理硬盘的温度正常, 且没有其它错误 ### "
 
 msgid "No Physical Disks Found ?! Maybe Something Unknown Occured ... ### "
 msgstr "没有探测到物理硬盘 ?! 也许发生了一些未知异常 ... ### "
