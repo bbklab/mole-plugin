@@ -1,0 +1,185 @@
+# Copyright (C) 2013 EMINFO LANGUAGE FILE FOR GETTEXT
+# FIRST AUTHOR <zhangguangzheng@eyou.net>,<zhang.elinks@gmail.com> 2013.
+# This file is distributed under the same license as the eminfo package.
+#
+msgid ""
+msgstr ""
+"Report-Msgid-Bugs-To: zhangguangzheng@eyou.net\n"
+"Last-Translator: Guangzheng Zhang <zhang.elinks@gmail.com>\n"
+"Language-Team: EMINFO-LANGUAGE <zhang.elinks@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Chinese\n"
+"X-Poedit-Country: CHINA\n"
+
+msgid "\t%+#D"
+msgstr "\t%+#D"
+
+msgid "\n"
+msgstr "\n"
+
+msgid "{unknown}:{str}:{ RAID Information UNKNOWN | util megacli not prepared | %s not prepared }"
+msgstr "{unknown}:{str}:{ RAID卡控制器信息未知 | megacli 未准备就绪 | %s 未准备就绪 }"
+
+msgid "RAID ID: %d, Product Name: %s ### "
+msgstr "RAID编号: %d, RAID型号: %s ### "
+
+msgid "Serial: %s, RAID Memory: %s ### "
+msgstr "RAID序列号: %s,  RAID缓存: %s ### "
+
+msgid "VD Number: %d, PD Number: %d ### ### "
+msgstr "虚拟磁盘组个数: %d, 物理磁盘个数: %d ### ### "
+
+msgid "<font color=red> Raid Controller Temperature: %d degree Celcius </font> ### "
+msgstr "<font color=red> RAID控制器温度: %d 摄氏度 </font> ### "
+
+msgid "Raid Controller Temperature: %d degree Celcius ### "
+msgstr "RAID控制器温度: %d 摄氏度 ### "
+
+msgid "Raid Controller Temperature: %s ### "
+msgstr "RAID控制器温度: %s ### "
+
+msgid "Raid Controller Temperature not detected. ### "
+msgstr "未探测到RAID控制器温度 ### "
+
+msgid "Raid Temperature Sensor not exists, Raid Temperature Unknown. ### "
+msgstr "RAID控制器温度传感器不存在, RAID控制器温度未知 ### "
+
+msgid "<font color=red> Critical Physical Disk: %d </font> ### "
+msgstr "<font color=red> 当前故障状态的物理硬盘个数: %d </font> ### "
+
+msgid "Critical Physical Disk: %d ### "
+msgstr "当前故障状态的物理硬盘个数: %d ### "
+
+msgid "Critical Physical Disk Number not detected. ### "
+msgstr "当前故障状态的物理硬盘个数未探测到 ### "
+
+msgid "<font color=red> Failed Physical Disk: %d </font> ### "
+msgstr "<font color=red> 当前失败状态的物理硬盘个数: %d </font> ### "
+
+msgid "Failed Physical Disk: %d ### "
+msgstr "当前失败状态的物理硬盘个数: %d ### "
+
+msgid "Failed Physical Disk Number not detected. ### "
+msgstr "当前失败状态的物理硬盘个数未探测到 ### "
+
+msgid "<font color=red> Memory Uncorrectable Error: %d </font> ### "
+msgstr "<font color=red> 内存不可纠正的错误数量: %d </font> ### "
+
+msgid "Memory Uncorrectable Error: %d ### "
+msgstr "内存不可纠正的错误数量: %d ### "
+
+msgid "Memory Uncorrectable Error Number not detected. ### "
+msgstr "内存不可纠正的错误数量未探测到 ### "
+
+msgid "<font color=red> Memory Correctable Error: %d </font> ### "
+msgstr "<font color=red> 内存可纠正的错误数量: %d </font> ### "
+
+msgid "Memory Correctable Error: %d ### "
+msgstr "内存可纠正的错误数量: %d ### "
+
+msgid "Memory Correctable Error Number not detected. ### "
+msgstr "内存可纠正的错误数量未探测到 ### "
+
+msgid "<font color=red> Attention! Raid BBU Learning Now Actived! </font> ### "
+msgstr "<font color=red> 请注意! RAID电池正在进行自动校正! 可能会影响磁盘写性能! </font> ### "
+
+msgid "Raid BBU Learning not Actived Now. ### "
+msgstr "RAID电池当前没有进行自动校正! 性能无影响! ### "
+
+msgid "Raid BBU Learning Active Status not detected. ### "
+msgstr "RAID电池自动校正状态未探测到  ### "
+
+msgid "Raid BBU Learning Check Disabled in Plugin Config. ### "
+msgstr "RAID电池自动校正状态的检查已关闭 ### "
+
+msgid "<font color=red> Raid BBU Charger Status: %d"
+msgstr "<font color=red> RAID电池相对充电状态: %d"
+
+msgid "Raid BBU Charger Status: %d"
+msgstr "RAID电池相对充电状态: %d"
+
+msgid "Raid BBU Charger Status: %s ### "
+msgstr "RAID电池相对充电状态: %s ### "
+
+msgid "Raid BBU Charger Status not detected. ### "
+msgstr "RAID电池相对充电状态未探测到  ### "
+
+msgid "<font color=red> Raid BBU Temperature: %d degree Celcius </font> ### "
+msgstr "<font color=red> RAID电池温度: %d 摄氏度 </font> ### "
+
+msgid "Raid BBU Temperature: %d degree Celcius ### "
+msgstr "RAID电池温度: %d 摄氏度 ### "
+
+msgid "Raid BBU Temperature: %s ### "
+msgstr "RAID电池温度: %s ### "
+
+msgid "Raid BBU Temperature not detected. ### "
+msgstr "RAID电池温度未探测到 ### "
+
+msgid "<font color=red> Attention! Raid BBU Battery Need to be Replaced! </font> ### "
+msgstr "<font color=red> 请注意! RAID电池需要改进行更换了! </font> ### "
+
+msgid "Raid BBU Battery Still Working Well. ### "
+msgstr "RAID电池仍旧可以正常工作 ### "
+
+msgid "Raid BBU Battery Replacement Status not detected. ### "
+msgstr "RAID电池的更换状态未探测到 ### "
+
+msgid "Raid BBU Battery Replacement Check Disabled in Plugin Config. ### "
+msgstr "RAID电池的更换状态检查已关闭 ### "
+
+msgid "<font color=red> Attention! Raid BBU Remaining Capacity Low! </font> ### "
+msgstr "<font color=red> 请注意! RAID剩余电池容量过低! </font> ### "
+
+msgid "Raid BBU Remaining Capacity Normal. ### "
+msgstr "RAID剩余电池容量正常 ### "
+
+msgid "Raid BBU Remaining Capacity Low Status not detected. ### "
+msgstr "RAID剩余电池容量未探测到 ### "
+
+msgid "Raid BBU Remaining Capacity Low Check Disabled in Plugin Config. ### "
+msgstr "RAID剩余电池容量检查已关闭 ### "
+
+msgid "Raid BBU not exists, Raid BBU Information Unknown. ### "
+msgstr "RAID电池不存在, RAID电池的信息未知 ### "
+
+msgid "PD ID: %d, Meida Type: %s ### "
+msgstr "物理硬盘ID: %d,  介质类型: %s ### "
+
+msgid "PD Position: %s ### "
+msgstr "物理硬盘所属RAID组: %s ### "
+
+msgid "PD Manufacturer: %s ### "
+msgstr "物理硬盘制造商: %s ### "
+
+msgid "<font color=red> Physical Disk Temperature: %d C </font> ### "
+msgstr "<font color=red> 物理硬盘温度: %d 摄氏度 </font> ### "
+
+msgid "<font color=red> Pyhsical Disk Media Error: %d </font> ### "
+msgstr "<font color=red> 物理硬盘介质错误个数: %d </font> ### "
+
+msgid "<font color=red> Pyhsical Disk Other Error: %d </font> ### "
+msgstr "<font color=red> 物理硬盘其它错误个数: %d </font> ### "
+
+msgid "<font color=red> Pyhsical Disk Predictive Failure: %d </font> ### "
+msgstr "<font color=red> 物理硬盘可预期的错误个数: %d </font> ### "
+
+msgid "Total %d Physical Disks Temperature Normal and No Errors ###"
+msgstr "共计 %d 物理硬盘的温度正常, 且没有其它错误 ### "
+
+msgid "No Physical Disks Found ?! Maybe Something Unknown Occured ... ### "
+msgstr "没有探测到物理硬盘 ?! 也许发生了一些未知异常 ... ### "
+
+msgid "{unknown}:{str}:{ RAID Information UNKNOWN | collected nothing about raid | collected nothing about raid ### maybe raid controller card not recoginized or not exist. }"
+msgstr "{unknown}:{str}:{ RAID控制器状态未知 | 未搜集到RAID控制器的数据信息 | 未搜集到RAID控制器的数据信息 ### 也许RAID控制器不识别或不存在 }"
+
+msgid "{crit}:{str}:{ RAID CONTROLLER CRITICAL | %d/%d raid controller card healthy check critical | %s }"
+msgstr "{crit}:{str}:{ RAID控制器严重故障 | %d/%d 个RAID控制器健康状态检查故障 | %s }"
+
+msgid "{warn}:{str}:{ RAID CONTROLLER WARNING | %d/%d raid controller card healthy check warn | %s }"
+msgstr "{warn}:{str}:{ RAID控制器告警 | %d/%d 个RAID控制器健康状态检查告警 | %s }"
+
+msgid "{ok}:{str}:{ RAID CONTROLLER OK | %d/%d raid controller card healthy check success | %s }"
+msgstr "{ok}:{str}:{ RAID控制器正常 | %d/%d 个RAID控制器健康状态检查正常 | %s }"

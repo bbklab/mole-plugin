@@ -522,7 +522,7 @@ if (@raid_info) {
 			if ($raid->{'RAID_BBU'}->{'Relative_State_of_Charge'} =~ m/(\d+)\s*%/i) {
 				if ($1 <= $bbu_charge_status) {
 					$warnflag ++;
-					$result .= sprintf(_"<font color=red> Raid BBU Charger Status: %d",$1).'% <font> ### ';
+					$result .= sprintf(_"<font color=red> Raid BBU Charger Status: %d",$1).'% </font> ### ';
 				} else {
 					$result .= sprintf(_"Raid BBU Charger Status: %d",$1).'% ### ';
 				}
@@ -650,7 +650,7 @@ if (@raid_info) {
 			}
 		}
 		if($pdcritnum == 0 && $pdwarnnum == 0){
-			$pdresult .= sprintf(_"Total %d Physical Disks Status All Right ###",$pdtotal);
+			$pdresult .= sprintf(_"Total %d Physical Disks Temperature Normal and No Errors ###",$pdtotal);
 		} else {
 			$warnflag ++ if $pdwarnnum > 0;
 			$critflag ++ if $pdcritnum > 0;
