@@ -672,7 +672,7 @@ if (@raid_info) {
 							$pdresult .= $pdinfo;
 							$flag =1;
 						}
-                    				$pdresult .= sprintf(_"<font color=red> Pyhsical Disk Missing? Fireware State: %s </font> ### ",$pd->{'fireware_state'});
+                    				$pdresult .= sprintf(_"<font color=red> Pyhsical Disk Missing? Fireware State: %s </font> ### ",$pd->{'firmware_state'});
                 			}
         			} else {
                 			$pdcritnum ++;
