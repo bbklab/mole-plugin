@@ -1,65 +1,195 @@
-﻿#! /bin/bash
-# 本脚本用于监控MySQL 复制是否运行，并且根据具体的错误代码自动判断是否忽略
-#
-
-now=`date +"%Y-%m-%d %H:%M:%S"`
-user=slavecheck
-host=192.168.7.81
-ip=192.168.7.81
-pass=sfslavecheck
-port=3306
-
-ErrFile=/mysqllog/script/slave/slave_error${port}.txt 
->$ErrFile
-StatFile="/mysqllog/script/slave/slave_status${port}.txt"
+#!/usr/bin/env bash
 
 
-                /usr/local/mysql/bin/mysql -u$user -p$pass -P$port -h$host -e"show slave status\G;" > $StatFile
 
-                #取得 io_thread, sql_thread, last_errno 的状态
+BASE_DIR="/usr/local/eminfo/"
+# === LOAD GETTEXT.SH FILE
+if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+        source "/usr/bin/gettext.sh" 2>&1
+        rc=$?
+        [ "$rc" != "0" ] && {
+                echo -en "{unknown}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                exit 3
+        }   
+else
+        echo -en "{unknown}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        exit 3
+fi
 
-                Master_Host=`cat $StatFile | grep "Master_Host" | awk '{print $2}'`
-                Master_Port=`cat $StatFile | grep "Master_Port" | awk '{print $2}'`
-                IoStat=`cat $StatFile | grep Slave_IO_Running | awk '{print $2}'`
-                SqlStat=`cat $StatFile | grep Slave_SQL_Running | awk '{ print $2}'`
-                Errno=`cat $StatFile | grep Last_Errno | awk '{print $2}'`
-                Seconds_BM=`cat $StatFile | grep Seconds_Behind_Master | awk '{print $2}'`
-                #IoStat=`cat $StatFile | head -n 12 | tail -n 1 | awk '{print $2}'`
-                #SqlStat=`cat $StatFile | head -n 13 | tail -n 1 | awk '{print $2}'`
-                #Errno=`cat $StatFile | head -n 20 | tail -n 1 | awk '{print $2}'`
+# === LOAD INCLUDE FILE
+if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+        source ${BASE_DIR}/bin/include 2>&- 
+else    
+        echo -en "{unknown}:{str}:{include file not exists or empty}"
+        exit 3
+fi
 
-                  if [ $IoStat = 'No' ] || [ $SqlStat = 'No' ] ; then
-
-                  echo `date` "[slave error ${ip}:$port]" >> $ErrFile
-
-                  #如果错误代码为 0，则可能是因为网络等原因导致复制中断，直接重新启动复制即可
-
-                        if [ "$Errno" -eq 0 ] ; then
-                                /usr/local/mysql/bin/mysql -u$user -p$pass -P$port -h$host -e"start slave io_thread; start slave sql_thread;" 
-                                echo "start slave io_thread; start slave sql_thread;" >> $ErrFile
-                        #如果是一些不是很要紧的错误代码，也可以直接略过
-
-
-                        elif [ "$Errno" -eq 1007 ] || [ "$Errno" -eq 1053 ] || [ "$Errno" -eq 1062 ] || [ "$Errno" -eq 1213 ] || [ "$Errno" -eq 1158 ] || [ "$Errno" -eq 1159 ] || [ "$Errno" -eq 1008 ] ; then
-                                /usr/local/mysql/bin/mysql -u$user -p$pass -P$port -h$host -e"stop slave; set global sql_slave_skip_counter=1; slave start;"
-                                echo "stop slave; set global sql_slave_skip_counter=1; slave start;" >> $ErrFile
-                        else
-                                echo `date` "slave is down!!!" >> $ErrFile
-                                echo "Errno:$Errno" >> $ErrFile
-                        fi
-
-                  #删除临时状态文件
-#                 rm -f $StatFile
+# === SET TEXTDOMAINDIR TEXTDOMAIN
+if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+        export TEXTDOMAINDIR="${LOCALE_DIR}"
+        export TEXTDOMAIN="mysql_repl"
+else    
+        echo -en "{unknown}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        exit 3
+fi
 
 
-                  fi
+# === SET GLOBAL LOCALE
+glocale=$(get_locale mysql_repl)
+if [ -z "${glocale}" ]; then
+        export LANG="${LANG}"           ## read from sysenv
+elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+        export LANG="zh_CN.UTF-8"
+elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+        export LANG="en_US.UTF-8"
+else
+        export LANG="zh_CN.UTF-8"
+fi
 
 
-                        if [ $Seconds_BM = 'NULL' ] || [ $Seconds_BM -gt 1000 ] ; then
 
-                            echo "Seconds_Behind_Master=$Seconds_BM" >> $ErrFile
+show_help(){
+cat <<EOF
+Arguments:   {d|data|h|help}  {mysqlcli_path}  {ip,port,user,pass  ip2,port2,user2,pass2  ...}  {time_out}
 
-                        fi
+Usage:   data  /opt/mysql/bin/mysql "127.0.0.1,3306,eyou,eyou 127.0.0.1,3316,eyou,eyou"  10
 
-                        #删除临时状态文件
-                   #    rm -f $StatFile
+Output:   {ip:port}  {[result]}
+
+127.0.0.1:3306  []
+169.131.5.95:3316  []
+EOF
+exit 0;
+}
+MODE=0
+[ "$1" == "data" -o "$1" == "d" ] && MODE=1
+[ "$1" == "help" -o "$1" == "h" ] && show_help;
+
+# Return Codes
+STATE_OK=0
+STATE_WARNING=1
+STATE_CRITICAL=2
+STATE_UNKNOWN=3
+STATE_NOOP=4
+
+# Set Default
+EXIT_STATUS=0
+LEVEL=""    	### { ok | warn | crit | unknown | noop }
+TYPE=""    	### { str| file }
+CONTENT=""      ### { strings | /path/to/result.file }
+
+# Read plugin config value here
+if [ "${MODE}" == "1" ]; then
+	mysqlcli_path="$2"
+	mysql_conn_conf="$3"
+	mysql_time_out="$4"
+else
+	mysqlcli_path=$( read_eminfo_config mysql_repl mysqlcli_path )
+	mysql_conn_conf=$( read_eminfo_config mysql_repl mysql_conn_conf )
+	mysql_time_out=$( read_eminfo_config mysql_repl mysql_time_out )
+fi
+
+# if null return STATE_UNKNOWN.
+
+# if null or invalid set default.
+[ -z "${mysqlcli_path}" ] && mysqlcli_path="/usr/local/eyou/mail/opt/mysql/bin/mysql"
+[ -z "${mysql_conn_conf}" ] && mysql_conn_conf="127.0.0.1,3306,eyou,eyou"
+[ -z "${mysql_time_out}" -o ! -z "${mysql_time_out//[0-9]}" ] && mysql_time_out=10
+
+# check function here
+check() {
+
+  [ -f "${mysqlcli_path}" -a -x "${mysqlcli_path}" ] || {
+	EXIT_STATUS=${STATE_UNKNOWN};
+        LEVEL="unknown";
+        TYPE="str";
+        CONTENT="$(eval_gettext "utitile [\${mysqlcli_path}] not prepared.")"
+	return
+  } 
+
+  local result=
+  local oknum=0 errnum=0 unknum=0 total=0
+  for pairs in `echo "${mysql_conn_conf}" | tr '[;/]' ' '`
+  do
+	((total++))
+
+	sepnum=$(echo -e "${pairs}" | awk -F"," 'END{print --NF}')
+	if [ "${sepnum}" != "3" ]; then
+		((unknum++))
+		result="${result} ### $(html_yellow "$(eval_gettext "[\${pairs}] is invalid")") ### ### "
+		continue 1
+	fi
+
+  	mysql_host="$(echo -e "${pairs}"|awk -F"," '{print $1}')"
+  	mysql_port="$(echo -e "${pairs}"|awk -F"," '{print $2}')"
+  	mysql_user="$(echo -e "${pairs}"|awk -F"," '{print $3}')"
+  	mysql_pass="$(echo -e "${pairs}"|awk -F"," '{print $4}')"
+ 	result="${result} $(eval_gettext "login slave mysql [\${mysql_host}:\${mysql_port}] with user [\${mysql_user}]") ### "
+
+	if [ -z "${mysql_pass}" ]; then
+		cmd="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} --connect-timeout ${mysql_time_out} "
+	else
+		cmd="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} -p"${mysql_pass}" --connect-timeout ${mysql_time_out} "
+	fi
+
+	tmpfile="/var/tmp/${0##*/}.tmp"
+	touch $tmpfile 2>&-
+	errstuff=$( ${cmd} -s -e "SHOW SLAVE STATUS\G" 2>&1 1>"${tmpfile}" )
+	if [ "$?" != "0" ]; then
+		((errnum++))
+		errstuff=$(echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n')
+		result="${result} $(html_red "$(eval_gettext "show slave status failed: return [${errstuff}]")") ### ### "
+	else
+		slave_result=
+		if [ -f "${tmpfile}" -a -s "${tmpfile}" ]; then
+			eval $( awk -F: '\
+				(/^[ \t]*Master_Server_Id:/){print "master_id="$2";"} \
+				(/^[ \t]*Master_Host:/){print "master_host"=$2";"} \
+				(/^[ \t]*Master_Port:/){print "master_port"=$2";"} \
+				
+				' "${tmpfile}" 2>&- )
+			slave_result=$(echo -e "${slave_result}" | /bin/grep -E "Master_Server_Id|Master_Host|Master_Port|Master_User|Slave_IO_Running|Slave_SQL_Running|Last_Errno|Last_Error" )
+		else
+		
+		fi
+		((oknum++))
+		result="${result} $(gettext "slave status:") [${slave_result}] ### ### "
+	fi
+
+	# output data and exit if MODE=1 
+        [ "${MODE}" == "1" ] && {
+                echo "${mysql_host}:${mysql_port}  []"
+                continue
+        }
+  done
+
+  # exit if MODE=1 
+  [ "${MODE}" == "1" ] && exit
+
+  [ "${errnum}" != "0" ] && {
+	EXIT_STATUS=${STATE_CRITICAL};
+	LEVEL="crit";
+	TYPE="str";
+	CONTENT="$(gettext "Mysql Ping CRITICAL") | $(eval_gettext "\${errnum}/\${total} check failed") | ${result} "
+  } || {
+	[ "${oknum}" == "${total}" ] && {
+		EXIT_STATUS=${STATE_OK};
+		LEVEL="ok";
+		TYPE="str";
+		CONTENT="$(gettext "Mysql Ping OK") | $(eval_gettext "\${oknum}/\${total} check success") | ${result} "
+	} || {
+		[ "${unknum}" != "0" ] && {
+			EXIT_STATUS=${STATE_UNKNOWN};
+			LEVEL="unknown";
+			TYPE="str";
+			CONTENT="$(gettext "Mysql Ping Unknown") | $(eval_gettext "\${unknum}/\${total} check unknown") | ${result} "
+		}
+	}
+  }
+}
+
+check
+
+# output result and return exit status here.
+echo "{"${LEVEL}"}:{"${TYPE}"}:{"${CONTENT}"}"  | tr -d '\015\012'
+exit ${EXIT_STATUS}
