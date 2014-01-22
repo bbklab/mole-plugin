@@ -80,7 +80,7 @@ msgid ", Count: %s </font> ### "
 msgstr ", 颗粒平均擦写次数: %s </font> ### "
 
 msgid "Wear Leveling Life Percent: %d"
-msgstr "粒平均擦写剩余寿命: %d"
+msgstr "颗粒平均擦写剩余寿命: %d"
 
 msgid ", Count: %s ### "
 msgstr ", 颗粒平均擦写次数: %s ### "
