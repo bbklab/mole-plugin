@@ -166,8 +166,14 @@ msgstr "<font color=red> 物理硬盘其它错误个数: %d </font> ### "
 msgid "<font color=red> Pyhsical Disk Predictive Failure: %d </font> ### "
 msgstr "<font color=red> 物理硬盘可预期的错误个数: %d </font> ### "
 
-msgid "Total %d Physical Disks Temperature Normal and No Errors ###"
-msgstr "共计 %d 块物理硬盘的温度正常, 且没有其它错误 ### "
+msgid "<font color=red> Pyhsical Disk Missing? Fireware State: %s </font> ### "
+msgstr "<font color=red> 物理硬盘丢失? 固件状态: %s </font> ### "
+
+msgid "<font color=red> Pyhsical Disk Missing? Fireware State Not Detected. </font> ### "
+msgstr "<font color=red> 物理硬盘丢失? 固件状态未探测到 </font> ### "
+
+msgid "Total %d Physical Disks Online, Temperature Normal, and No Errors ###"
+msgstr "共计 %d 块物理硬盘在线, 温度正常, 且没有其它错误 ### "
 
 msgid "No Physical Disks Found ?! Maybe Something Unknown Occured ... ### "
 msgstr "没有探测到物理硬盘 ?! 也许发生了一些未知异常 ... ### "

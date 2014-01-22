@@ -140,6 +140,15 @@ if($fh){
 }
 $bbu_lowcap_check = 1 if $bbu_lowcap_check =~ /\D/;
 
+our $disk_online_check = 1;
+open $fh, "$eminfo view $filename disk_online_check 2>&- |";
+if($fh){
+  while(<$fh>){
+  	chomp; $disk_online_check = $_;
+  	last;
+  }
+}
+$disk_online_check = 1 if $disk_online_check =~ /\D/;
 
 our $diskcrit_uplimit = 0;
 open $fh, "$eminfo view $filename diskcrit_uplimit 2>&- |";
@@ -283,6 +292,7 @@ if (-f $megacli && -x $megacli) {
                                                 'media_error'           => '',
                                                 'other_error'           => '',
                                                 'predictive_failure'    => '',
+						'firmware_state'	=> '',
                                                 'temperature'           => '',
                                         );
 					my $pd_finish_flag = 0;
@@ -330,6 +340,10 @@ if (-f $megacli && -x $megacli) {
                                                                 $pd_single{'media_type'} = $1; 
                                                                 next;
                                                         } 
+                                                        if(/\A\s*Firmware state\s*:\s*(.+)\s*\Z/i){
+                                                                $pd_single{'firmware_state'} = $1;
+                                                                next;
+                                                        }
                                                         if(/\A\s*Drive Temperature\s*:\s*(.+)\s*\Z/i){
                                                                 $pd_single{'temperature'} = $1;
                                                                 next;
@@ -648,9 +662,30 @@ if (@raid_info) {
 					$pdresult .= sprintf(_"<font color=red> Pyhsical Disk Predictive Failure: %d </font> ### ",$raid->{'pdprd_failure_uplimit'});
 				}
 			}
+
+        		# 15. check pd firmware_state
+			if ($disk_online_check) {
+        			if (defined $pd->{'firmware_state'} && $pd->{'firmware_state'} ne '') {
+                			unless ($pd->{'firmware_state'} =~ m/\bOnline\b/i) {
+                    				$pdcritnum ++;
+						if (!$flag) {
+							$pdresult .= $pdinfo;
+							$flag =1;
+						}
+                    				$pdresult .= sprintf(_"<font color=red> Pyhsical Disk Missing? Fireware State: %s </font> ### ",$pd->{'fireware_state'});
+                			}
+        			} else {
+                			$pdcritnum ++;
+					if (!$flag) {
+						$pdresult .= $pdinfo;
+						$flag =1;
+					}
+                			$pdresult .= sprintf(_"<font color=red> Pyhsical Disk Missing? Fireware State Not Detected. </font> ### ");
+        			}
+			} 
 		}
 		if($pdcritnum == 0 && $pdwarnnum == 0){
-			$pdresult .= sprintf(_"Total %d Physical Disks Temperature Normal and No Errors ###",$pdtotal);
+			$pdresult .= sprintf(_"Total %d Physical Disks Online, Temperature Normal, and No Errors ###",$pdtotal);
 		} else {
 			$warnflag ++ if $pdwarnnum > 0;
 			$critflag ++ if $pdcritnum > 0;
