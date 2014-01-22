@@ -1,0 +1,104 @@
+# Copyright (C) 2013 EMINFO LANGUAGE FILE FOR GETTEXT
+# FIRST AUTHOR <zhangguangzheng@eyou.net>,<zhang.elinks@gmail.com> 2013.
+# This file is distributed under the same license as the eminfo package.
+#
+msgid ""
+msgstr ""
+"Report-Msgid-Bugs-To: zhangguangzheng@eyou.net\n"
+"Last-Translator: Guangzheng Zhang <zhang.elinks@gmail.com>\n"
+"Language-Team: EMINFO-LANGUAGE <zhang.elinks@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Chinese\n"
+"X-Poedit-Country: CHINA\n"
+
+msgid "\t%+#D"
+msgstr "\t%+#D"
+
+msgid "\n"
+msgstr "\n"
+
+msgid "{unknown}:{str}:{ssd device not defined in config.}"
+msgstr "{unknown}:{str}:{配置文件中未指定SSD设备名}"
+
+msgid "{unknown}:{str}:{device %s not exists or not block devices}"
+msgstr "{unknown}:{str}:{%s 不存在或不是块设备}"
+
+msgid "{unknown}:{str}:{ SSD Information UNKNOWN | util megacli/smartctl not prepared | %s or %s not prepared }"
+msgstr "{unknown}:{str}:{ SSD设备信息未知 | megacli 或 smartctl 未准备就绪 | %s 或 %s 未准备就绪 }"
+
+msgid "PD ID: %d, Fireware State: %s ### "
+msgstr "物理磁盘编号: %d,  固件状态: %s ### "
+
+msgid "PD Manufacturer: %s ### "
+msgstr "物理磁盘制造商: %s ### "
+
+msgid "Media: %s, Raw Size: %s ### "
+msgstr "介质类型: %s,  裸设备大小: %s ### "
+
+msgid "PD Position: %s, Temperature: %s ### "
+msgstr "所在虚拟磁盘组: %s,  磁盘温度: %s ###  "
+
+msgid "Device Name: %s ### "
+msgstr "系统中的设备名: %s ### "
+
+msgid "SSD Attributes Details Not Detected, Maybe smartctl version < 5.42, Maybe %s Not SSD Device ### "
+msgstr "smartctl 未读取到SSD相关参数数据, 或许 smartctl 版本号低于5.42, 或许 %s 不是SSD设备 ### "
+
+msgid "SSD is Online, Fireware State: %s ### "
+msgstr "SSD设备在线, 固件状态: %s ### "
+
+msgid "<font color=red> SSD Missing? Fireware State: %s </font> ### "
+msgstr "<font color=red> SSD设备丢失? 固件状态: %s </font> ### "
+
+msgid "<font color=red> SSD Missing? Fireware State Not Detected. </font> ### "
+msgstr "<font color=red> SSD设备丢失? 固件状态未探测到 </font> ### "
+
+msgid "<font color=red> Meida Remain Life Percent: %d"
+msgstr "<font color=red>  设备剩余寿命: %d"
+
+msgid ", Number: %s </font> ### "
+msgstr ", NAND的擦写次数 %s </font> ### "
+
+msgid "Meida Remain Life Percent: %d"
+msgstr "设备剩余寿命: %d"
+
+msgid ", Number: %s ### "
+msgstr ", NAND的擦写次数 %s ### "
+
+msgid "PCT Not Int, Media_Wearout_Indicator: %s ### "
+msgstr "百分比值非整数, Media_Wearout_Indicator: %s ### "
+
+msgid "Media_Wearout_Indicator not detected. ### "
+msgstr "Media_Wearout_Indicator 的值未探测到 ### "
+
+msgid "<font color=red> Wear Leveling Life Percent: %d"
+msgstr "<font color=red> 颗粒平均擦写剩余寿命: %d"
+
+msgid ", Count: %s </font> ### "
+msgstr ", 颗粒平均擦写次数: %s </font> ### "
+
+msgid "Wear Leveling Life Percent: %d"
+msgstr "粒平均擦写剩余寿命: %d"
+
+msgid ", Count: %s ### "
+msgstr ", 颗粒平均擦写次数: %s ### "
+
+msgid "PCT Not Int, Wear_Leveling_Count: %s ### "
+msgstr "百分比值非整数, Wear_Leveling_Count: %s ### "
+
+msgid "Wear_Leveling_Count not detected. ### "
+msgstr "Wear_Leveling_Count 的值未探测到 ### "
+
+msgid "{unknown}:{str}:{ SSD Information UNKNOWN | collected nothing about ssd | collected nothing about ssd ### maybe raid controller card not recoginized or no ssd devices exist. }"
+msgstr "{unknown}:{str}:{ SSD设备信息未知 | 未搜集到SSD设备信息 | 未搜集到SSD设备信息 ### 也许RAID控制器不识别或不存在, 或者没有SSD设备 }"
+
+msgid "{crit}:{str}:{ SSD CRITICAL | %d/%d ssd healthy check critical | %s }"
+msgstr "{crit}:{str}:{ SSD设备故障 | %d/%d 块SSD设备健康状态故障 | %s }"
+
+msgid "{warn}:{str}:{ SSD WARNING | %d/%d ssd healthy check warn | %s }"
+msgstr "{warn}:{str}:{ SSD设备告警 | %d/%d 块SSD设备健康状态告警 | %s }"
+
+msgid "{ok}:{str}:{ SSD OK | %d/%d ssd healthy check success | %s }"
+msgstr "{ok}:{str}:{ SSD设备正常 | %d/%d 块SSD设备健康状态正常 | %s }"
