@@ -90,6 +90,55 @@ if($fh){
 }
 $wear_leveling_uplimit = 80 if $wear_leveling_uplimit =~ /\D/;
 
+our $Reallocated_Sector_Ct = 0;
+open $fh, "$eminfo view $filename Reallocated_Sector_Ct 2>&- |";
+if($fh){
+  while(<$fh>){
+  	chomp; $Reallocated_Sector_Ct = $_;
+  	last;
+  }
+}
+$Reallocated_Sector_Ct = 0 if $Reallocated_Sector_Ct =~ /\D/;
+
+our $Program_Fail_Cnt_Total = 0;
+open $fh, "$eminfo view $filename Program_Fail_Cnt_Total 2>&- |";
+if($fh){
+  while(<$fh>){
+  	chomp; $Program_Fail_Cnt_Total = $_;
+  	last;
+  }
+}
+$Program_Fail_Cnt_Total = 0 if $Program_Fail_Cnt_Total =~ /\D/;
+
+our $Erase_Fail_Count_Total = 0;
+open $fh, "$eminfo view $filename Erase_Fail_Count_Total 2>&- |";
+if($fh){
+  while(<$fh>){
+  	chomp; $Erase_Fail_Count_Total = $_;
+  	last;
+  }
+}
+$Erase_Fail_Count_Total = 0 if $Erase_Fail_Count_Total =~ /\D/;
+
+our $Runtime_Bad_Block = 0;
+open $fh, "$eminfo view $filename Runtime_Bad_Block 2>&- |";
+if($fh){
+  while(<$fh>){
+  	chomp; $Runtime_Bad_Block = $_;
+  	last;
+  }
+}
+$Runtime_Bad_Block = 0 if $Runtime_Bad_Block =~ /\D/;
+
+our $Data_Address_Mark_Errs = 0;
+open $fh, "$eminfo view $filename Data_Address_Mark_Errs 2>&- |";
+if($fh){
+  while(<$fh>){
+  	chomp; $Data_Address_Mark_Errs = $_;
+  	last;
+  }
+}
+$Data_Address_Mark_Errs = 0 if $Data_Address_Mark_Errs =~ /\D/;
 
 our $ssd_dev = '';
 open $fh, "$eminfo view $filename ssd_dev 2>&- |";
@@ -100,18 +149,18 @@ if($fh){
   }
 }
 if (!defined $ssd_dev || $ssd_dev eq '') {
-  printf "{unknown}:{str}:{ssd device not specified.}";
+  printf _"{unknown}:{str}:{ssd device not defined in config.}";
   exit $state_unkn;
 }
-unless (-e $ssd_dev) {
-  printf "{unknown}:{str}:{device $ssd_dev not exists.}";
+unless (-e $ssd_dev && -b $ssd_dev) {
+  printf _"{unknown}:{str}:{device %s not exists or not block devices}",$ssd_dev;
   exit $state_unkn;
 }
 
 # Main body begin
 
 
-# 1. collect raid information
+# 1. collect ssd information
 my @ssd_info = ();
 my $os_bitmode = '64';
 my $getconf = "/usr/bin/getconf";
@@ -244,11 +293,11 @@ if (-f $megacli && -x $megacli && -f $smartctl && -x $smartctl) {
 	}
   }
 } else {
-  printf _"{unknown}:{str}:{ SSD Life Information UNKNOWN | util megacli/smartctl not prepared | %s or %s not prepared }",$megacli,$smartctl;
+  printf _"{unknown}:{str}:{ SSD Information UNKNOWN | util megacli/smartctl not prepared | %s or %s not prepared }",$megacli,$smartctl;
   exit $state_unkn;
 }
 
-# 2. check raid information
+# 2. check ssd information
 my ($critnum,$warnnum,$total) = (0,0,0);
 if (@ssd_info){
   $total = scalar @ssd_info;
@@ -260,78 +309,85 @@ if (@ssd_info){
 	$result .= sprintf(_"PD Manufacturer: %s ### ",$ssd->{'inquiry_data'});
 	$result .= sprintf(_"Media: %s, Raw Size: %s ### ",$ssd->{'media_type'},$ssd->{'raw_size'});
 	$result .= sprintf(_"PD Position: %s, Temperature: %s ### ",$ssd->{'position'},$ssd->{'temperature'});
+	$result .= sprintf(_"Device Name: %s ### ",$ssd_dev);
+	$result .= " ### ";
 
 	my $ssd_attr = $ssd->{'ssd_attr'};
 	if (defined $ssd_attr && $ssd_attr ne '') {
 		# 1. check ssd Data_Address_Mark_Errs 
         	if (defined $ssd_attr->{'Data_Address_Mark_Errs'} && $ssd_attr->{'Data_Address_Mark_Errs'} =~ m/\A\d+\Z/) {
-                	if ($ssd_attr->{'Data_Address_Mark_Errs'} > 0) {
+                	if ($ssd_attr->{'Data_Address_Mark_Errs'} > $Data_Address_Mark_Errs) {
                         	$critflag ++;
-                        	$result .= sprintf(_"<font color=red> Data_Address_Mark_Errs: %d </font> ### ",$ssd_attr->{'Data_Address_Mark_Errs'});
+                        	$result .= sprintf("<font color=red> Data_Address_Mark_Errs: %d </font> ### ",$ssd_attr->{'Data_Address_Mark_Errs'});
                 	} else {
-                        	$result .= sprintf(_"Data_Address_Mark_Errs: %d ### ",$ssd_attr->{'Data_Address_Mark_Errs'});
+                        	$result .= sprintf("Data_Address_Mark_Errs: %d ### ",$ssd_attr->{'Data_Address_Mark_Errs'});
                 	}
         	} else {
-                	$result .= sprintf(_"Data_Address_Mark_Errs not detected. ### ");
+                	$result .= sprintf("Data_Address_Mark_Errs not detected. ### ");
         	}
 
 		# 2. check ssd Erase_Fail_Count_Total 
         	if (defined $ssd_attr->{'Erase_Fail_Count_Total'} && $ssd_attr->{'Erase_Fail_Count_Total'} =~ m/\A\d+\Z/) {
-                	if ($ssd_attr->{'Erase_Fail_Count_Total'} > 0) {
+                	if ($ssd_attr->{'Erase_Fail_Count_Total'} > $Erase_Fail_Count_Total) {
                         	$critflag ++;
-                        	$result .= sprintf(_"<font color=red> Erase_Fail_Count_Total: %d </font> ### ",$ssd_attr->{'Erase_Fail_Count_Total'});
+                        	$result .= sprintf("<font color=red> Erase_Fail_Count_Total: %d </font> ### ",$ssd_attr->{'Erase_Fail_Count_Total'});
                 	} else {
-                        	$result .= sprintf(_"Erase_Fail_Count_Total: %d ### ",$ssd_attr->{'Erase_Fail_Count_Total'});
+                        	$result .= sprintf("Erase_Fail_Count_Total: %d ### ",$ssd_attr->{'Erase_Fail_Count_Total'});
                 	}
         	} else {
-                	$result .= sprintf(_"Erase_Fail_Count_Total not detected. ### ");
+                	$result .= sprintf("Erase_Fail_Count_Total not detected. ### ");
         	}
 
 		# 3. check ssd Program_Fail_Cnt_Total 
         	if (defined $ssd_attr->{'Program_Fail_Cnt_Total'} && $ssd_attr->{'Program_Fail_Cnt_Total'} =~ m/\A\d+\Z/) {
-                	if ($ssd_attr->{'Program_Fail_Cnt_Total'} > 0) {
+                	if ($ssd_attr->{'Program_Fail_Cnt_Total'} > $Program_Fail_Cnt_Total) {
                         	$critflag ++;
-                        	$result .= sprintf(_"<font color=red> Program_Fail_Cnt_Total: %d </font> ### ",$ssd_attr->{'Program_Fail_Cnt_Total'});
+                        	$result .= sprintf("<font color=red> Program_Fail_Cnt_Total: %d </font> ### ",$ssd_attr->{'Program_Fail_Cnt_Total'});
                 	} else {
-                        	$result .= sprintf(_"Program_Fail_Cnt_Total: %d ### ",$ssd_attr->{'Program_Fail_Cnt_Total'});
+                        	$result .= sprintf("Program_Fail_Cnt_Total: %d ### ",$ssd_attr->{'Program_Fail_Cnt_Total'});
                 	}
         	} else {
-                	$result .= sprintf(_"Program_Fail_Cnt_Total not detected. ### ");
+                	$result .= sprintf("Program_Fail_Cnt_Total not detected. ### ");
         	}
 		
 		# 4. check ssd Reallocated_Sector_Ct
         	if (defined $ssd_attr->{'Reallocated_Sector_Ct'} && $ssd_attr->{'Reallocated_Sector_Ct'} =~ m/\A\d+\Z/) {
-                	if ($ssd_attr->{'Reallocated_Sector_Ct'} > 0) {
+                	if ($ssd_attr->{'Reallocated_Sector_Ct'} > $Reallocated_Sector_Ct) {
                         	$critflag ++;
-                        	$result .= sprintf(_"<font color=red> Reallocated_Sector_Ct: %d </font> ### ",$ssd_attr->{'Reallocated_Sector_Ct'});
+                        	$result .= sprintf("<font color=red> Reallocated_Sector_Ct: %d </font> ### ",$ssd_attr->{'Reallocated_Sector_Ct'});
                 	} else {
-                        	$result .= sprintf(_"Reallocated_Sector_Ct: %d ### ",$ssd_attr->{'Reallocated_Sector_Ct'});
+                        	$result .= sprintf("Reallocated_Sector_Ct: %d ### ",$ssd_attr->{'Reallocated_Sector_Ct'});
                 	}
         	} else {
-                	$result .= sprintf(_"Reallocated_Sector_Ct not detected. ### ");
+                	$result .= sprintf("Reallocated_Sector_Ct not detected. ### ");
         	}
 
 		# 5. check ssd Runtime_Bad_Block 
         	if (defined $ssd_attr->{'Runtime_Bad_Block'} && $ssd_attr->{'Runtime_Bad_Block'} =~ m/\A\d+\Z/) {
-                	if ($ssd_attr->{'Runtime_Bad_Block'} > 0) {
+                	if ($ssd_attr->{'Runtime_Bad_Block'} > $Runtime_Bad_Block) {
                         	$critflag ++;
-                        	$result .= sprintf(_"<font color=red> Runtime_Bad_Block: %d </font> ### ",$ssd_attr->{'Runtime_Bad_Block'});
+                        	$result .= sprintf("<font color=red> Runtime_Bad_Block: %d </font> ### ",$ssd_attr->{'Runtime_Bad_Block'});
                 	} else {
-                        	$result .= sprintf(_"Runtime_Bad_Block: %d ### ",$ssd_attr->{'Runtime_Bad_Block'});
+                        	$result .= sprintf("Runtime_Bad_Block: %d ### ",$ssd_attr->{'Runtime_Bad_Block'});
                 	}
         	} else {
-                	$result .= sprintf(_"Runtime_Bad_Block not detected. ### ");
+                	$result .= sprintf("Runtime_Bad_Block not detected. ### ");
         	}
 	} else {
 		$result .= sprintf(_"SSD Attributes Details Not Detected, Maybe smartctl version < 5.42 ### ");
 	}
 
 	# 6. check ssd firmware_state
-	if ($ssd->{'firmware_state'} =~ m/\bOnline\b/i) {
-		$result .= sprintf(_"SSD is Online, Fireware State: %s ### ",$ssd->{'fireware_state'});
+	if (defined $ssd->{'firmware_state'} && $ssd->{'firmware_state'} ne '') {
+		if ($ssd->{'firmware_state'} =~ m/\bOnline\b/i) {
+		    $result .= sprintf(_"SSD is Online, Fireware State: %s ### ",$ssd->{'firmware_state'});
+		} else {
+		    $critflag ++;
+		    $result .= sprintf(_"<font color=red> SSD Missing? Fireware State: %s </font> ### ",$ssd->{'fireware_state'});
+		}
 	} else {
 		$critflag ++;
-		$result .= sprintf(_"<font color=red> SSD Fireware State: %s </font> ### ",$ssd->{'fireware_state'});
+		$result .= sprintf(_"<font color=red> SSD Missing? Fireware State Not Detected. </font> ### ");
 	}
 
 	# 7. check ssd Media_Wearout_Indicator
@@ -341,10 +397,10 @@ if (@ssd_info){
  			if ($pct < (100-$wearout_life_uplimit)) {
 				$warnflag ++;
 				$result .= sprintf(_"<font color=red> Meida Remain Life Percent: %d",$pct)."%";
-				$result .= sprintf(_", Count: %s </font> ### ",$value);
+				$result .= sprintf(_", Number: %s </font> ### ",$value);
 			} else {
 				$result .= sprintf(_"Meida Remain Life Percent: %d",$pct)."%";
-				$result .= sprintf(_", Count: %s ### ",$value);
+				$result .= sprintf(_", Number: %s ### ",$value);
 			}
 		} else {
 			$result .= sprintf(_"PCT Not Int, Media_Wearout_Indicator: %s ### ",$ssd_attr->{'Media_Wearout_Indicator'});
@@ -378,6 +434,18 @@ if (@ssd_info){
         $warnnum ++ if $warnflag > 0;
   }
 } else {
-  printf _"{unknown}:{str}:{ SSD Life Information UNKNOWN | collected nothing about ssd | collected nothing about ssd ### maybe raid controller card not recoginized or no ssd devices exist. }";
+  printf _"{unknown}:{str}:{ SSD Information UNKNOWN | collected nothing about ssd | collected nothing about ssd ### maybe raid controller card not recoginized or no ssd devices exist. }";
   exit $state_unkn;
+}
+
+# 3. prepare last output
+if ($critnum > 0) {
+  printf _"{crit}:{str}:{ SSD CRITICAL | %d/%d ssd healthy check critical | %s }",$critnum,$total,$result;
+  exit $state_crit;
+} elsif ($warnnum > 0) {
+  printf _"{warn}:{str}:{ SSD WARNING | %d/%d ssd healthy check warn | %s }",$warnnum,$total,$result;
+  exit $state_warn;
+} else {
+  printf _"{ok}:{str}:{ SSD OK | %d/%d ssd healthy check success | %s }",$total,$total,$result;
+  exit $state_ok;
 }
