@@ -132,7 +132,7 @@ check() {
 		cmd="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} -p"${mysql_pass}" --connect-timeout ${mysql_time_out} "
 	fi
 
-	tmpfile="/var/tmp/${0##*/}.tmp"
+	tmpfile="/var/tmp/${0##*/}.slave.info.tmp"
 	touch $tmpfile 2>&-
 	errstuff=$( ${cmd} -s -e "SHOW SLAVE STATUS\G" 2>&1 1>"${tmpfile}" )
 	if [ "$?" != "0" ]; then
@@ -140,20 +140,23 @@ check() {
 		errstuff=$(echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n')
 		result="${result} $(html_red "$(eval_gettext "show slave status failed: return [${errstuff}]")") ### ### "
 	else
-		slave_result=
 		if [ -f "${tmpfile}" -a -s "${tmpfile}" ]; then
-			eval $( awk -F: '\
-				(/^[ \t]*Master_Server_Id:/){print "master_id="$2";"} \
-				(/^[ \t]*Master_Host:/){print "master_host"=$2";"} \
-				(/^[ \t]*Master_Port:/){print "master_port"=$2";"} \
-				
+			eval $( awk -F":[ \t]*" '\
+				(/^[ \t]*Master_Server_Id:/){print "master_id="$2";";next} \
+				(/^[ \t]*Master_Host:/){print "master_host="$2";";next} \
+				(/^[ \t]*Master_Port:/){print "master_port="$2";";next} \
+				(/^[ \t]*Master_User:/){print "master_user="$2";";next} \
+				(/^[ \t]*Slave_IO_Running:/){print "io_running="$2";";next} \
+				(/^[ \t]*Slave_SQL_Running:/){print "sql_running="$2";";next} \
+				(/^[ \t]*Last_Errno:/){print "last_errno="$2";";next} \
+				(/^[ \t]*Last_Error:/){print "last_error="$2";";next} \
 				' "${tmpfile}" 2>&- )
-			slave_result=$(echo -e "${slave_result}" | /bin/grep -E "Master_Server_Id|Master_Host|Master_Port|Master_User|Slave_IO_Running|Slave_SQL_Running|Last_Errno|Last_Error" )
 		else
+			((errnum++))
+			result="${result} $(html_red "slave status not detected, maybe mysql slave notql_hostrunning on ${mysql_host}:${mysql_port} ") ### ### "
 		
 		fi
 		((oknum++))
-		result="${result} $(gettext "slave status:") [${slave_result}] ### ### "
 	fi
 
 	# output data and exit if MODE=1 
