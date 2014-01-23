@@ -124,7 +124,7 @@ check() {
   	mysql_port="$(echo -e "${pairs}"|awk -F"," '{print $2}')"
   	mysql_user="$(echo -e "${pairs}"|awk -F"," '{print $3}')"
   	mysql_pass="$(echo -e "${pairs}"|awk -F"," '{print $4}')"
- 	result="${result} $(eval_gettext "login slave mysql [\${mysql_host}:\${mysql_port}] with user [\${mysql_user}]") ### "
+ 	result="${result} $(eval_gettext "Login Slave Mysql Host [\${mysql_host}:\${mysql_port}] with Mysql User [\${mysql_user}]") ### "
 
 	if [ -z "${mysql_pass}" ]; then
 		cmd="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} --connect-timeout ${mysql_time_out} "
@@ -138,26 +138,42 @@ check() {
 	if [ "$?" != "0" ]; then
 		((errnum++))
 		errstuff=$(echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n')
-		result="${result} $(html_red "$(eval_gettext "show slave status failed: return [${errstuff}]")") ### ### "
+		result="${result} $(html_red "$(eval_gettext "show slave status failed: return [\${errstuff}]")") ### "
 	else
 		if [ -f "${tmpfile}" -a -s "${tmpfile}" ]; then
 			eval $( awk -F":[ \t]*" '\
-				(/^[ \t]*Master_Server_Id:/){print "master_id="$2";";next} \
-				(/^[ \t]*Master_Host:/){print "master_host="$2";";next} \
-				(/^[ \t]*Master_Port:/){print "master_port="$2";";next} \
-				(/^[ \t]*Master_User:/){print "master_user="$2";";next} \
-				(/^[ \t]*Slave_IO_Running:/){print "io_running="$2";";next} \
-				(/^[ \t]*Slave_SQL_Running:/){print "sql_running="$2";";next} \
-				(/^[ \t]*Last_Errno:/){print "last_errno="$2";";next} \
-				(/^[ \t]*Last_Error:/){print "last_error="$2";";next} \
-				' "${tmpfile}" 2>&- )
+				(/^[ \t]*Master_Server_Id:/){print "master_id=\""$2"\";";next} \
+				(/^[ \t]*Master_Host:/){print "master_host=\""$2"\";";next} \
+				(/^[ \t]*Master_Port:/){print "master_port=\""$2"\";";next} \
+				(/^[ \t]*Master_User:/){print "master_user=\""$2"\";";next} \
+				(/^[ \t]*Slave_IO_Running:/){print "io_running=\""$2"\";";next} \
+				(/^[ \t]*Slave_SQL_Running:/){print "sql_running=\""$2"\";";next} \
+				(/^[ \t]*Last_Errno:/){print "last_errno=\""$2"\";";next} \
+				(/^[ \t]*Last_Error:/){print "last_error=\""$2"\";";next} \
+				(/^[ \t]*Slave_IO_State:/){print "slave_iostate=\""$2"\";";next} \
+				(/^[ \t]*Last_IO_Errno:/){print "last_ioerrno=\""$2"\";";next} \
+				(/^[ \t]*Last_IO_Error:/){print "last_ioerror=\""$2"\";";next} \
+				(/^[ \t]*Last_SQL_Errno:/){print "last_sqlerrno=\""$2"\";";next} \
+				(/^[ \t]*Last_SQL_Error:/){print "last_sqlerror=\""$2"\";";next} \
+			    ' "${tmpfile}" 2>&- )
+			slave_info="$(eval_gettext "Master ID: \${master_id}") ### "
+			slave_info="${slave_info} $(eval_gettext "Master Address: \$master_host:\$master_port") ### "
+			slave_info="${slave_info} $(eval_gettext "Replication by User: \$master_user") ### "
+			slave_info="${slave_info} $(eval_gettext "Slave IO State: \$slave_iostate") ### "
+			result="${result} ${slave_info} ### "
+			if [ "${io_running}" != "Yes" -o "${sql_running}" != "Yes" ]; then
+				((errnum++))
+				result="${result} $(html_red "$(gettext "IO Thread or SQL Thread Stopped")") ### $(gettext "IO Thread Running"): ${io_running} ### $(gettext "SQL Thread Running"): ${sql_running} ### $(gettext "Last ErrNo"): ${last_errno} ### $(gettext "Last Error"): ${last_error} ### $(gettext "Last IO Errno"): ${last_ioerrno} ### $(gettext "Last IO Error"): ${last_ioerror} ### $(gettext "Last SQL Errno"): ${last_sqlerrno} ### $(gettext "Last SQL Error"): ${last_sqlerror} ### "
+			else
+				result="${result} $(gettext "IO Thread and SQL Thread Running") ### "
+				((oknum++))
+			fi
 		else
 			((errnum++))
-			result="${result} $(html_red "slave status not detected, maybe mysql slave notql_hostrunning on ${mysql_host}:${mysql_port} ") ### ### "
-		
+			result="${result} $(html_red "$(gettext "slave status not detected, maybe mysql slave not running on") ${mysql_host}:${mysql_port} ") ### "
 		fi
-		((oknum++))
 	fi
+	result="${result} ### ### ### "
 
 	# output data and exit if MODE=1 
         [ "${MODE}" == "1" ] && {
@@ -173,19 +189,19 @@ check() {
 	EXIT_STATUS=${STATE_CRITICAL};
 	LEVEL="crit";
 	TYPE="str";
-	CONTENT="$(gettext "Mysql Ping CRITICAL") | $(eval_gettext "\${errnum}/\${total} check failed") | ${result} "
+	CONTENT="$(gettext "Mysql Replication CRITICAL") | $(eval_gettext "\${errnum}/\${total} check failed") | ${result} "
   } || {
 	[ "${oknum}" == "${total}" ] && {
 		EXIT_STATUS=${STATE_OK};
 		LEVEL="ok";
 		TYPE="str";
-		CONTENT="$(gettext "Mysql Ping OK") | $(eval_gettext "\${oknum}/\${total} check success") | ${result} "
+		CONTENT="$(gettext "Mysql Replication OK") | $(eval_gettext "\${oknum}/\${total} check success") | ${result} "
 	} || {
 		[ "${unknum}" != "0" ] && {
 			EXIT_STATUS=${STATE_UNKNOWN};
 			LEVEL="unknown";
 			TYPE="str";
-			CONTENT="$(gettext "Mysql Ping Unknown") | $(eval_gettext "\${unknum}/\${total} check unknown") | ${result} "
+			CONTENT="$(gettext "Mysql Replication Unknown") | $(eval_gettext "\${unknum}/\${total} check unknown") | ${result} "
 		}
 	}
   }

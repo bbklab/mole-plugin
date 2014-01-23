@@ -1,0 +1,95 @@
+# Copyright (C) 2013 EMINFO LANGUAGE FILE FOR GETTEXT
+# FIRST AUTHOR <zhangguangzheng@eyou.net>,<zhang.elinks@gmail.com> 2013.
+# This file is distributed under the same license as the eminfo package.
+#
+msgid ""
+msgstr ""
+"Report-Msgid-Bugs-To: zhangguangzheng@eyou.net\n"
+"Last-Translator: Guangzheng Zhang <zhang.elinks@gmail.com>\n"
+"Language-Team: EMINFO-LANGUAGE <zhang.elinks@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Chinese\n"
+"X-Poedit-Country: CHINA\n"
+
+msgid "\t%+#D"
+msgstr "\t%+#D"
+
+msgid "\n"
+msgstr "\n"
+
+msgid "utitile [${mysqlcli_path}] not prepared."
+msgstr " [${mysqlcli_path}] 尚未准备就绪."
+
+msgid "[${pairs}] is invalid"
+msgstr "配置项: [${pairs}] 不能识别"
+
+msgid "Login Slave Mysql Host [${mysql_host}:${mysql_port}] with Mysql User [${mysql_user}]"
+msgstr "通过Mysql用户 [${mysql_user}] 登录Mysql从实例主机: [${mysql_host}:${mysql_port}] "
+
+msgid "show slave status failed: return [${errstuff}]"
+msgstr "SQL命令 SHOW SLAVE STATUS 失败, 失败信息: [${errstuff}]"
+
+msgid "Master ID: ${master_id}"
+msgstr "主实例ID: ${master_id}"
+
+msgid "Master Address: $master_host:$master_port"
+msgstr "主实例主机地址: $master_host:$master_port"
+
+msgid "Replication by User: $master_user"
+msgstr "通过 $master_user 用户进行复制"
+
+msgid "Slave IO State: $slave_iostate"
+msgstr "从实例IO线程状态: $slave_iostate"
+
+msgid "IO Thread or SQL Thread Stopped"
+msgstr "IO线程或SQL线程未运行"
+
+msgid "IO Thread Running"
+msgstr "IO线程运行情况"
+
+msgid "SQL Thread Running"
+msgstr "SQL线程运行情况"
+
+msgid "Last ErrNo"
+msgstr "最后一次错误编号"
+
+msgid "Last Error"
+msgstr "最后一次错误信息"
+
+msgid "Last IO Errno"
+msgstr "IO线程最后一次错误编号"
+
+msgid "Last IO Error"
+msgstr "IO线程最后一次错误信息"
+
+msgid "Last SQL Errno"
+msgstr "SQL线程最后一次错误编号"
+
+msgid "Last SQL Error"
+msgstr "SQL线程最后一次错误信息"
+
+msgid "IO Thread and SQL Thread Running"
+msgstr "IO线程和SQL线程正在运行"
+
+msgid "slave status not detected, maybe mysql slave not running on"
+msgstr "未探测到从实例状态, 或许Mysql从实例并未运行在: "
+
+msgid "Mysql Replication CRITICAL"
+msgstr "Mysql复制检查告警"
+
+msgid "${errnum}/${total} check failed"
+msgstr "${errnum}/${total} 项Mysql复制告警"
+
+msgid "Mysql Replication OK"
+msgstr "Mysql复制检查正常"
+
+msgid "${oknum}/${total} check success"
+msgstr "${oknum}/${total} 项Mysql复制正常"
+
+msgid "Mysql Replication Unknown"
+msgstr "Mysql复制检查未知"
+
+msgid "${unknum}/${total} check unknown"
+msgstr "${unknum}/${total} 项Mysql复制未知"
