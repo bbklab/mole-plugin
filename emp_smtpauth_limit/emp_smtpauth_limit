@@ -1,0 +1,208 @@
+#!/usr/bin/env bash
+
+
+BASE_DIR="/usr/local/eminfo/"
+# === LOAD GETTEXT.SH FILE
+if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+        source "/usr/bin/gettext.sh" 2>&1
+        rc=$?
+        [ "$rc" != "0" ] && {
+                echo -en "{unknown}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                exit 3
+        }
+else
+        echo -en "{unknown}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        exit 3
+fi
+
+# === LOAD INCLUDE FILE
+if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+        source ${BASE_DIR}/bin/include 2>&- 
+else        
+        echo -en "{unknown}:{str}:{include file not exists or empty}"
+        exit 3
+fi
+
+# === SET TEXTDOMAINDIR TEXTDOMAIN
+if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+        export TEXTDOMAINDIR="${LOCALE_DIR}"
+        export TEXTDOMAIN="emp_smtpauth_limit"
+else        
+        echo -en "{unknown}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        exit 3
+fi
+
+# === SET GLOBAL LOCALE
+glocale=$(get_locale emp_smtpauth_limit)
+if [ -z "${glocale}" ]; then
+        export LANG="${LANG}"           ## read from sysenv
+elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+        export LANG="zh_CN.UTF-8"
+elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+        export LANG="en_US.UTF-8"
+else
+        export LANG="zh_CN.UTF-8"
+fi
+
+
+show_help(){
+cat <<EOF
+Arguments:   {d|data|h|help}
+
+Usage:	 data 
+
+Output:   
+EOF
+exit 0;
+}
+MODE=0
+[ "$1" == "data" -o "$1" == "d" ] && MODE=1
+[ "$1" == "help" -o "$1" == "h" ] && show_help;
+
+
+# Return Codes
+STATE_OK=0
+STATE_WARNING=1
+STATE_CRITICAL=2
+STATE_UNKNOWN=3
+STATE_NOOP=4
+
+# Set Default
+EXIT_STATUS=0
+LEVEL=    	### { ok | warn | crit | unknown | noop }
+TYPE=   	### { str| file }
+CONTENT=        ### { strings | /path/to/result.file }
+
+# Read plugin config value here
+if [ "${MODE}" == "1" ]; then
+	action="$2"
+else
+	mysqlcli_path=$( read_eminfo_config emp_smtpauth_limit mysqlcli_path )
+	usrmysql_conn_conf=$( read_eminfo_config emp_smtpauth_limit usrmysql_conn_conf )
+	logmysql_conn_conf=$( read_eminfo_config emp_smtpauth_limit logmysql_conn_conf )
+	mysql_time_out=$( read_eminfo_config emp_smtpauth_limit mysql_time_out )
+	smtp_auth_limit=$( read_eminfo_config emp_smtpauth_limit smtp_auth_limit )
+	smtp_white_list=$( read_eminfo_config emp_smtpauth_limit smtp_white_list )
+	action_tag_path=$( read_eminfo_config emp_smtpauth_limit action_tag_path )
+	user_max_repeat=$( read_eminfo_config emp_smtpauth_limit user_max_repeat )
+fi
+
+# if null return STATE_UNKNOWN.
+
+# if null or invalid set default.
+[ -z "${mysqlcli_path}" ] && mysqlcli_path="/usr/local/eyou/mail/opt/mysql/bin/mysql"
+[ -z "${usrmysql_conn_conf}" ] && usrmysql_conn_conf="127.0.0.1,3306,eyou,eyou"
+[ -z "${logmysql_conn_conf}" ] && logmysql_conn_conf="127.0.0.1,3326,eyou,eyou"
+[ -z "${mysql_time_out}" -o ! -z "${mysql_time_out//[0-9]}" ] && mysql_time_out=10
+[ -z "${smtp_auth_limit}" -o ! -z "${smtp_auth_limit//[0-9]}" ] && smtp_auth_limit=300
+[ -z "${smtp_white_list}" ] && smtp_white_list=
+[ -z "${action_tag_path}" ] && action_tag_path="/usr/local/eyou/mail/log/${0##*/}"
+[ -z "${user_max_repeat}" -o ! -z "${user_max_repeat//[0-9]}" ] && user_max_repeat=1
+
+# check function here
+check(){
+
+  [ -f "${mysqlcli_path}" -a -x "${mysqlcli_path}" ] || {
+        EXIT_STATUS=${STATE_UNKNOWN};
+        LEVEL="unknown";
+        TYPE="str";
+        CONTENT="utitile: [${mysqlcli_path}] not prepared.";
+        return
+  }
+
+  sepnum=$(echo -e "${usrmysql_conn_conf}" | awk -F"," 'END{print --NF}')
+  if [ "${sepnum}" != "3" ]; then
+        EXIT_STATUS=${STATE_UNKNOWN};
+        LEVEL="unknown";
+        TYPE="str";
+        CONTENT="user mysql connection config: [${usrmysql_conn_conf}] is invalid.";
+        return
+  else
+	mysql_host="$(echo -e "${usrmysql_conn_conf}"|awk -F"," '{print $1}')"
+        mysql_port="$(echo -e "${usrmysql_conn_conf}"|awk -F"," '{print $2}')"
+        mysql_user="$(echo -e "${usrmysql_conn_conf}"|awk -F"," '{print $3}')"
+        mysql_pass="$(echo -e "${usrmysql_conn_conf}"|awk -F"," '{print $4}')"
+
+	if [ -z "${mysql_pass}" ]; then
+		usrmysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} --connect-timeout ${mysql_time_out} "
+	else
+		usrmysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user}  -p"${mysql_pass}" --connect-timeout ${mysql_time_out} "
+	fi
+  fi
+
+  sepnum=$(echo -e "${logmysql_conn_conf}" | awk -F"," 'END{print --NF}')
+  if [ "${sepnum}" != "3" ]; then
+        EXIT_STATUS=${STATE_UNKNOWN};
+        LEVEL="unknown";
+        TYPE="str";
+        CONTENT="log mysql connection config: [${logmysql_conn_conf}] is invalid.";
+        return
+  else
+	mysql_host="$(echo -e "${logmysql_conn_conf}"|awk -F"," '{print $1}')"
+        mysql_port="$(echo -e "${logmysql_conn_conf}"|awk -F"," '{print $2}')"
+        mysql_user="$(echo -e "${logmysql_conn_conf}"|awk -F"," '{print $3}')"
+        mysql_pass="$(echo -e "${logmysql_conn_conf}"|awk -F"," '{print $4}')"
+
+	if [ -z "${mysql_pass}" ]; then
+		logmysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} --connect-timeout ${mysql_time_out} "
+	else
+		logmysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user}  -p"${mysql_pass}" --connect-timeout ${mysql_time_out} "
+	fi
+  fi
+
+
+  local result=
+  local warnnum=0  unknnum=0
+  
+  locklst_tmpfile="/var/tmp/${0##*/}.locked.lst.tmp"
+  authlst_tmpfile="/var/tmp/${0##*/}.authtop.lst.tmp"
+  errstuff=$( ${usrmysql} -s -e "select concat(acct_key.acct_name,'@',domain_key.domain_name) from acct_key,domain_key,user_basic where acct_key.domain_id=domain_key.domain_id and acct_key.acct_id=user_basic.acct_id and user_basic.has_smtp=0 and user_basic.has_remote=0; " 2>&1 1>"${locklst_tmpfile}" )
+  if [ "$?" != "0" ]; then
+	((unknnum++))
+	errstuff=$(echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n')
+	result="${result} Read Locked Users from User Mysql Failed: [${errstuff}] ### "
+  else
+	start=$( date -d "" +%s 2>&-)
+	end=$(( $start + 86400 ))
+	top_limit=100
+	errstuff=$( $logmysql -s -e "select count(*), concat(real_acct_name,'@',real_domain_name) from log_auth where auth_time between '${start}' and '${end}' and auth_type=1 and result=0 group by 2 order by 1 desc limit $top_limit;" 2>&1 1>"${authlst_tmpfile}" )
+	if [ "$?" != "0" ]; then
+		((unknnum++))
+		errstuff=$(echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n')
+		result="${result} Read SMTP Auth Top Records from Log Mysql Failed: [${errstuff}] ### "
+	else
+
+	fi
+  fi
+
+
+
+
+  # exit if MODE=1
+  [ "${MODE}" == "1" ] && exit;
+
+  [ "${warnnum}" -gt "0" ] && {
+	EXIT_STATUS=${STATE_WARNING};
+	LEVEL="warn";
+	TYPE="str";
+	CONTENT="$(gettext "SMPT Auth Limit Check WARNING") |  | ${result} "
+  } || {
+	[ "${unknnum}" -gt "0" ] && {
+		EXIT_STATUS=${STATE_UNKNOWN};
+		LEVEL="unknown";
+		TYPE="str";
+		CONTENT="$(gettext "SMTP Auth Limit Check UNKNOWN") |  | ${result} "
+	} || {
+		EXIT_STATUS="${STATE_OK}"
+		LEVEL="ok"
+		TYPE="str"
+		CONTENT="$(gettext "SMTP Auth Limit Check OK") |  | ${result} "
+	}
+  }
+}
+
+check
+
+# output result and return exit status here.
+echo "{"${LEVEL}"}:{"${TYPE}"}:{"${CONTENT}"}"  | tr -d '\015\012'
+exit ${EXIT_STATUS}
