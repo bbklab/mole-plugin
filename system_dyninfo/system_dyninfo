@@ -37,11 +37,18 @@ my %cpu_usage = (
 
 my @online_user = ();
 
-my %runtime = (
+my %systime = (
+  'systime'	=> '',
   'boottime'	=> '',
   'runtime'	=> '',
   'idletime'	=> '',
 );
+
+my %sysipcs = (
+  'shared_mem'	=> '',
+  'mess_queue'	=> '',
+  'sema_array'	=> '',
+); 
 
 my %mem_usage = (
   'mem_usage'	=> '',
@@ -72,7 +79,8 @@ my %result = (
   'load_avg'	=> \%load_avg,
   'cpu_usage'	=> \%cpu_usage,
   'online_user'	=> \@online_user,
-  'runtime'	=> \%runtime,
+  'systime'	=> \%systime,
+  'sysipcs'	=> \%sysipcs,
   'mem_usage'	=> \%mem_usage,
   'prt_usage'	=> \@prt_usage,
   'process'	=> \%process,
