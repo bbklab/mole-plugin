@@ -3,7 +3,7 @@ use warnings;
 use strict;
 use utf8;
 use JSON;
-# use Smart::Comments;
+use Smart::Comments;
 binmode(STDIN, ":encoding(utf8)");
 binmode(STDOUT, ":encoding(utf8)");
 
@@ -126,9 +126,11 @@ if (-f $mem_file && -r $mem_file) {
 		chomp; s/(\A\s+|\s+\Z)//g;
 		if (m/\AMemTotal:/i) {
 			$mem_info{'os_mem_total'} = int((split /\s+/)[1]/1024).' MB';
+			next;
 		}
 		if (m/\ASwapTotal:/i) {
 			$mem_info{'os_swap_total'} = int((split /\s+/)[1]/1024).' MB';
+			next;
 		}
   	}
   close $fh;
@@ -154,21 +156,26 @@ if (-f $cpu_file && -r $cpu_file) {
                 chomp; s/(\A\s+|\s+\Z)//g;
 		if (m/\Aprocessor\s+/i) {
 			$cpu_info{'logical'}++;
+			next;
 		}
 		if (m/\Aphysical\s+id\s+/i) {
 			$cpu_phyid{$_}++;
+			next;
 		}
 		if (m/\Acpu\s+MHz\s+/i) {
 			(my $speed = (split /:/)[1]) =~ s/\A\s*//g;
 			$cpu_speed{$speed.'MHz'}++;
+			next;
 		}
 		if (m/\Avendor_id\s+/i) {
 			(my $vendor = (split /:/)[1]) =~ s/\A\s*//g;
 			$cpu_vendor{$vendor}++;
+			next;
 		}
 		if (m/\Amodel\s+name\s+/i) {
 			(my $type = (split /:/)[1]) =~ s/\A\s*//g;
 			$cpu_type{$type}++;
+			next;
 		}
         }
 	$cpu_info{'physical'} = scalar keys %cpu_phyid;
@@ -284,9 +291,11 @@ if (-f $clockfile && -r $clockfile) {
 		if (m/\AZONE=/) {
 			s/"//g;
 			$sys_clock{'timezone'} = (split/=/)[1];
+			next;
 		}
 		if (m/\AUTC=/) {
 			$sys_clock{'useutc'} = (split/=/)[1];
+			next;
 		}
 	}
 	close $fh;
@@ -308,14 +317,17 @@ if (-f $i18nfile && -r $i18nfile) {
 		if (m/\ALANG=/){
 			s/"//g;
 			$sys_lang{'lang_default'} = (split/=/)[1];
+			next;
 		}
 		if (m/\ASUPPORTED=/){
 			s/"//g;
 			$sys_lang{'lang_supported'} = (split/=/)[1];
+			next;
 		}
 		if (m/\ASYSFONT=/){
 			s/"//g;
 			$sys_lang{'font_default'} = (split/=/)[1];
+			next;
 		}
 	}
 	close $fh;
@@ -337,9 +349,11 @@ if (-f $selinuxfile && -r $selinuxfile) {
 		next if /\A\s*#/;
 		if (m/\A\s*SELINUX\b/) {
 			$selinux{'status'} = (split/=/)[1];
+			next;
 		}
 		if (m/\A\s*SELINUXTYPE\b/) {
 			$selinux{'type'} = (split/=/)[1];
+			next;
 		}
 	}
 	close $fh;
@@ -456,13 +470,15 @@ if (-f $route && -x $route) {
 my %netcard;
 my $lspci = '/sbin/lspci';
 if (-f $lspci && -x $lspci) {
-  open my $fh, "$lspci 2>&1 | /bin/grep -i -E \"Ethernet controller:\" | ";
+  open my $fh, "$lspci 2>&- |";
   if ($fh) {
 	while(<$fh>){
 		chomp; s/(\A\s+|\s+\Z)//g;
-		my $busid = (split /\s+/)[0];
-		my $desc = (split /Ethernet controller:\s+/i)[1];
-		$netcard{$busid} = $desc;
+		if (m/Ethernet controller:/i) {
+			my $busid = (split /\s+/)[0];
+			my $desc = (split /Ethernet controller:\s+/i)[1];
+			$netcard{$busid} = $desc;
+		}
 	}
   }
 }
@@ -499,8 +515,8 @@ if (-f $netfile && -r $netfile) {
 		'pci_description'	=> '',
 		'encapsulation'		=> '',
 		'mac_address'		=> '',
-		'ipv4_address'		=> '',
-		'ipv4_netmask'		=> '',
+		'ipv4_address'		=> 'x',
+		'ipv4_netmask'		=> 'x',
 		'mtu'			=> '',
 		'promisc_mode'		=> 'off',
 	);
@@ -540,16 +556,19 @@ if (-f $netfile && -r $netfile) {
 		if ($fh) {
 			while(<$fh>){
 				chomp; s/(\A\s+|\s+\Z)//g;
-				if(m/^$inet_name\s+Link encap:(\w+)\s+HWaddr ((?:[A-Fa-f0-9]{2}:){5}(?:[A-Fa-f0-9]{2}))\s*\Z/){
+				if(m/^$inet_name\s+Link encap:(\w+)\s+HWaddr ((?:[A-Fa-f0-9]{2}:){5}(?:[A-Fa-f0-9]{2}))\s*\Z/i){
 					$inet_info{'encapsulation'} = $1;			
 					$inet_info{'mac_address'} = $2;
+					next;
 				}
-				if(m/\s+inet addr:((([0-9]|([1-9]\d)|(1\d\d)|(2([0-4]\d|5[0-5])))\.){3}([1-9]|([1-9]\d)|(1\d\d)|(2([0-4]\d|5[0-5]))))\s+(.*)Mask:(.+)\Z/){
+				if(m/\s*inet addr:((([0-9]|([1-9]\d)|(1\d\d)|(2([0-4]\d|5[0-5])))\.){3}([1-9]|([1-9]\d)|(1\d\d)|(2([0-4]\d|5[0-5]))))\s+(.*)Mask:(.+)\Z/){
 					$inet_info{'ipv4_address'} = $1;
 					$inet_info{'ipv4_netmask'} = $14;
+					next;
 				}
-				if(m/\s+MTU:(\d+)\s+/){
+				if(m/\s+MTU:(\d+)\s+/i){
 					$inet_info{'mtu'} = $1;
+					next;
 				}
 			}
 		}
