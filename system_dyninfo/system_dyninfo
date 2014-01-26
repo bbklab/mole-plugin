@@ -6,6 +6,7 @@ use JSON;
 use Smart::Comments;
 binmode(STDIN, ":encoding(utf8)");
 binmode(STDOUT, ":encoding(utf8)");
+binmode(STDERR, ":encoding(utf8)");
 
 $| = 1;
 
@@ -20,72 +21,315 @@ our $filename = (split /\//, __FILE__)[-1];
 #
 #  BEGIN to COLLECT SYSTEM INFORMATION 
 #
-my %load_avg = (
+my %sysload= (
   '1min'	=> '',
   '5min'	=> '',
   '15min'	=> '',
 );
-
-my %cpu_usage = (
-  'time'	=> '',
-  'interval'	=> '',
-  'user'	=> '',
-  'sys'		=> '',
-  'wait'	=> '',
-  'idle'	=> '',
-);
+my $load_file = '/proc/loadavg';
+if (-f $load_file && -r $load_file) {
+  if (open my $fh, "<", $load_file) {
+        my ($load1,$load5,$load15) = ('','','');
+        while(<$fh>){
+		($load1,$load5,$load15) = (split/\s+/)[0,1,2];
+		last;
+	}
+	$sysload{'1min'} = $load1;
+	$sysload{'5min'} = $load5;
+	$sysload{'15min'} = $load15;
+	close $fh if $fh;
+  }
+}
+### %sysload
 
 my @online_user = ();
+my $w = '/usr/bin/w';
+if (-f $w && -x $w) {
+  open my $fh, "$w -h 2>&- | ";
+  if ($fh) {
+	while(<$fh>){
+		my %single_online = ();
+		@single_online{'name','from','time','idle','tty','doing'} = (split/\s+/)[0,2,3,4,1,7];
+		push @online_user, \%single_online;
+	}
+  }
+}
+### @online_user
 
 my %systime = (
-  'systime'	=> '',
+  'systime'	=> time,
   'boottime'	=> '',
   'runtime'	=> '',
   'idletime'	=> '',
+  'idlerate'	=> '',
 );
-
-my %sysipcs = (
-  'shared_mem'	=> '',
-  'mess_queue'	=> '',
-  'sema_array'	=> '',
-); 
+my $stat_file = '/proc/stat';
+my $uptm_file = '/proc/uptime';
+my $cpu_file = '/proc/cpuinfo';
+if (-f $stat_file && -r $stat_file) {
+  if (open my $fh, "<", $stat_file) {
+	while(<$fh>){
+		if (m/\A\s*btime\s+(\d+)/i) {
+			$systime{'boottime'} = $1;
+			last;
+		}
+  	}
+	close $fh if $fh;
+  }
+}
+if (-f $uptm_file && -r $uptm_file) {
+  if (open my $fh, "<", $uptm_file) {
+	while(<$fh>){
+		@systime{'runtime','idletime'} = split/\s+/;
+		last;
+	}
+	close $fh if $fh;
+  }
+}
+my $processor_number = 0;
+if (-f $cpu_file && -r $cpu_file) {
+  if (open my $fh, "<", $cpu_file) {
+	while(<$fh>){
+		if (m/\Aprocessor\s+/i) {
+			$processor_number ++;
+			next;
+		}
+	}
+	close $fh if $fh;
+  }
+}
+$processor_number = 1 if $processor_number == 0;
+$systime{'idletime'} = $systime{'idletime'}/$processor_number;
+$systime{'idlerate'} = sprintf("%0.2f",100*$systime{'idletime'}/$systime{'runtime'}).'%';
+### %systime
 
 my %mem_usage = (
+  'mem_total'	=> '',
+  'swp_total'	=> '',
+  'mem_free'	=> '',
+  'swp_free'	=> '',
   'mem_usage'	=> '',
   'swp_usage'	=> '',
 );
-
-my @prt_usage = ();
+my $mem_file = '/proc/meminfo';
+if (-f $mem_file && -r $mem_file) {
+  if (open my $fh, "<", $mem_file) {
+	while(<$fh>){
+		if (m/\A\s*MemTotal:\s+(\d+)\s*KB/i) {
+			$mem_usage{'mem_total'} = sprintf("%0.2f",$1/1024/1024);
+			next;
+		}
+		if (m/\A\s*SwapTotal:\s+(\d+)\s*KB/i) {
+			$mem_usage{'swp_total'} = sprintf("%0.2f",$1/1024/1024);
+			next;
+		}
+		if (m/\A\s*MemFree:\s+(\d+)\s*KB/i) {
+			$mem_usage{'mem_free'} = sprintf("%0.2f",$1/1024/1024);
+			next;
+		}
+		if (m/\A\s*SwapFree:\s+(\d+)\s*KB/i) {
+			$mem_usage{'swp_free'} = sprintf("%0.2f",$1/1024/1024);
+			next;
+		}
+	}
+	if ($mem_usage{'mem_total'} && $mem_usage{'mem_free'}) {
+		$mem_usage{'mem_usage'} = sprintf("%0.2f",$mem_usage{'mem_total'}-$mem_usage{'mem_free'});
+	}
+	if ($mem_usage{'swp_total'} && $mem_usage{'swp_free'}) {
+		$mem_usage{'swp_usage'} = sprintf("%0.2f",$mem_usage{'swp_total'}-$mem_usage{'swp_free'});
+	}
+	foreach my $key (keys %mem_usage) {
+		$mem_usage{$key} .= 'G';
+	}
+	close $fh if $fh;
+  }
+}
+### %mem_usage
 
 my %process = (
-  'total_num'	=> '',
-  'state_R'	=> '', 
-  'stare_S'	=> '',
-  'state_Z'	=> '',
-  'state_D'	=> '',
+  'totalnum'	=> '',  # by: /proc/\d+/
+  'state'	=> '',  # by: ps -eo state=
+  'blocked'	=> '',
+  'ctxtnum'	=> '',
+  'forksnum'	=> '',
 );
+if (-f $stat_file && -r $stat_file) {
+  if (open my $fh, "<", $stat_file) {
+	while(<$fh>){
+		if (m/\A\s*ctxt\s+(\d+)/i) {
+			$process{'ctxtnum'} = $1;
+			next;
+		}
+		if (m/\A\s*processes\s+(\d+)/i) {
+			$process{'forksnum'} = $1;
+			next;
+		}
+		if (m/\A\s*procs_blocked\s+(\d+)/i) {
+			$process{'blocked'} = $1;
+			next;
+		}
+	}
+	close $fh if $fh;
+  }
+}
+if (-d "/proc/") {
+  my @process = glob "/proc/[0-9]*";
+  $process{'totalnum'} = @process;
+}
+my $ps = '/bin/ps';
+if (-f $ps && -x $ps) {
+  open my $fh, "$ps -eo stat= 2>&- | ";
+  my %ps_state = ();
+  if ($fh) {
+	while(<$fh>){
+		chomp; my $key = substr $_,0,1;
+		$ps_state{$key} ++;
+	}
+  }
+  $process{'state'} = \%ps_state;
+}
+### %process
+
 
 my %netstat = (
-  'total_num'	=> '',
+  'total_tcp'	=> '',
+  'total_udp'	=> '',
+  'net_flow'	=> '',
 );
+my $tcp_file = '/proc/net/tcp';
+my $udp_file = '/proc/net/udp';
+my $net_devf = '/proc/net/dev';
+if (-f $tcp_file && -r $tcp_file) {
+  if (open my $fh, "<", $tcp_file) {
+	my @tcp_content = <$fh>;
+	$netstat{'total_tcp'} = scalar @tcp_content - 1;
+	close $fh if $fh;
+  }
+}
+if (-f $udp_file && -r $udp_file) {
+  if (open my $fh, "<", $udp_file) {
+	my @udp_content = <$fh>;
+	$netstat{'total_udp'} = scalar @udp_content - 1;
+	close $fh if $fh;
+  }
+}
+if (-f $net_devf && -r $net_devf) {
+ if (open my $fh, "<", $net_devf) {
+	my @net_flow = ();
+	while(<$fh>){
+		if (m/\A\s*(.+?):\s*(.*)/) {
+			my %single_flow = ();
+			@{$single_flow{$1}}{qw(
+				rxbyt rxpcks rxerrs rxdrop
+				txbyt txpcks txerrs txdrop
+			)} = (split/\s+/,$2)[0,1,2,3,8,9,10,11];
+			$single_flow{$1}{'ttbyt'} = $single_flow{$1}{'rxbyt'} + $single_flow{$1}{'txbyt'};
+			$single_flow{$1}{'ttpcks'} = $single_flow{$1}{'rxpcks'} + $single_flow{$1}{'txpcks'};
+			push @net_flow, \%single_flow;
+		}
+	}
+	$netstat{'net_flow'} = \@net_flow;
+ }
+}
+### %netstat
 
 my %lastlogin = (
-  'number'	=> '',
+  'number'	=> 10,
   'result'	=> '',
 );
+my $last = '/usr/bin/last';
+my %months = (
+  'JAN' => 1, 'FEB' => 2, 'MAR' => 3, 
+  'APR' => 4, 'MAY' => 5, 'JUN' => 6,
+  'JUL' => 7, 'AUG' => 8, 'SEP' => 9,
+  'OCT' => 10, 'NOV' => 11, 'DEC' => 12,
+);
+if (-f $last && -x $last) {
+  open my $fh, "$last -n $lastlogin{'number'} -x 2>&- | ";
+  if ($fh) {
+	my @login_result = '';
+	while(<$fh>){
+		chomp;
+		next if m/\A(runlevel|reboot|shutdown)/i;
+		last if m/\A\s*\Z/;
+		my ($login_year, $login_month, $login_day,$login_ms) = (1900+(localtime(time()))[5],(split/\s+/)[4,5,6]);
+		my $login_time = sprintf("%d-%d-%d_%s",$login_year,$months{uc($login_month)},$login_day,$login_ms);
+		my $single_login = $login_time . ' ' . join(" ",(split/\s+/)[0,1,2]);
+		push @login_result, $single_login;
+	}
+	$lastlogin{'result'} = \@login_result;
+  }
+}
+### %lastlogin
+
+my %sys_mods = (
+  'number'	=> 0,
+  'list'	=> '',
+);
+my $mod_file = '/proc/modules';
+if (-f $mod_file && -r $mod_file) {
+  if (open my $fh, "<", $mod_file) {
+	my @sys_mods = ();
+	while(<$fh>){
+		push @sys_mods, (split/\s+/)[0];
+	}
+	$sys_mods{'number'} = scalar @sys_mods if (@sys_mods);
+	$sys_mods{'list'} = \@sys_mods;
+	close $fh if $fh;
+  }
+}
+### %sys_mods
+
+my $sys_locks = 0;
+my $lock_file = '/proc/locks';
+if (-f $lock_file && -r $lock_file) {
+  if (open my $fh, "<", $lock_file) {
+	my @sys_locks = <$fh>;
+	$sys_locks = scalar @sys_locks;
+	close $fh if $fh;
+  }
+}
+### $sys_locks
+
+my %cpu_usage = (
+  'time'	=> 5,
+  'interval'	=> 1,
+  'user'	=> 0,
+  'sys'		=> 0,
+  'wait'	=> 0,
+  'idle'	=> 0,
+);
+my $vmstat = '/usr/bin/vmstat';
+if (-f $vmstat && -x $vmstat) {
+  open my $fh, "$vmstat $cpu_usage{'interval'} $cpu_usage{'time'} 2>&- | ";
+  if ($fh) {
+	while(<$fh>){
+		next unless m/\A\s*\d+/;
+		$cpu_usage{'user'} += (split/\s+/)[-5];
+		$cpu_usage{'sys'}  += (split/\s+/)[-4];
+		$cpu_usage{'wait'} += (split/\s+/)[-2];
+		$cpu_usage{'idle'} += (split/\s+/)[-3];
+	}
+  }
+}
+$cpu_usage{'user'} = $cpu_usage{'user'}/$cpu_usage{'time'};
+$cpu_usage{'sys'} = $cpu_usage{'sys'}/$cpu_usage{'time'};
+$cpu_usage{'wait'} = $cpu_usage{'wait'}/$cpu_usage{'time'};
+$cpu_usage{'idle'} = $cpu_usage{'idle'}/$cpu_usage{'time'};
+### %cpu_usage
 
 # PREPARE LAST RESULT HASH
 my %result = (
-  'load_avg'	=> \%load_avg,
-  'cpu_usage'	=> \%cpu_usage,
+  'sysload'	=> \%sysload,
   'online_user'	=> \@online_user,
   'systime'	=> \%systime,
-  'sysipcs'	=> \%sysipcs,
   'mem_usage'	=> \%mem_usage,
-  'prt_usage'	=> \@prt_usage,
   'process'	=> \%process,
   'netstat'	=> \%netstat,
   'lastlogin'	=> \%lastlogin,
+  'sys_mods'	=> \%sys_mods,
+  'sys_locks'	=> $sys_locks,
+  'cpu_usage'	=> \%cpu_usage,
 );
 ### %result
 
