@@ -515,8 +515,8 @@ if (-f $netfile && -r $netfile) {
 		'pci_description'	=> '',
 		'encapsulation'		=> '',
 		'mac_address'		=> '',
-		'ipv4_address'		=> 'x',
-		'ipv4_netmask'		=> 'x',
+		'ipv4_address'		=> '',
+		'ipv4_netmask'		=> '',
 		'mtu'			=> '',
 		'promisc_mode'		=> 'off',
 	);
