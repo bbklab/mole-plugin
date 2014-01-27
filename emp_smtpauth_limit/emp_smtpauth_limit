@@ -91,8 +91,8 @@ fi
 
 # if null or invalid set default.
 [ -z "${mysqlcli_path}" ] && mysqlcli_path="/usr/local/eyou/mail/opt/mysql/bin/mysql"
-[ -z "${usrmysql_conn_conf}" ] && usrmysql_conn_conf="127.0.0.1,3306,eyou,eyou"
-[ -z "${logmysql_conn_conf}" ] && logmysql_conn_conf="127.0.0.1,3326,eyou,eyou"
+[ -z "${usrmysql_conn_conf}" ] && usrmysql_conn_conf="127.0.0.1,3306,eyou,eyou,eyou_mail"
+[ -z "${logmysql_conn_conf}" ] && logmysql_conn_conf="127.0.0.1,3326,eyou,eyou,eyou_mail_log"
 [ -z "${mysql_time_out}" -o ! -z "${mysql_time_out//[0-9]}" ] && mysql_time_out=10
 [ -z "${smtp_auth_limit}" -o ! -z "${smtp_auth_limit//[0-9]}" ] && smtp_auth_limit=300
 [ -z "${smtp_white_list}" ] && smtp_white_list=
@@ -111,7 +111,7 @@ check(){
   }
 
   sepnum=$(echo -e "${usrmysql_conn_conf}" | awk -F"," 'END{print --NF}')
-  if [ "${sepnum}" != "3" ]; then
+  if [ "${sepnum}" != "4" ]; then
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
@@ -122,16 +122,17 @@ check(){
         mysql_port="$(echo -e "${usrmysql_conn_conf}"|awk -F"," '{print $2}')"
         mysql_user="$(echo -e "${usrmysql_conn_conf}"|awk -F"," '{print $3}')"
         mysql_pass="$(echo -e "${usrmysql_conn_conf}"|awk -F"," '{print $4}')"
+	usr_database="$(echo -e "${usrmysql_conn_conf}"|awk -F"," '{print $5}')"
 
 	if [ -z "${mysql_pass}" ]; then
-		usrmysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} --connect-timeout ${mysql_time_out} "
+		usrmysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} --connect-timeout ${mysql_time_out}  -D ${usr_database} "
 	else
-		usrmysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user}  -p"${mysql_pass}" --connect-timeout ${mysql_time_out} "
+		usrmysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user}  -p"${mysql_pass}" --connect-timeout ${mysql_time_out} -D ${usr_database} "
 	fi
   fi
 
   sepnum=$(echo -e "${logmysql_conn_conf}" | awk -F"," 'END{print --NF}')
-  if [ "${sepnum}" != "3" ]; then
+  if [ "${sepnum}" != "4" ]; then
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
@@ -142,11 +143,12 @@ check(){
         mysql_port="$(echo -e "${logmysql_conn_conf}"|awk -F"," '{print $2}')"
         mysql_user="$(echo -e "${logmysql_conn_conf}"|awk -F"," '{print $3}')"
         mysql_pass="$(echo -e "${logmysql_conn_conf}"|awk -F"," '{print $4}')"
+	log_database="$(echo -e "${logmysql_conn_conf}"|awk -F"," '{print $5}')"
 
 	if [ -z "${mysql_pass}" ]; then
-		logmysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} --connect-timeout ${mysql_time_out} "
+		logmysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} --connect-timeout ${mysql_time_out}  -D ${log_database} "
 	else
-		logmysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user}  -p"${mysql_pass}" --connect-timeout ${mysql_time_out} "
+		logmysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user}  -p"${mysql_pass}" --connect-timeout ${mysql_time_out} -D ${log_database} "
 	fi
   fi
 
@@ -171,7 +173,7 @@ check(){
 		errstuff=$(echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n')
 		result="${result} Read SMTP Auth Top Records from Log Mysql Failed: [${errstuff}] ### "
 	else
-
+		:
 	fi
   fi
 
