@@ -83,6 +83,7 @@ else
 	mysql_time_out=$( read_eminfo_config emp_smtpauth_limit mysql_time_out )
 	smtp_auth_limit=$( read_eminfo_config emp_smtpauth_limit smtp_auth_limit )
 	smtp_white_list=$( read_eminfo_config emp_smtpauth_limit smtp_white_list )
+	action_pipe_file=$( read_eminfo_config emp_smtpauth_limit action_pipe_file )
 	action_tag_path=$( read_eminfo_config emp_smtpauth_limit action_tag_path )
 	user_max_repeat=$( read_eminfo_config emp_smtpauth_limit user_max_repeat )
 fi
@@ -96,8 +97,19 @@ fi
 [ -z "${mysql_time_out}" -o ! -z "${mysql_time_out//[0-9]}" ] && mysql_time_out=10
 [ -z "${smtp_auth_limit}" -o ! -z "${smtp_auth_limit//[0-9]}" ] && smtp_auth_limit=300
 [ -z "${smtp_white_list}" ] && smtp_white_list=
+[ -z "${action_pipe_file}" ] && action_pipe_file="/var/tmp/${0##*/}.pipe"
 [ -z "${action_tag_path}" ] && action_tag_path="/usr/local/eyou/mail/log/${0##*/}"
 [ -z "${user_max_repeat}" -o ! -z "${user_max_repeat//[0-9]}" ] && user_max_repeat=1
+
+if [ -f "/${smtp_white_list##*file:}" -a -s "/${smtp_white_list##*file:}" ]; then
+	smtp_white_list=$(awk '($0!~/^[ \t]*#/) { for(i=1;i<=NF;i++) {printf "%s ",$i} }' "/${smtp_white_list##*file:}")
+elif [ -f "${BASE_DIR}/${smtp_white_list##*file:}" -a -s "${BASE_DIR}/${smtp_white_list##*file:}" ]; then
+        smtp_white_list=$(awk '($0!~/^[ \t]*#/) { for(i=1;i<=NF;i++) {printf "%s ",$i} }' "${BASE_DIR}/${smtp_white_list##*file:}")
+else
+        [ -z "${smtp_white_list}" ] && smtp_white_list="white_user@list.here"
+fi
+smtp_lock_list=
+
 
 # check function here
 check(){
@@ -107,6 +119,15 @@ check(){
         LEVEL="unknown";
         TYPE="str";
         CONTENT="utitile: [${mysqlcli_path}] not prepared.";
+        return
+  }
+
+  /bin/mkdir -p -m 777 "${action_tag_path}" 2>&-
+  [ -d "${action_tag_path}" -a -x "${action_tag_path}" ] ||  {
+        EXIT_STATUS=${STATE_UNKNOWN};
+        LEVEL="unknown";
+        TYPE="str";
+        CONTENT="directory: [${action_tag_path}] not prepared.";
         return
   }
 
@@ -158,7 +179,7 @@ check(){
   
   locklst_tmpfile="/var/tmp/${0##*/}.locked.lst.tmp"
   authlst_tmpfile="/var/tmp/${0##*/}.authtop.lst.tmp"
-  errstuff=$( ${usrmysql} -s -e "select concat(acct_key.acct_name,'@',domain_key.domain_name) from acct_key,domain_key,user_basic where acct_key.domain_id=domain_key.domain_id and acct_key.acct_id=user_basic.acct_id and user_basic.has_smtp=0 and user_basic.has_remote=0; " 2>&1 1>"${locklst_tmpfile}" )
+  errstuff=$( ${usrmysql} -s -e "select concat(acct_key.acct_name,'@',domain_key.domain_name) from acct_key,domain_key,user_basic where acct_key.domain_id=domain_key.domain_id and acct_key.acct_id=user_basic.acct_id and user_basic.has_smtp=0 and user_basic.has_remote=0 and acct_key.acct_type=0 and domain_key.domain_type=0; " 2>&1 1>"${locklst_tmpfile}" )
   if [ "$?" != "0" ]; then
 	((unknnum++))
 	errstuff=$(echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n')
@@ -173,12 +194,39 @@ check(){
 		errstuff=$(echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n')
 		result="${result} Read SMTP Auth Top Records from Log Mysql Failed: [${errstuff}] ### "
 	else
-		:
+		smtp_lock_list=$(cat "${locklst_tmpfile}" 2>&-)
+		: > "${action_pipe_file}" 2>&-
+		today=$(date +%Y%m%d 2>&-)
+		while read number email
+		do
+			lock_tag="${action_tag_path}/${email}_${today}"
+			if [ "${number}" -ge "${smtp_auth_limit}" ]; then
+				if ( echo -e "${smtp_lock_list}" | grep -E "\<${email}\>" ) >/dev/null 2>&1 ; then
+					result="${result} ${num} ${email} (already locked)"
+				elif ( echo -e "${smtp_white_list}" | grep -E "\<${email}\>" ) >/dev/null 2>&1 ; then
+					result="${result} ${num} ${email} (white user)"
+				elif [ -f "${lock_tag}" -a -s "${lock_tag}" ]; then
+					locknum=$(cat "${lock_tag}" 2>&-)
+					[ -z "${locknum}" -o ! -z "${locknum}" ] && locknum=0
+					if [ "${locknum}" -ge "${user_max_repeat}" ]; then
+						result="${result} ${num} ${email} (already lock for ${locknum} times today)"
+					else
+						((warnnum++))
+						result="${result} $(html_red "${num} ${email}") (spamer, ${locknum} times today)"
+						echo -e "${num} ${email} ${locknum}" >> "${action_pipe_file}"
+					fi
+				else
+					((warnnum++))
+					result="${result} $(html_red "${num} ${email}") (spamer)"
+					echo -e "${num} ${email} 0" >> "${action_pipe_file}"
+				fi
+				result="${result} ### "
+			else
+				result="${result} ${number} ${email} ### "
+			fi
+		done < "${authlst_tmpfile}"
 	fi
   fi
-
-
-
 
   # exit if MODE=1
   [ "${MODE}" == "1" ] && exit;
@@ -187,18 +235,18 @@ check(){
 	EXIT_STATUS=${STATE_WARNING};
 	LEVEL="warn";
 	TYPE="str";
-	CONTENT="$(gettext "SMPT Auth Limit Check WARNING") |  | ${result} "
+	CONTENT="$(gettext "SMPT Auth Limit Check WARNING") | ${warnnum} Users SMTP Auth Exceed | ${result} "
   } || {
 	[ "${unknnum}" -gt "0" ] && {
 		EXIT_STATUS=${STATE_UNKNOWN};
 		LEVEL="unknown";
 		TYPE="str";
-		CONTENT="$(gettext "SMTP Auth Limit Check UNKNOWN") |  | ${result} "
+		CONTENT="$(gettext "SMTP Auth Limit Check UNKNOWN") | Something Unknown Happened | ${result} "
 	} || {
 		EXIT_STATUS="${STATE_OK}"
 		LEVEL="ok"
 		TYPE="str"
-		CONTENT="$(gettext "SMTP Auth Limit Check OK") |  | ${result} "
+		CONTENT="$(gettext "SMTP Auth Limit Check OK") | No Users SMTP Auth Exceed | ${result} "
 	}
   }
 }
