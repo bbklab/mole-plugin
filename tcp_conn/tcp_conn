@@ -37,7 +37,7 @@ fi
 # === SET GLOBAL LOCALE
 glocale=$(get_locale tcp_conn)
 if [ -z "${glocale}" ]; then
-        export LANG="${LANG}"           ## read from sysenv
+        export LANG="zh_CN.UTF-8"           ## read from sysenv
 elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
         export LANG="zh_CN.UTF-8"
 elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
