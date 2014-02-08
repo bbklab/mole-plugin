@@ -1,0 +1,227 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use utf8;
+use JSON;
+use Locale::Messages qw (textdomain bindtextdomain gettext nl_putenv);
+# use Smart::Comments;
+binmode(STDIN, ":encoding(utf8)");
+binmode(STDOUT, ":encoding(utf8)");
+binmode(STDERR, ":encoding(utf8)");
+binmode STDOUT, ':raw';
+
+$| = 1;
+
+# return codes
+our ($state_ok,$state_warn,$state_crit,$state_unkn,$state_noop) = (0,1,2,3,4);
+
+# return stuff
+our ($rc, $result) = (0,'');
+
+our $eminfo = '/usr/local/eminfo/eminfo';
+our $filename = "emp_smtpauth_limit";
+
+# check eminfo
+unless (-f $eminfo && -x $eminfo) {
+  printf "{unknown}:{str}:{$eminfo not prepared.}";
+  exit $state_unkn;
+}
+
+# read eminfo locale_def
+our $localdir = '/usr/local/eminfo/share/locale/';
+open my $fh, "$eminfo printdef LOCALE_DIR 2>&- |";
+if($fh){
+  while(<$fh>){
+        chomp; $localdir = $_; 
+        last;
+  }
+}
+
+# read plugin locale setting
+our $locale = 'zh_CN.UTF-8';
+open $fh, "$eminfo view $filename locale 2>&- |";
+if($fh){
+  while(<$fh>){
+        chomp; $locale = $_;
+        last;
+  }
+  if(!defined $locale || $locale eq ''){
+        open my $fh1, "$eminfo view default locale 2>&- |";
+        if($fh1){
+                while(<$fh1>){
+                        chomp; $locale = $_;
+                        last;
+                }
+        }
+  }
+}
+if(!defined $locale || $locale eq ''){
+        $locale = 'zh_CN.UTF-8';
+}elsif($locale eq 'zh_CN' || $locale eq 'zh_CN.UTF-8' || $locale eq 'zh'){
+        $locale = 'zh_CN.UTF-8';
+}elsif($locale eq 'en_US' || $locale eq 'en_US.UTF-8' || $locale eq 'en'){
+        $locale = 'en_US.UTF-8';
+}else{
+        $locale = 'zh_CN.UTF-8';
+}
+nl_putenv("LANGUAGE=$locale");
+
+# set textdomain; bindtextdomain
+sub _ ($) { &gettext; }
+textdomain "$filename";
+bindtextdomain "$filename", "$localdir";
+
+# read plugin config here
+our $action_tag_path = "/usr/local/eyou/mail/log/$filename/";
+open $fh, "$eminfo view $filename action_tag_path 2>&- |";
+if ($fh) {
+  while(<$fh>){
+        chomp; $action_tag_path = $_;
+        last;
+  }
+}
+$action_tag_path = "/usr/local/eyou/mail/log/$filename/" if (!defined $action_tag_path || $action_tag_path eq '');
+
+our $action_pipe_file = "/var/tmp/$filename.pipe";
+open $fh, "$eminfo view $filename action_pipe_file 2>&- |";
+if ($fh) {
+  while(<$fh>){
+        chomp; $action_pipe_file = $_;
+        last;
+  }
+}
+$action_pipe_file = "/var/tmp/$filename.pipe" if (!defined $action_pipe_file || $action_pipe_file eq '');
+
+our $action_lock_user = 1;
+open $fh, "$eminfo view $filename action_lock_user 2>&- |";
+if ($fh) {
+  while(<$fh>){
+        chomp; $action_lock_user = $_;
+        last;
+  }
+}
+$action_lock_user = 1 if ($action_lock_user =~ m/\D/ || !defined $action_lock_user);
+
+our $action_mod_pass = "{}";
+open $fh, "$eminfo view $filename action_mod_pass 2>&- |";
+if ($fh) {
+  while(<$fh>){
+        chomp; $action_mod_pass = $_; 
+        last;
+  }
+}
+our $mod_pass_config = JSON->new->allow_nonref->utf8(1)->ascii(1)->decode($action_mod_pass);
+our %mod_pass_config = ( 
+  'enable'		=> $mod_pass_config->{'enable'},
+  'fixpass'		=> $mod_pass_config->{'password'}{'fixed'},
+  'fixstr'		=> $mod_pass_config->{'password'}{'password'},
+  'display'		=> $mod_pass_config->{'password'}{'display'},
+);
+
+our $tmpcsvfile = "/tmp/$filename.lockuser.tmp.csv";
+
+# Sub Def
+sub random_pass {
+  my $length = @_;
+  my @chars = (0..9,'a'..'z','A'..'Z','#','(',')','=','-','+','_','$','%','@','*');
+  my $randpass = join "", map{ $chars[int rand @chars] } 0..($length-1);
+  return $randpass;
+}
+
+sub gen_lock_csv {	# only called by lock_user
+  my ($user,$domain,$password) = @_;
+  my $rmessage = "OK";
+  if (open my $fh, ">", "$tmpcsvfile") {
+  	if (defined $password && $password ne '') {
+		printf $fh ":cond:acct_name,:cond:domain_name,user_basic:has_smtp,user_basic:has_remote,user_basic:password\n";
+		printf $fh "\"$user\",\"$domain\",\"0\",\"0\",\"$password\"\n";
+  	} else {
+		printf $fh ":cond:acct_name,:cond:domain_name,user_basic:has_smtp,user_basic:has_remote\n";
+		printf $fh "\"$user\",\"$domain\",\"0\",\"0\"\n";
+  	}
+	close $fh if $fh;
+	$rmessage = "tmp csv file empty or not exists" unless (-f $tmpcsvfile && -s $tmpcsvfile);
+  } else {
+	$rmessage = "create tmp csv file [$tmpcsvfile] failed";
+  }
+  return $rmessage;
+}
+
+sub lock_user {
+  my ($user,$domain,$locknum,$password) = @_;
+  my $em_control = "/usr/local/eyou/mail/app/sbin/em_control";
+  my $rmessage = "";
+  my $gen_csv_result;
+  if (defined $password && $password ne '') {
+	$gen_csv_result = &gen_lock_csv($user,$domain,$password);
+  } else {
+	$gen_csv_result = &gen_lock_csv($user,$domain);
+  }
+  if ($gen_csv_result ne "OK") {
+  	$rmessage = " create lock csv file for user $user\@$domain failed: $gen_csv_result.";
+	return;
+  }
+  if (-f $tmpcsvfile && -s $tmpcsvfile) {
+	if (-f $em_control && -x $em_control) {
+		my $result = `sudo -u eyou $em_control -m user::mod_user -f $tmpcsvfile -t c 2>&1`;
+		$result =~ s/[\r\n]/ ### /g;
+		if ($result =~ m/success/i) {
+			$rmessage = "lock user $user\@$domain succeed ### ";
+			my $today = `/bin/date +%Y%m%d 2>&-`;
+			chomp $today;
+			my $tagfile = "$action_tag_path/$user\@$domain\_$today";
+			if (-f $tagfile && -r $tagfile) {
+				if (open my $fh, ">", $tagfile) {
+					$locknum += 1;
+					printf $fh "$locknum\n";
+					close $fh if $fh;
+					$rmessage .= "add locknum as $locknum in lock tag file [$tagfile] succeed ### ";
+				} else {
+					$rmessage .= "open lock tag file [$tagfile] for write failed ### ";
+				}
+			} else {
+				if ($locknum == 0){
+					if (open my $fh, ">", $tagfile) {
+						printf $fh "1\n";
+						close $fh if $fh;
+						$rmessage .= "first lock, set locknum as 1 in lock tag file [$tagfile] succeed ### ";
+					} else {
+						$rmessage .= "create lock tag file [$tagfile] for write failed ### ";
+					}
+				} else {
+					$rmessage .= "skip add locknum, because lock tag file [$tagfile] not exist ### ";
+				}
+				
+			}
+		} else {
+			$rmessage = "lock user $user\@$domain failed ### $result ### ";
+		}
+	} else {
+		$rmessage = "em_control [$em_control] not exists or executable";
+	}
+ 	unlink $tmpcsvfile;
+  } else {
+	$rmessage = "tmp csv file [$tmpcsvfile] not exists or empty";
+  }
+  return $rmessage;
+}
+
+# Main Handler Begin
+if (-f $action_pipe_file && -s $action_pipe_file) {
+  if (open my $fh, "<", $action_pipe_file) {
+	while(<$fh>){
+		my ($number,$user,$domain,$locknum) = split /[\s+|@]/;
+		### $number
+		### $user
+		### $domain
+		### $locknum
+		$result .= &lock_user($user,$domain,$locknum) . ' ### ';
+	}
+	close $fh if ($fh);
+  } else {
+	$result = "open pipe file [$action_pipe_file] failed. nothing to do.";
+  }
+} else {
+  $result = "pipe file [$action_pipe_file] not exists. nothing to do.";
+}
+printf $result;
