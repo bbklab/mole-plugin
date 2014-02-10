@@ -1,12 +1,12 @@
 Summary: 	plugins for eminfo
 Name: 		eminfo-plugin
 Version: 	0.2
-Release: 	beta2
+Release: 	beta3
 License: 	GPLv3
 Group:  	Extension
 Packager: 	Zhang Guangzheng <zhang.elinks@gmail.com>
 BuildRoot: 	/var/tmp/%{name}-%{version}-%{release}-root
-Source0: 	eminfo-plugin-0.2-beta2.tgz
+Source0: 	eminfo-plugin-0.2-beta3.tgz
 Requires:		eminfo >= 2.0, setup >= 2.5.58
 Requires: 		coreutils >= 5.97, bash >= 3.1
 Requires:		e2fsprogs >= 1.39, procps >= 3.2.7
@@ -75,6 +75,11 @@ done
 %postun
 
 %changelog
+* Mon Feb 10 2014 Guangzheng Zhang <zhang.elinks@gmail.com>
+- release eminfo-plugin-0.2-beta3.rpm
+- finish plugin emp_smtpauth_limit
+- finish plugin system_dyninfo
+- include 29 plugins under this release 
 * Sun Jan 12 2014 Guangzheng Zhang <zhang.elinks@gmail.com>
 - release eminfo-plugin-0.2-beta2.rpm
 - finish perl plugin system_fixinfo
