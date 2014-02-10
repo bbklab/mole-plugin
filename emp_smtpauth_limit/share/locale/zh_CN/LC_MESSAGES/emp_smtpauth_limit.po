@@ -1,0 +1,100 @@
+# Copyright (C) 2013 EMINFO LANGUAGE FILE FOR GETTEXT
+# FIRST AUTHOR <zhangguangzheng@eyou.net>,<zhang.elinks@gmail.com> 2013.
+# This file is distributed under the same license as the eminfo package.
+#
+msgid ""
+msgstr ""
+"Report-Msgid-Bugs-To: zhangguangzheng@eyou.net\n"
+"Last-Translator: Guangzheng Zhang <zhang.elinks@gmail.com>\n"
+"Language-Team: EMINFO-LANGUAGE <zhang.elinks@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Chinese\n"
+"X-Poedit-Country: CHINA\n"
+
+msgid "\t%+#D"
+msgstr "\t%+#D"
+
+msgid "\n"
+msgstr "\n"
+
+### for shell plugin: emp_smtpauth_limit
+msgid "utitile: [${mysqlcli_path}] not prepared."
+msgstr "[${mysqlcli_path}] 不存在或没有执行权限."
+
+msgid "directory: [${action_tag_path}] not prepared."
+msgstr "目录 [${action_tag_path}] 尚未准备就绪."
+
+msgid "user mysql connection config: [${usrmysql_conn_conf}] is invalid."
+msgstr "用户Mysql数据库连接方式配置 [${usrmysql_conn_conf}] 不能识别."
+
+msgid "log mysql connection config: [${logmysql_conn_conf}] is invalid."
+msgstr "日志Mysql数据库连接方式配置 [${logmysql_conn_conf}] 不能识别."
+
+msgid "Read Locked Users from User Mysql Failed:"
+msgstr "从用户Mysql数据库读取已锁定账号列表失败:"
+
+msgid "Read SMTP Auth Top Records from Log Mysql Failed:"
+msgstr "从日志Mysql数据库读取SMTP认证日志记录失败:"
+
+msgid "already locked"
+msgstr "已锁定状态"
+
+msgid "unlimited user"
+msgstr "不受限用户"
+
+msgid "already lock for ${locknum} times today"
+msgstr "今日已经被锁定 ${locknum} 次"
+
+msgid "spamer, already lock for ${locknum} times today"
+msgstr "超限, 今日已经被锁定 ${locknum} 次"
+
+msgid "spamer"
+msgstr "超限"
+
+msgid "SMPT Auth Limit Check WARNING"
+msgstr "SMTP认证次数限制检查告警"
+
+msgid "${warnnum} Users SMTP Auth Exceed"
+msgstr "${warnnum} 个用户今日SMTP认证次数超限"
+
+msgid "SMTP Auth Limit Check UNKNOWN"
+msgstr "SMTP认证次数限制检查未知"
+
+msgid "Something Unknown Happened"
+msgstr "发生未知异常"
+
+msgid "SMTP Auth Limit Check OK"
+msgstr "SMTP认证次数限制检查正常"
+
+msgid "No Users SMTP Auth Exceed"
+msgstr "今日没有用户SMTP认证次数超限"
+
+### for perl handler: lock_user
+msgid "lock user %s@%s succeed, result: ### %s ### "
+msgstr "锁定账号 %s@%s 成功, 详细: ### %s ### "
+
+msgid "lock user %s@%s failed, result: ### %s ### "
+msgstr "锁定账号 %s@%s 失败, 详细: ### %s ### "
+
+msgid "em_control [%s] not exists or executable, can't lock user"
+msgstr "[%s] 不存在或没有执行权限, 无法锁定账户"
+
+msgid "tmp csv file [%s] not exists or empty"
+msgstr "临时csv文件 [%s] 不存在或为空文件"
+
+msgid "action lock user disabled, nothing to do."
+msgstr "锁定账号的配置已禁用,什么也没做"
+
+msgid "lock user on smtp and remote ### modify user password as [%s] ### ### "
+msgstr "锁定账号的SMTP登录和邮件外发功能 ### 并修改账号的密码为 [%s] ### ### "
+
+msgid "lock user on smtp and remote ### ### "
+msgstr "锁定账号的SMTP登录和邮件外发功能 ### ### "
+
+msgid "open pipe file [%s] failed. nothing to do."
+msgstr "读取文件 [%s] 失败,什么也没做"
+
+msgid "pipe file [%s] not exists or empty. nothing to do."
+msgstr "文件 [%s] 不存在或空文件,什么也没做"

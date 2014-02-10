@@ -118,7 +118,7 @@ check(){
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="utitile: [${mysqlcli_path}] not prepared.";
+        CONTENT="$(eval_gettext "utitile: [\${mysqlcli_path}] not prepared.")";
         return
   }
 
@@ -127,7 +127,7 @@ check(){
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="directory: [${action_tag_path}] not prepared.";
+        CONTENT="$(eval_gettext "directory: [\${action_tag_path}] not prepared.")";
         return
   }
 
@@ -136,7 +136,7 @@ check(){
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="user mysql connection config: [${usrmysql_conn_conf}] is invalid.";
+        CONTENT="$(eval_gettext "user mysql connection config: [\${usrmysql_conn_conf}] is invalid.")";
         return
   else
 	mysql_host="$(echo -e "${usrmysql_conn_conf}"|awk -F"," '{print $1}')"
@@ -157,7 +157,7 @@ check(){
         EXIT_STATUS=${STATE_UNKNOWN};
         LEVEL="unknown";
         TYPE="str";
-        CONTENT="log mysql connection config: [${logmysql_conn_conf}] is invalid.";
+        CONTENT="$(eval_gettext "log mysql connection config: [\${logmysql_conn_conf}] is invalid.")";
         return
   else
 	mysql_host="$(echo -e "${logmysql_conn_conf}"|awk -F"," '{print $1}')"
@@ -183,7 +183,7 @@ check(){
   if [ "$?" != "0" ]; then
 	((unknnum++))
 	errstuff=$(echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n')
-	result="${result} Read Locked Users from User Mysql Failed: [${errstuff}] ### "
+	result="${result} $(gettext "Read Locked Users from User Mysql Failed:") [${errstuff}] ### "
   else
 	start=$( date -d "" +%s 2>&-)
 	end=$(( $start + 86400 ))
@@ -192,7 +192,7 @@ check(){
 	if [ "$?" != "0" ]; then
 		((unknnum++))
 		errstuff=$(echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n')
-		result="${result} Read SMTP Auth Top Records from Log Mysql Failed: [${errstuff}] ### "
+		result="${result} $(gettext "Read SMTP Auth Top Records from Log Mysql Failed:") [${errstuff}] ### "
 	else
 		smtp_lock_list=$(cat "${locklst_tmpfile}" 2>&-)
 		: > "${action_pipe_file}" 2>&-
@@ -200,27 +200,26 @@ check(){
 		while read number email
 		do
 			lock_tag="${action_tag_path}/${email}_${today}"
-			if [ "${number}" -ge "${smtp_auth_limit}" ]; then
-				if ( echo -e "${smtp_lock_list}" | grep -E "\<${email}\>" ) >/dev/null 2>&1 ; then
-					result="${result} ${num} ${email} (already locked)"
-				elif ( echo -e "${smtp_white_list}" | grep -E "\<${email}\>" ) >/dev/null 2>&1 ; then
-					result="${result} ${num} ${email} (white user)"
-				elif [ -f "${lock_tag}" -a -s "${lock_tag}" ]; then
-					locknum=$(cat "${lock_tag}" 2>&-)
-					[ -z "${locknum}" -o ! -z "${locknum}" ] && locknum=0
+			if ( echo -e "${smtp_lock_list}" | grep -E "\<${email}\>" ) >/dev/null 2>&1 ; then
+				result="${result} ${number} ${email} ($(gettext "already locked")) ### "
+			elif ( echo -e "${smtp_white_list}" | grep -E "\<${email}\>" ) >/dev/null 2>&1 ; then
+				result="${result} ${number} ${email} ($(gettext "unlimited user")) ### "
+			elif [ "${number}" -ge "${smtp_auth_limit}" ]; then
+				if [ -f "${lock_tag}" -a -s "${lock_tag}" ]; then
+					locknum=$(head -n1 "${lock_tag}" 2>&-)
+					[ -z "${locknum}" -o ! -z "${locknum//[0-9]}" ] && locknum=0
 					if [ "${locknum}" -ge "${user_max_repeat}" ]; then
-						result="${result} ${num} ${email} (already lock for ${locknum} times today)"
+						result="${result} ${number} ${email} ($(eval_gettext "already lock for \${locknum} times today")) ### "
 					else
 						((warnnum++))
-						result="${result} $(html_red "${num} ${email}") (spamer, ${locknum} times today)"
-						echo -e "${num} ${email} ${locknum}" >> "${action_pipe_file}"
+						result="${result} $(html_red "${number} ${email} ($(eval_gettext "spamer, already lock for \${locknum} times today"))") ### "
+						echo -e "${number} ${email} ${locknum}" >> "${action_pipe_file}"
 					fi
 				else
 					((warnnum++))
-					result="${result} $(html_red "${num} ${email}") (spamer)"
-					echo -e "${num} ${email} 0" >> "${action_pipe_file}"
+					result="${result} $(html_red "${number} ${email} ($(gettext "spamer"))") ### "
+					echo -e "${number} ${email} 0" >> "${action_pipe_file}"
 				fi
-				result="${result} ### "
 			else
 				result="${result} ${number} ${email} ### "
 			fi
@@ -235,18 +234,18 @@ check(){
 	EXIT_STATUS=${STATE_WARNING};
 	LEVEL="warn";
 	TYPE="str";
-	CONTENT="$(gettext "SMPT Auth Limit Check WARNING") | ${warnnum} Users SMTP Auth Exceed | ${result} "
+	CONTENT="$(gettext "SMPT Auth Limit Check WARNING") | $(eval_gettext "\${warnnum} Users SMTP Auth Exceed") | ${result} "
   } || {
 	[ "${unknnum}" -gt "0" ] && {
 		EXIT_STATUS=${STATE_UNKNOWN};
 		LEVEL="unknown";
 		TYPE="str";
-		CONTENT="$(gettext "SMTP Auth Limit Check UNKNOWN") | Something Unknown Happened | ${result} "
+		CONTENT="$(gettext "SMTP Auth Limit Check UNKNOWN") | $($gettext "Something Unknown Happened") | ${result} "
 	} || {
 		EXIT_STATUS="${STATE_OK}"
 		LEVEL="ok"
 		TYPE="str"
-		CONTENT="$(gettext "SMTP Auth Limit Check OK") | No Users SMTP Auth Exceed | ${result} "
+		CONTENT="$(gettext "SMTP Auth Limit Check OK") | $(gettext "No Users SMTP Auth Exceed") | ${result} "
 	}
   }
 }

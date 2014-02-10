@@ -117,20 +117,22 @@ our %mod_pass_config = (
   'fixstr'		=> $mod_pass_config->{'password'}{'password'},
   'display'		=> $mod_pass_config->{'password'}{'display'},
 );
+### %mod_pass_config
 
 our $tmpcsvfile = "/tmp/$filename.lockuser.tmp.csv";
 
 # Sub Def
 sub random_pass {
-  my $length = @_;
-  my @chars = (0..9,'a'..'z','A'..'Z','#','(',')','=','-','+','_','$','%','@','*');
+  my ($length) = @_;
+  ### $length
+  my @chars = (0..9,'a'..'z','A'..'Z','#','(',')','=','-','+','_','@');
   my $randpass = join "", map{ $chars[int rand @chars] } 0..($length-1);
+  ### $randpass
   return $randpass;
 }
 
 sub gen_lock_csv {	# only called by lock_user
   my ($user,$domain,$password) = @_;
-  my $rmessage = "OK";
   if (open my $fh, ">", "$tmpcsvfile") {
   	if (defined $password && $password ne '') {
 		printf $fh ":cond:acct_name,:cond:domain_name,user_basic:has_smtp,user_basic:has_remote,user_basic:password\n";
@@ -140,88 +142,100 @@ sub gen_lock_csv {	# only called by lock_user
 		printf $fh "\"$user\",\"$domain\",\"0\",\"0\"\n";
   	}
 	close $fh if $fh;
-	$rmessage = "tmp csv file empty or not exists" unless (-f $tmpcsvfile && -s $tmpcsvfile);
-  } else {
-	$rmessage = "create tmp csv file [$tmpcsvfile] failed";
   }
-  return $rmessage;
 }
 
 sub lock_user {
   my ($user,$domain,$locknum,$password) = @_;
   my $em_control = "/usr/local/eyou/mail/app/sbin/em_control";
   my $rmessage = "";
-  my $gen_csv_result;
   if (defined $password && $password ne '') {
-	$gen_csv_result = &gen_lock_csv($user,$domain,$password);
+	&gen_lock_csv($user,$domain,$password);
   } else {
-	$gen_csv_result = &gen_lock_csv($user,$domain);
-  }
-  if ($gen_csv_result ne "OK") {
-  	$rmessage = " create lock csv file for user $user\@$domain failed: $gen_csv_result.";
-	return;
+	&gen_lock_csv($user,$domain);
   }
   if (-f $tmpcsvfile && -s $tmpcsvfile) {
 	if (-f $em_control && -x $em_control) {
-		my $result = `sudo -u eyou $em_control -m user::mod_user -f $tmpcsvfile -t c 2>&1`;
-		$result =~ s/[\r\n]/ ### /g;
+		my $result = "";
+		open my $fh, "sudo -u eyou $em_control -m user::mod_user -f $tmpcsvfile -t c 2>&1 | ";
+		if ($fh) {
+			while(<$fh>){
+				chomp; s/(\A\s+|\s+\Z)//g;
+				next if m/\A\s*\Z/;
+				$result .= $_ . ' ### ';
+			}
+		}
 		if ($result =~ m/success/i) {
-			$rmessage = "lock user $user\@$domain succeed ### ";
-			my $today = `/bin/date +%Y%m%d 2>&-`;
-			chomp $today;
+			$rmessage = sprintf(_"lock user %s\@%s succeed, result: ### %s ### ",$user,$domain,$result);
+			my $today = "";
+			open my $fh, "/bin/date +%Y%m%d 2>&- |";
+			if ($fh) {
+				while(<$fh>){
+					chomp; s/(\A\s+|\s+\Z)//g; $today = $_;
+					last;
+				}
+			}
 			my $tagfile = "$action_tag_path/$user\@$domain\_$today";
-			if (-f $tagfile && -r $tagfile) {
+			if (-f $tagfile && -s $tagfile) {   # tagfile exist, added +1
 				if (open my $fh, ">", $tagfile) {
 					$locknum += 1;
 					printf $fh "$locknum\n";
 					close $fh if $fh;
-					$rmessage .= "add locknum as $locknum in lock tag file [$tagfile] succeed ### ";
-				} else {
-					$rmessage .= "open lock tag file [$tagfile] for write failed ### ";
 				}
-			} else {
+			} else {	# tagfile not exist, first lock, write 1
 				if ($locknum == 0){
 					if (open my $fh, ">", $tagfile) {
 						printf $fh "1\n";
 						close $fh if $fh;
-						$rmessage .= "first lock, set locknum as 1 in lock tag file [$tagfile] succeed ### ";
-					} else {
-						$rmessage .= "create lock tag file [$tagfile] for write failed ### ";
 					}
-				} else {
-					$rmessage .= "skip add locknum, because lock tag file [$tagfile] not exist ### ";
 				}
-				
 			}
 		} else {
-			$rmessage = "lock user $user\@$domain failed ### $result ### ";
+			$rmessage = sprintf(_"lock user %s\@%s failed, result: ### %s ### ",$user,$domain,$result);
 		}
 	} else {
-		$rmessage = "em_control [$em_control] not exists or executable";
+		$rmessage = sprintf(_"em_control [%s] not exists or executable, can't lock user",$em_control);
 	}
  	unlink $tmpcsvfile;
   } else {
-	$rmessage = "tmp csv file [$tmpcsvfile] not exists or empty";
+	$rmessage = sprintf(_"tmp csv file [%s] not exists or empty",$tmpcsvfile);
   }
   return $rmessage;
 }
 
 # Main Handler Begin
+unless ($action_lock_user) {
+  printf _"action lock user disabled, nothing to do.";
+  exit 0;
+}
+
+our $password = ""; 
+if ($mod_pass_config{'enable'}) {
+  if ($mod_pass_config{'fixpass'}) {
+	$password = $mod_pass_config{'fixstr'};
+  } else {
+	$password = &random_pass(15);
+  }
+  if ($mod_pass_config{'display'}) {
+	$result .= sprintf(_"lock user on smtp and remote ### modify user password as [%s] ### ### ",$password);
+  } else {
+	$result .= sprintf(_"lock user on smtp and remote ### ### ");
+  }
+}
+### $password
+
 if (-f $action_pipe_file && -s $action_pipe_file) {
   if (open my $fh, "<", $action_pipe_file) {
 	while(<$fh>){
-		my ($number,$user,$domain,$locknum) = split /[\s+|@]/;
-		### $number
-		### $user
-		### $domain
-		### $locknum
-		$result .= &lock_user($user,$domain,$locknum) . ' ### ';
+		my ($user,$domain,$locknum) = (split /[\s+|@]/)[1,2,3];
+		$result .= &lock_user($user,$domain,$locknum,$password) . ' ### ';
 	}
 	close $fh if ($fh);
   } else {
-	$result = "open pipe file [$action_pipe_file] failed. nothing to do.";
+	$result = sprintf(_"open pipe file [%s] failed. nothing to do.",$action_pipe_file);
   }
 } else {
-  $result = "pipe file [$action_pipe_file] not exists. nothing to do.";
+  $result = sprintf(_"pipe file [%s] not exists or empty. nothing to do.",$action_pipe_file);
 }
+### $result
 printf $result;
