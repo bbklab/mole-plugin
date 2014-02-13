@@ -126,7 +126,6 @@ check() {
 	[ -z "${pnum}" -o ! -z "${pnum//[0-9]}" ] && local pnum=1	### check null/invalid
 
 	((total++)) 
-	result="${result} $(eval_gettext "psname=[\${pname}], psnum=[\${pnum}], srchregx=[\${pattern}]") ### "
 	local psnum=$(echo -e "${ps_output}" | grep -E -o -x -c "${pattern}")
 	if [ "$(echo "${psnum} < ${pnum}" | bc 2>&-)" == "1" ]; then
 		((errnum++))
