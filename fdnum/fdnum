@@ -86,8 +86,8 @@ if (-f $procfile && -r $procfile) {
   	my ($fd_allocated, $fd_free, $max_fd) = (split /\s+/, <$fh>)[0,1,2];
 	if ($fd_allocated > $max_limit) {
 		$result = sprintf(_"allocated: %d > %d ### allocated but free: %d ### max allowed: %d ###",$fd_allocated,$max_limit,$fd_free,$max_fd);
-		printf _"{crit}:{str}:{ File Descriptor Number CRITICAL | %d file descriptor allocated | %s }",$fd_allocated,$result;
-  		exit $state_crit;
+		printf _"{warn}:{str}:{ File Descriptor Number CRITICAL | %d file descriptor allocated | %s }",$fd_allocated,$result;
+  		exit $state_warn;
 	} 
 	$result = sprintf(_"allocated: %d <= %d ### allocated but free: %d ### max allowed: %d ###",$fd_allocated,$max_limit,$fd_free,$max_fd);
 	printf _"{ok}:{str}:{ File Descriptor Number OK | %d file descriptor allocated | %s }",$fd_allocated,$result;
