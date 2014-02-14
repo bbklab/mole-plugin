@@ -84,8 +84,15 @@ if ($data_config{'online_user'}) {
 	open my $fh, "$w -h 2>&- | ";
   	if ($fh) {
 		while(<$fh>){
+			chomp;
 			my %single_online = ();
-			@single_online{'name','from','time','idle','tty','doing'} = (split/\s+/)[0,2,3,4,1,7];
+			my @line = split/\s+/;
+			@single_online{'name','from','time','idle','tty'} = @line[0,2,3,4,1];
+			splice(@line,0,7);
+			$single_online{'doing'} = join(" ",@line);
+			if (length($single_online{'doing'}) > 20) {
+				$single_online{'doing'} = substr($single_online{'doing'},0,15) . ' ...';
+			}
 			push @online_user, \%single_online;
 		}
   	}
