@@ -105,7 +105,7 @@ if (-f $dmidecode && -x $dmidecode) {
 			$memtype{$memtype}++;
 			next;
 		}
-		if (m/\A\s*Speed:/i) {
+		if (m/\A\s*Speed:/i && $memdev_start == 1) {
 			(my $memspeed = (split /:/)[1] ) =~ s/\A\s*//g;
 			$memspeed{$memspeed}++;
 			next;
@@ -374,7 +374,7 @@ if (-f $userfile && -r $userfile) {
   				'name'		=> $name,
   				'uid'		=> $uid,
   				'gid'		=> $gid,
-  				'homedir'	=> $homedir,
+  				'homedir'	=> (-d $homedir) ? $homedir : "$homedir (Missing)",
   				'shell'		=> $shell,
 			);
 			push @sysuser, \%sysuser;
