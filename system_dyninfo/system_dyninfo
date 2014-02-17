@@ -40,6 +40,7 @@ our %data_config = (
   'process'		=> $data_config->{'process'},
   'lastlogin'		=> $data_config->{'lastlogin'},
   'sys_locks'		=> $data_config->{'sys_locks'},
+  'disk_space'		=> $data_config->{'disk_space'},
   'cpu_usage'		=> $data_config->{'cpu_usage'},
   'sys_mods'		=> $data_config->{'sys_mods'},
   'netstat'		=> $data_config->{'netstat'},
@@ -347,6 +348,55 @@ if ($data_config{'sys_locks'}) {
   	}
   }
   $result{'sys_locks'} = $sys_locks;
+}
+
+if ($data_config{'disk_space'}) {
+  my @disk_space = ();
+  my @check_fstype = ('ext2','ext3','ext4');	# only collect local filesystem, exclude nfs, gfs ...
+  my ($mtab,$df) = ('/etc/mtab','/bin/df');
+  if (-f $mtab && -r $mtab && -f $df && -x $df) {
+	my @disks = ();
+	if (open my $fh0, "<", $mtab ) {
+		while (<$fh0>) {
+			chomp; my ($dev,$fstype) = (split/\s+/)[0,2];
+			if (defined $fstype && grep(/\A\Q$fstype\E\Z/i, @check_fstype)) {
+				push @disks, $dev;
+			}
+		}
+		while(my $dev = shift @disks) {
+			my %single_disk = (
+				'dev'		=> $dev,
+				'fstype'	=> '',
+				'mount'		=> '',
+				'msize'		=> '',
+				'mused'		=> '',
+				'mfree'		=> '',
+				'isize'		=> '',
+				'iused'		=> '',
+				'ifree'		=> '',
+			);
+			open my $fh, "$df -lPTm $dev 2>&- | ";
+			if ($fh) {
+				while(<$fh>){
+					if (m/\A\Q$dev\E\s+/i) {
+						@single_disk{'fstype','mount','msize','mused','mfree'} = (split/\s+/)[1,6,2,3,4];
+					}
+				}
+			} 
+			open my $fh1, "$df -lPTi $dev 2>&- | ";
+			if ($fh1) {
+				while(<$fh1>){
+					if (m/\A\Q$dev\E\s+/i) {
+						@single_disk{'isize','iused','ifree'} = (split/\s+/)[2,3,4];
+					}
+				}
+			}
+			push @disk_space, \%single_disk;
+		}
+		close $fh0 if ($fh0);
+  	}
+ }
+  $result{'disk_space'} = \@disk_space;
 }
 
 if ($data_config{'cpu_usage'}) {
