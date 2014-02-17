@@ -138,9 +138,9 @@ while(@addr_pair) {
   unless (defined $pop) {
 	if ($@) {
 		$@ =~ s/[\r\n]//g;
-		$result .= sprintf(_"<font color=red> connect [%s:%d] failed in %d seconds, return [%s] </font> ",$pop_host,$pop_port,$time_out,$@);
+		$result .= sprintf(_"<font color=red> connect [%s:%d] failed in %d seconds, return [%s] ",$pop_host,$pop_port,$time_out,$@);
 	} else {
-		$result .= sprintf(_"<font color=red> connect [%s:%d] failed in %d seconds </font> ",$pop_host,$pop_port,$time_out);
+		$result .= sprintf(_"<font color=red> connect [%s:%d] failed in %d seconds ",$pop_host,$pop_port,$time_out);
 	}
 	$critnum++;
 	goto ERREND;
@@ -154,7 +154,7 @@ while(@addr_pair) {
 		$result .= sprintf(_"connect [%s:%d] return welcome banner: ### [%s] (%f seconds) ### ",$pop_host,$pop_port,$welcome,$time_duration);
 		$time_start = Benchmark->new();		## reset time_start
 	} else {
-		$result .= sprintf(_"connect [%s:%d] didn't return welcome banner ### ",$pop_host,$pop_port);
+		$result .= sprintf(_"<font color=red> connect [%s:%d] didn't return welcome banner ",$pop_host,$pop_port);
 		$critnum++;
 		goto ERREND;
 	}
@@ -168,7 +168,7 @@ while(@addr_pair) {
 	unless (defined $rcode && $rcode =~ m/\A2/) {
 		$rcode = '' if (!defined $rcode);
 		$response = '' if (!defined $response);
-		$result .= sprintf(_"<font color=red> pop command: USER return [code=%d message=%s] </font> ",$rcode,$response);
+		$result .= sprintf(_"<font color=red> pop command: USER return [code=%d message=%s] ",$rcode,$response);
 		$critnum++;
 		goto ERREND;
 	} else {
@@ -186,7 +186,7 @@ while(@addr_pair) {
 	unless (defined $rcode && $rcode =~ m/\A2/) {
 		$rcode = '' if (!defined $rcode);
 		$response = '' if (!defined $response);
-		$result .= sprintf(_"<font color=red> pop command: PASS return [code=%d message=%s] </font> ",$rcode,$response);
+		$result .= sprintf(_"<font color=red> pop command: PASS return [code=%d message=%s] ",$rcode,$response);
 		$critnum++;
 		goto ERREND;
 	} else {
@@ -205,7 +205,7 @@ while(@addr_pair) {
 	$time_stop = Benchmark->new();
 	$time_duration = timestr(timediff($time_stop,$time_start),'noc');
 	$time_duration = (split /\s+/, $time_duration )[0];
-	$result .= sprintf(_" (%f seconds) ### ### ",$time_duration);
+	$result .= sprintf(_" (%f seconds) </font> ### ### ",$time_duration);
 	next;
   }
 }

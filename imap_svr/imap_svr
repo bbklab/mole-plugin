@@ -142,9 +142,9 @@ while(@addr_pair) {
   unless (defined $imap) {
 	if ($@) {
 		$@ =~ s/[\r\n]//g;
-		$result .= sprintf(_"<font color=red> connect [%s:%d] failed in %d seconds, return [%s] </font> ",$imap_host,$imap_port,$time_out,$@);
+		$result .= sprintf(_"<font color=red> connect [%s:%d] failed in %d seconds, return [%s] ",$imap_host,$imap_port,$time_out,$@);
 	} else {
-		$result .= sprintf(_"<font color=red> connect [%s:%d] failed in %d seconds. </font> ",$imap_host,$imap_port,$time_out);
+		$result .= sprintf(_"<font color=red> connect [%s:%d] failed in %d seconds. ",$imap_host,$imap_port,$time_out);
 	}
 	$critnum++;
 	goto ERREND;
@@ -158,7 +158,7 @@ while(@addr_pair) {
 		$result .= sprintf(_"connect [%s:%d] return welcome banner ### [%s] (%f seconds) ### ",$imap_host,$imap_port,$welcome,$time_duration);
 		$time_start = Benchmark->new();		## reset time_start
 	} else {
-		$result .= sprintf(_"connect [%s:%d] didn't return welcome banner ### ",$imap_host,$imap_port);
+		$result .= sprintf(_"<font color=red> connect [%s:%d] didn't return welcome banner ",$imap_host,$imap_port);
 		$critnum++;
 		goto ERREND;
 	}
@@ -169,7 +169,7 @@ while(@addr_pair) {
 	$response =~ s/[\r\n]//g if defined $response;
 	unless (defined $response && $response =~ m/\AA01 (OK|SUCC|LOGIN|LOGON) /i) {
 		$response = '' if (!defined $response);
-		$result .= sprintf(_"<font color=red> imap command: A01 LOGIN return [message=%s] </font> ",$response);
+		$result .= sprintf(_"<font color=red> imap command: A01 LOGIN return [message=%s] ",$response);
 		$critnum++;
 		goto ERREND;
 	} else {
@@ -189,7 +189,7 @@ while(@addr_pair) {
 	$time_stop = Benchmark->new();
 	$time_duration = timestr(timediff($time_stop,$time_start),'noc');
 	$time_duration = (split /\s+/, $time_duration )[0];
-	$result .= sprintf(_" (%f seconds) ### ### ",$time_duration);
+	$result .= sprintf(_" (%f seconds) </font> ### ### ",$time_duration);
 	next;
   }
 }

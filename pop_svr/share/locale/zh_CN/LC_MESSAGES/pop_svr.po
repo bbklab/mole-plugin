@@ -28,26 +28,26 @@ msgstr "<font color=yellow> POP地址或POP端口未定义. </font> ### ### "
 msgid "<font color=yellow> %s:%d pop port not numberic </font> ### ### "
 msgstr "<font color=yellow> %s:%d POP端口非整数数字 </font> ### ### "
 
-msgid "<font color=red> connect [%s:%d] failed in %d seconds, return [%s] </font> "
-msgstr "<font color=red> 连接POP地址 %s:%d 在 %d 秒内失败, 失败信息: [%s] </font> "
+msgid "<font color=red> connect [%s:%d] failed in %d seconds, return [%s] "
+msgstr "<font color=red> 连接POP地址 %s:%d 在 %d 秒内失败, 失败信息: [%s] "
 
-msgid "<font color=red> connect [%s:%d] failed in %d seconds </font> "
-msgstr "<font color=red> 连接POP地址 %s:%d 在 %d 秒内失败. </font> "
+msgid "<font color=red> connect [%s:%d] failed in %d seconds "
+msgstr "<font color=red> 连接POP地址 %s:%d 在 %d 秒内失败. "
 
 msgid "connect [%s:%d] return welcome banner: ### [%s] (%f seconds) ### "
 msgstr "连接POP地址 %s:%d 返回欢迎信息: ### [%s] (耗时 %f 秒) ###"
 
-msgid "connect [%s:%d] didn't return welcome banner ### "
-msgstr "连接POP地址 [%s:%d] 未返回欢迎信息 ### "
+msgid "<font color=red> connect [%s:%d] didn't return welcome banner "
+msgstr "<font color=red> 连接POP地址 [%s:%d] 未返回欢迎信息 "
 
-msgid "<font color=red> pop command: USER return [code=%d message=%s] </font> "
-msgstr "<font color=red> POP命令USER: 返回代码:%d, 返回信息:%s </font> "
+msgid "<font color=red> pop command: USER return [code=%d message=%s] "
+msgstr "<font color=red> POP命令USER: 返回代码:%d, 返回信息:%s "
 
 msgid "pop command: USER return [code=%d message=%s] (%f seconds) ### "
 msgstr "POP命令USER: 返回代码:%d, 返回信息:%s (耗时 %f 秒) ### "
 
-msgid "<font color=red> pop command: PASS return [code=%d message=%s] </font> "
-msgstr "<font color=red> POP命令PASS: 返回代码:%d, 返回信息:%s </font> "
+msgid "<font color=red> pop command: PASS return [code=%d message=%s] "
+msgstr "<font color=red> POP命令PASS: 返回代码:%d, 返回信息:%s "
 
 msgid "pop command: PASS return [code=%d message=Authorized Success] (%f seconds) ### ### "
 msgstr "POP命令PASS: 返回代码:%d, 返回信息:Authorized Success (耗时 %f 秒) ### ### "
@@ -56,7 +56,7 @@ msgid " pop_user or pop_pass not defined, pop login test skip ### ### "
 msgstr " POP登录测试跳过, 因为用户或登录密码未设定 ### ### "
 
 msgid " (%f seconds) ### ### "
-msgstr " (耗时 %f 秒) ### ### "
+msgstr " (耗时 %f 秒) </font> ### ### "
 
 msgid "{crit}:{str}:{ POP SVR CRITICAL | %d/%d pop check critical | %s }"
 msgstr "{crit}:{str}:{ POP服务状态异常 | %d/%d 项检查异常 | %s }"

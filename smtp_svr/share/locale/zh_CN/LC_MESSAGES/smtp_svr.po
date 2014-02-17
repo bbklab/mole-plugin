@@ -28,20 +28,20 @@ msgstr "<font color=yellow> SMTP地址或SMTP端口未定义. </font> ### ### "
 msgid "<font color=yellow> %s:%d smtp port not numberic </font> ### ### "
 msgstr "<font color=yellow> %s:%d SMTP端口非整数数字 </font> ### ### "
 
-msgid "<font color=red> connect [%s:%d] failed in %d seconds, return [%s] </font> "
-msgstr "<font color=red> 连接SMTP地址 %s:%d 在 %d 秒内失败, 失败信息: [%s] </font> "
+msgid "<font color=red> connect [%s:%d] failed in %d seconds, return [%s] "
+msgstr "<font color=red> 连接SMTP地址 %s:%d 在 %d 秒内失败, 失败信息: [%s] "
 
-msgid "<font color=red> connect [%s:%d] failed in %d seconds, maybe in black ip list </font> "
-msgstr "<font color=red> 连接SMTP地址 %s:%d 在 %d 秒内失败 (有可能是被列入IP黑名单) </font> "
+msgid "<font color=red> connect [%s:%d] failed in %d seconds, maybe in black ip list "
+msgstr "<font color=red> 连接SMTP地址 %s:%d 在 %d 秒内失败 (有可能是被列入IP黑名单) "
 
 msgid "connect [%s:%d] return welcome banner: ### [%s] (%f seconds) ### "
 msgstr "连接SMTP地址 %s:%d 返回欢迎信息: ### [%s] (耗时 %f 秒) ### "
 
-msgid "connect [%s:%d] didn't return welcome banner ### "
-msgstr "连接SMTP地址 [%s:%d] 未返回欢迎信息 ### "
+msgid "<font color=red> connect [%s:%d] didn't return any welcome banner "
+msgstr "<font color=red> 连接SMTP地址 [%s:%d] 未返回欢迎信息 "
 
-msgid "<font color=red> smtp command: AUTH LOGIN return [code=%d message=%s] </font> "
-msgstr "<font color=red> SMTP命令AUTH LOGIN: 返回代码:%d, 返回信息:%s </font> "
+msgid "<font color=red> smtp command: AUTH LOGIN return [code=%d message=%s] "
+msgstr "<font color=red> SMTP命令AUTH LOGIN: 返回代码:%d, 返回信息:%s "
 
 msgid "smtp command: AUTH LOGIN return [code=%d message=%s] (%f seconds) ### ### "
 msgstr "SMTP命令AUTH LOGIN: 返回代码:%d, 返回信息:%s (耗时 %f 秒) ### ### "
@@ -49,8 +49,8 @@ msgstr "SMTP命令AUTH LOGIN: 返回代码:%d, 返回信息:%s (耗时 %f 秒) #
 msgid " smtp_user or smtp_pass not defined, smtp login test skip ### ### "
 msgstr " SMTP登录测试跳过, 因为用户或登录密码未设定 ### ### "
 
-msgid " (%f seconds) ### ### "
-msgstr " (耗时 %f 秒) ### ### "
+msgid " (%f seconds) </font> ### ### "
+msgstr " (耗时 %f 秒) </font>  ### ### "
 
 msgid "{crit}:{str}:{ SMTP SVR CRITICAL | %d/%d smtp check critical | %s }"
 msgstr "{crit}:{str}:{ SMTP服务状态异常 | %d/%d 项检查异常 | %s }"

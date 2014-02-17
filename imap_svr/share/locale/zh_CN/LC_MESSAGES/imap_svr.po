@@ -28,20 +28,20 @@ msgstr "<font color=yellow>  IMAP地址或IMAP端口未设定 </font> ### ### "
 msgid "<font color=yellow> %s:%s imap port not numberic </font> ### ### "
 msgstr "<font color=yellow> %s:%s IMAP端口不是整数数字 </font> ### ### "
 
-msgid "<font color=red> connect [%s:%d] failed in %d seconds, return [%s] </font> "
-msgstr "<font color=red> 连接IMAP地址 [%s:%d] 在 %d 秒内失败, 失败信息: [%s] </font> "
+msgid "<font color=red> connect [%s:%d] failed in %d seconds, return [%s] "
+msgstr "<font color=red> 连接IMAP地址 [%s:%d] 在 %d 秒内失败, 失败信息: [%s] "
 
-msgid "<font color=red> connect [%s:%d] failed in %d seconds. </font> "
-msgstr "<font color=red> 连接IMAP地址 [%s:%d] 在 %d 秒内失败. </font> "
+msgid "<font color=red> connect [%s:%d] failed in %d seconds. "
+msgstr "<font color=red> 连接IMAP地址 [%s:%d] 在 %d 秒内失败. "
 
 msgid "connect [%s:%d] return welcome banner ### [%s] (%f seconds) ### "
 msgstr "连接IMAP地址 [%s:%d] 返回欢迎信息: ### [%s] (耗时 %f 秒) ### "
 
-msgid "connect [%s:%d] didn't return welcome banner ### "
-msgstr "连接IMAP地址 [%s:%d] 未返回欢迎信息 ### "
+msgid "<font color=red> connect [%s:%d] didn't return welcome banner "
+msgstr "<font color=red> 连接IMAP地址 [%s:%d] 未返回欢迎信息 "
 
-msgid "<font color=red> imap command: A01 LOGIN return [message=%s] </font> "
-msgstr "<font color=red> IMAP登录命令: A01 LOGIN 返回信息 [%s] </font> "
+msgid "<font color=red> imap command: A01 LOGIN return [message=%s] "
+msgstr "<font color=red> IMAP登录命令: A01 LOGIN 返回信息 [%s] "
 
 msgid "imap command: A01 LOGIN return [message=%s] (%f seconds) ### ### "
 msgstr "IMAP登录命令: A01 LOGIN 返回信息 [%s] (耗时 %f 秒) ### ### "
@@ -50,7 +50,7 @@ msgid " imap_user or imap_pass not defined, imap login test skip ### ### "
 msgstr "IMAP登录测试跳过, 因为未指定IMAP用户或IMAP登录密码 ### ### "
 
 msgid " (%f seconds) ### ### "
-msgstr " (耗时 %f 秒) ### ### "
+msgstr " (耗时 %f 秒) </font> ### ### "
 
 msgid "{crit}:{str}:{ IMAP SVR CRITICAL | %d/%d imap check critical | %s }"
 msgstr "{crit}:{str}:{ IMAP服务状态异常 | %d/%d 项检查异常 | %s }"
