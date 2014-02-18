@@ -307,6 +307,7 @@ if ($data_config{'lastlogin'}) {
 			next if m/\A(runlevel|reboot|shutdown)/i;
 			last if m/\A\s*\Z/;
 			my ($login_year, $login_month, $login_day,$login_ms) = (1900+(localtime(time()))[5],(split/\s+/)[4,5,6]);
+			next unless (exists $months{uc($login_month)});  # in case of IP field nil
 			my $login_time = sprintf("%d-%d-%d_%s",$login_year,$months{uc($login_month)},$login_day,$login_ms);
 			my $single_login = $login_time . ' ' . join(" ",(split/\s+/)[0,1,2]);
 			push @login_result, $single_login;
