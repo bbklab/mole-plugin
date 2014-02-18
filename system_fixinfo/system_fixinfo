@@ -411,7 +411,7 @@ if (-d $startdir && -r $startdir) {
 	my $start_file = (split /\//)[-1];
 	if(defined $start_file){
 		$start_file =~ s/\AS\d+//;
-		next if $start_file eq 'local';
+		$start_file = 'rc.local' if $start_file eq 'local';
 		push @startups, $start_file;
 	}
   }
@@ -445,17 +445,8 @@ if (-f $route && -x $route) {
 	while(<$fh>){
 		chomp; s/(\A\s+|\s+\Z)//g;
 		if(m/\A\s*\d/i){
-			my ($dest,$gateway,$genmask,$flag,$metric,$ref,$use,$iface) = (split /\s+/);
-			my %route_way = (
-				'dest'		=> $dest,
-				'gateway'	=> $gateway,
-				'genmask'	=> $genmask,
-				'flag'		=> $flag,
-				'metric'	=> $metric,
-				'ref'		=> $ref,
-				'use'		=> $use,
-				'iface'		=> $iface,
-			);
+			my %route_way;
+			@route_way{'dest','gateway','genmask','flag','metric','ref','use','iface'} = split /\s+/;
 			push @route, \%route_way;
 		}
 	}
@@ -464,6 +455,42 @@ if (-f $route && -x $route) {
 }
 ### @route
 
+
+my @arp = ();
+my $arpfile = '/proc/net/arp';
+if (-f $arpfile && -r $arpfile) {
+   if (open my $fh, "<", $arpfile) {
+	while(<$fh>){
+		chomp; s/(\A\s+|\s+\Z)//g;
+		if(m/\A\s*\d/i){
+			my %arp_addr;
+			@arp_addr{'ip','mac'} = (split /\s+/)[0,3];
+			push @arp, \%arp_addr;
+		}
+	}
+	close $fh if $fh;
+   }
+}
+### @arp
+
+
+
+my @mount = ();
+my $mtabfile = '/etc/mtab';
+if (-f $mtabfile && -r $mtabfile) {
+  if (open my $fh, "<", $mtabfile) {
+	while(<$fh>){
+		chomp; s/(\A\s+|\s+\Z)//g;
+		my %mount_dev;
+		@mount_dev{'dev','mount','fstype','args'} = (split /\s+/)[0,1,2,3];
+		if ($mount_dev{'fstype'} =~ m/\b(ext2|ext3|ext4|nfs)\b/i) {
+			push @mount, \%mount_dev;
+		}
+	}
+	close $fh if $fh;
+  }
+}
+### @mount
 
 
 # only for inner called
@@ -987,6 +1014,8 @@ my %result = (
 	'startups'		=> \@startups,
 	'dns'			=> \@dns,
 	'route'			=> \@route,
+	'arp'			=> \@arp,
+	'mount'			=> \@mount,
 	'inet_name'		=> \@inet_name,
 	'raid_info'		=> \@raid_info,
 );
