@@ -240,7 +240,7 @@ check(){
 		EXIT_STATUS=${STATE_UNKNOWN};
 		LEVEL="unknown";
 		TYPE="str";
-		CONTENT="$(gettext "SMTP Auth Limit Check UNKNOWN") | $($gettext "Something Unknown Happened") | ${result} "
+		CONTENT="$(gettext "SMTP Auth Limit Check UNKNOWN") | $(gettext "Something Unknown Happened") | ${result} "
 	} || {
 		EXIT_STATUS="${STATE_OK}"
 		LEVEL="ok"
