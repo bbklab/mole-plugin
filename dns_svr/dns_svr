@@ -120,7 +120,7 @@ check(){
 	types=$(echo -e "${x}" | awk -F: '{print $2}')
 	tmpfile="/tmp/.dns_svr_time_tmp"
 	flag=0
-	for y in `echo -e "${types}" | tr '[;/]' ' '`
+	for y in `echo -e "${types}" | tr '[,]' ' '`
 	do
 		error=$(/usr/bin/time -p -f "%E" -o "${tmpfile}" /usr/bin/host -t ${y} ${target} 2>&1)
 		rc=$?
