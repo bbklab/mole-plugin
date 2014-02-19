@@ -125,12 +125,15 @@ check() {
 
   local v4_config="/var/eyou/etc/eyou_smtpd_config"
   local v5_config="/usr/local/eyou/mail/etc/eyou_mail.ini"
+  local gw_config="/var/emdg/etc/domain.conf"
   if [ -f "${v5_config}" -a -s "${v5_config}" ]; then
-	base_domain=$(awk -F"=" '($1~/server_me\>/) {$1="";print;exit;}' "${v5_config}" 2>&- | tr -d '[" \t\n]' )
+	base_domain=$(awk -F"=" '($1~/server_me\>/) {$1="";print;exit;}' "${v5_config}" 2>&- | tr -d '[" \t\n]' | sed -e 's/\x00//g;s/\x0D//g' )
   elif [ -f "${v4_config}" -a -s "${v4_config}" ]; then
-	base_domain=$(awk '($1~/o_value\>/) {$1="";print;exit;}' "${v4_config}" 2>&- | tr -d '[" \t\n]' )
+	base_domain=$(awk '($1~/o_value\>/) {$1="";print;exit;}' "${v4_config}" 2>&- | tr -d '[" \t\n]' | sed -e 's/\x00//g;s/\x0D//g' )
+  elif [ "${gw_config}" -a -s "${gw_config}" ]; then
+	base_domain=$(awk '{print $1;exit}' "${gw_config}" 2>&- | tr -d '[ \t]' | sed -e 's/\x00//g;s/\x0D//g')
   fi
-  [ -z "${base_domain}" ] && base_domain="demo.eyou.net"
+  [ -z "${base_domain//[ ]}" ] && base_domain="demo.eyou.net"
 
   local content=$( awk -F":::" '($0!~/^[ \t]*$/ && $0!~/^[ \t]*#/)' "${sample_email_file}" 2>&- )
   local remote_domain=$( echo -e "${content}" | awk -F":::" '{print $1}' )
