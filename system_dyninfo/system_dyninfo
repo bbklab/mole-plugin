@@ -11,7 +11,7 @@ binmode(STDERR, ":encoding(utf8)");
 $| = 1;
 
 # return codes
-our ($state_ok,$state_warn,$state_crit,$state_unkn,$state_noop) = (0,1,2,3,4);
+our ($state_ok,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) = (0,1,2,3,4,5);
 
 # return stuff
 our ($rc, $result) = (0,'');
