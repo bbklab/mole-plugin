@@ -150,6 +150,6 @@ if ($number == 0) {
   	$result .= shift @record;
   }
   $result = sprintf(_"%d login event | %d login event | ",$number,$number,) . $result;
-  printf _"{ok}:{str}:{%s}",$result;
-  exit $state_ok;
+  printf _"{notify}:{str}:{%s}",$result;
+  exit $state_notify;
 }

@@ -34,5 +34,5 @@ msgstr "{noop}:{str}:{未发现用户登录操作系统事件}"
 msgid "%d login event | %d login event | "
 msgstr "%d 起用户登录事件 | %d 起用户登录事件 | "
 
-msgid "{ok}:{str}:{%s}"
-msgstr "{ok}:{str}:{%s}"
+msgid "{notify}:{str}:{%s}"
+msgstr "{notify}:{str}:{%s}"

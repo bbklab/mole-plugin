@@ -216,6 +216,6 @@ if ($number == 0) {
   	$result .= shift @record;
   }
   $result = sprintf(_"%d deliver fail event | %d deliver fail event | ",$number,$number) . $result;
-  print "{ok}:{str}:{$result}";
-  exit $state_ok;
+  print "{notify}:{str}:{$result}";
+  exit $state_notify;
 }
