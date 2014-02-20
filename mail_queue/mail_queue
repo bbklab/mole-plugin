@@ -68,10 +68,12 @@ STATE_OK=0
 STATE_WARNING=1
 STATE_CRITICAL=2
 STATE_UNKNOWN=3
+STATE_NOOP=4
+STATE_NOTIFY=5
 
 # Set Default
 EXIT_STATUS=0
-LEVEL=""    	### { ok | warn | crit | unknown | noop }
+LEVEL=""    	### { ok | warn | crit | unknown | noop | notify }
 TYPE=""    	### { str| file }
 CONTENT=""      ### { strings | /path/to/result.file }
 
