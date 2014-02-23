@@ -19,8 +19,8 @@ msgstr "\t%+#D"
 msgid "\n"
 msgstr "\n"
 
-msgid "{unknown}:{str}:{ RAID Information UNKNOWN | util megacli not prepared | %s not prepared }"
-msgstr "{unknown}:{str}:{ RAID卡控制器信息未知 | megacli 未准备就绪 | %s 未准备就绪 }"
+msgid "{unkn}:{str}:{ RAID Information UNKNOWN | util megacli not prepared | %s not prepared }"
+msgstr "{unkn}:{str}:{ RAID卡控制器信息未知 | megacli 未准备就绪 | %s 未准备就绪 }"
 
 msgid "RAID ID: %d, Product Name: %s ### "
 msgstr "RAID编号: %d, RAID型号: %s ### "
@@ -178,8 +178,8 @@ msgstr "共计 %d 块物理硬盘在线, 温度正常, 且没有其它错误 ###
 msgid "No Physical Disks Found ?! Maybe Something Unknown Occured ... ### "
 msgstr "没有探测到物理硬盘 ?! 也许发生了一些未知异常 ... ### "
 
-msgid "{unknown}:{str}:{ RAID Information UNKNOWN | collected nothing about raid | collected nothing about raid ### maybe raid controller card not recoginized or not exist. }"
-msgstr "{unknown}:{str}:{ RAID控制器状态未知 | 未搜集到RAID控制器的数据信息 | 未搜集到RAID控制器的数据信息 ### 也许RAID控制器不识别或不存在 }"
+msgid "{unkn}:{str}:{ RAID Information UNKNOWN | collected nothing about raid | collected nothing about raid ### maybe raid controller card not recoginized or not exist. }"
+msgstr "{unkn}:{str}:{ RAID控制器状态未知 | 未搜集到RAID控制器的数据信息 | 未搜集到RAID控制器的数据信息 ### 也许RAID控制器不识别或不存在 }"
 
 msgid "{crit}:{str}:{ RAID CONTROLLER CRITICAL | %d/%d raid controller card healthy check critical | %s }"
 msgstr "{crit}:{str}:{ RAID控制器严重故障 | %d/%d 个RAID控制器健康状态故障 | %s }"
@@ -187,5 +187,5 @@ msgstr "{crit}:{str}:{ RAID控制器严重故障 | %d/%d 个RAID控制器健康�
 msgid "{warn}:{str}:{ RAID CONTROLLER WARNING | %d/%d raid controller card healthy check warn | %s }"
 msgstr "{warn}:{str}:{ RAID控制器告警 | %d/%d 个RAID控制器健康状态告警 | %s }"
 
-msgid "{ok}:{str}:{ RAID CONTROLLER OK | %d/%d raid controller card healthy check success | %s }"
-msgstr "{ok}:{str}:{ RAID控制器正常 | %d/%d 个RAID控制器健康状态正常 | %s }"
+msgid "{succ}:{str}:{ RAID CONTROLLER OK | %d/%d raid controller card healthy check success | %s }"
+msgstr "{succ}:{str}:{ RAID控制器正常 | %d/%d 个RAID控制器健康状态正常 | %s }"

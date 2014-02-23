@@ -7,11 +7,11 @@ if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
         rc=$?
         [ "$rc" != "0" ] && {
-                echo -en "{unknown}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                echo -en "{unkn}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
                 exit 3
         }
 else
-        echo -en "{unknown}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        echo -en "{unkn}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
         exit 3
 fi
 
@@ -19,7 +19,7 @@ fi
 if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
         source ${BASE_DIR}/bin/include 2>&- 
 else        
-        echo -en "{unknown}:{str}:{include file not exists or empty}"
+        echo -en "{unkn}:{str}:{include file not exists or empty}"
         exit 3
 fi
 
@@ -28,7 +28,7 @@ if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
         export TEXTDOMAINDIR="${LOCALE_DIR}"
         export TEXTDOMAIN="emp_sync_user524"
 else        
-        echo -en "{unknown}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        echo -en "{unkn}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
         exit 3
 fi
 
@@ -45,16 +45,16 @@ else
 fi
 
 # Return Codes
-STATE_OK=0
-STATE_WARNING=1
-STATE_CRITICAL=2
-STATE_UNKNOWN=3
+STATE_SUCC=0
+STATE_WARN=1
+STATE_CRIT=2
+STATE_UNKN=3
 STATE_NOOP=4
 STATE_NOTIFY=5
 
 # Set Default
 EXIT_STATUS=0
-LEVEL=          ### { ok | warn | crit | unknown | noop | notify }
+LEVEL=          ### { succ | warn | crit | unkn | noop | notify }
 TYPE=           ### { str| file }
 CONTENT=        ### { strings | /path/to/result.file }
 
@@ -78,32 +78,32 @@ check(){
 
   # various precheck
   [ -f "/usr/bin/iconv" -a -x "/usr/bin/iconv" ] || {
-        EXIT_STATUS=${STATE_UNKNOWN};
-        LEVEL="unknown";
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
         TYPE="str";
         CONTENT="$(gettext "util: [/usr/bin/iconv] not prepared.")";
         return
   }
 
   [ -f "/usr/bin/nc" -a -x "/usr/bin/nc" ] || {
-        EXIT_STATUS=${STATE_UNKNOWN};
-        LEVEL="unknown";
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
         TYPE="str";
         CONTENT="$(gettext "util: [/usr/bin/nc] not prepared.")";
         return
   }
 
   [ -f "/var/eyou/sbin/eyou_control" -a -x "/var/eyou/sbin/eyou_control" ] || {
-        EXIT_STATUS=${STATE_UNKNOWN};
-        LEVEL="unknown";
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
         TYPE="str";
         CONTENT="$(gettext "util: [/var/eyou/sbin/eyou_control] not prepared.")";
         return
   }
 
   [ -f "${mysqlcli_path}" -a -x "${mysqlcli_path}" ] || {
-        EXIT_STATUS=${STATE_UNKNOWN};
-        LEVEL="unknown";
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
         TYPE="str";
         CONTENT="$(eval_gettext "util: [\${mysqlcli_path}] not prepared.")";
         return
@@ -111,8 +111,8 @@ check(){
 
   local Mailv4_ConfigFile="/var/eyou/etc/eyou_smtpd_config"
   [ -f "${Mailv4_ConfigFile}"  -a -s "${Mailv4_ConfigFile}" ] || {
-	EXIT_STATUS=${STATE_UNKNOWN};
-        LEVEL="unknown";
+	EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
         TYPE="str";
         CONTENT="$(eval_gettext "file: [\${Mailv4_ConfigFile}] not prepared.")";
         return
@@ -120,7 +120,7 @@ check(){
 
   local Ldap_Host="$(/bin/awk '($0~/^ldaphost\>/) {print $2;exit}' "${Mailv4_ConfigFile}" | tr -d '\r\n')"
   [ -z "${Ldap_Host}" ] && {
-	EXIT_STATUS=${STATE_CRITICAL};
+	EXIT_STATUS=${STATE_CRIT};
         LEVEL="crit";
         TYPE="str";
         CONTENT="$(eval_gettext "config: [ldaphost] not prepared in file: [\${Mailv4_ConfigFile}].")";
@@ -202,7 +202,7 @@ check(){
   : > "${change_tmpfile}"
   err=$( read_changes 2>&1  1> "${change_tmpfile}" )  ### stdout => file, stderr => ${err}
   if [ ! -z "${err}" ]; then
-	EXIT_STATUS=${STATE_CRITICAL};
+	EXIT_STATUS=${STATE_CRIT};
         LEVEL="crit";
         TYPE="str";
         CONTENT="$(gettext "GET User Changes ERROR") | $(gettext "select mailv5 user changes error") | ["${err}"] "
@@ -215,7 +215,7 @@ check(){
   # on error exit
   info=$( /usr/bin/nc -w 5 -vz ${Ldap_Host} 389 2>&1 ) 
   if [ "$?" != "0" ]; then
-	EXIT_STATUS=${STATE_CRITICAL};
+	EXIT_STATUS=${STATE_CRIT};
         LEVEL="crit";
         TYPE="str";
         CONTENT="$(gettext "LDAP Connect ERROR") | $(gettext "check ldaphost connection failed:") [${Ldap_Host}:389] | [${info}] "
@@ -292,12 +292,12 @@ check(){
   write_log -f ${logfile} ""
 
   [ "${errnum}" == "0" ] && {
-	EXIT_STATUS=${STATE_OK};
-        LEVEL="ok";
+	EXIT_STATUS=${STATE_SUCC};
+        LEVEL="succ";
         TYPE="str";
         CONTENT="$(gettext "SYNC USER CHANGES OK") | $(eval_gettext "\${total} changes sync succeed: ADD:\${addnum}  DEL:\${delnum}  MOD:\${modnum}") | ${result} "
   } || {
-	EXIT_STATUS=${STATE_CRITICAL};
+	EXIT_STATUS=${STATE_CRIT};
         LEVEL="crit";
         TYPE="str";
         CONTENT="$(gettext "SYNC USER CHANGES CRITICAL") | $(eval_gettext "\${errnum}/\${total} changes sync failed: ADD:\${addnum}  DEL:\${delnum}  MOD:\${modnum}") | ${result} "

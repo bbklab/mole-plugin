@@ -10,7 +10,7 @@ binmode STDOUT, ':raw';
 
 
 # return codes
-our ($state_ok,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) = (0,1,2,3,4,5);
+our ($state_succ,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) = (0,1,2,3,4,5);
 
 # return stuff
 our ($rc, $result) = (0,'');
@@ -20,7 +20,7 @@ our $filename = (split /\//, __FILE__)[-1];
 
 # check eminfo
 unless (-f $eminfo && -x $eminfo) {
-  printf "{unknown}:{str}:{$eminfo not prepared.}";
+  printf "{unkn}:{str}:{$eminfo not prepared.}";
   exit $state_unkn;
 }
 
@@ -90,11 +90,11 @@ if (-f $procfile && -r $procfile) {
   		exit $state_warn;
 	} 
 	$result = sprintf(_"allocated: %d <= %d ### allocated but free: %d ### max allowed: %d ###",$fd_allocated,$max_limit,$fd_free,$max_fd);
-	printf _"{ok}:{str}:{ File Descriptor Number OK | %d file descriptor allocated | %s }",$fd_allocated,$result;
-	exit $state_ok;
+	printf _"{succ}:{str}:{ File Descriptor Number OK | %d file descriptor allocated | %s }",$fd_allocated,$result;
+	exit $state_succ;
   }
   close $fh;
 } else {
-  printf _"{unknown}:{str}:{ File Descriptor Number UNKNOWN | proc file not prepared | %s not prepared }",$procfile;
+  printf _"{unkn}:{str}:{ File Descriptor Number UNKNOWN | proc file not prepared | %s not prepared }",$procfile;
   exit $state_unkn;  
 }

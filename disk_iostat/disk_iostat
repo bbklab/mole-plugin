@@ -7,11 +7,11 @@ if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
         rc=$?
         [ "$rc" != "0" ] && {
-                echo -en "{unknown}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                echo -en "{unkn}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
                 exit 3
         }   
 else
-        echo -en "{unknown}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        echo -en "{unkn}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
         exit 3
 fi
 
@@ -19,7 +19,7 @@ fi
 if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
         source ${BASE_DIR}/bin/include 2>&- 
 else    
-        echo -en "{unknown}:{str}:{include file not exists or empty}"
+        echo -en "{unkn}:{str}:{include file not exists or empty}"
         exit 3
 fi
 
@@ -28,7 +28,7 @@ if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
         export TEXTDOMAINDIR="${LOCALE_DIR}"
         export TEXTDOMAIN="disk_iostat"
 else    
-        echo -en "{unknown}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        echo -en "{unkn}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
         exit 3
 fi
 
@@ -65,16 +65,16 @@ MODE=0
 
 
 # Return Codes
-STATE_OK=0
-STATE_WARNING=1
-STATE_CRITICAL=2
-STATE_UNKNOWN=3
+STATE_SUCC=0
+STATE_WARN=1
+STATE_CRIT=2
+STATE_UNKN=3
 STATE_NOOP=4
 STATE_NOTIFY=5
 
 # Set Default
 EXIT_STATUS=0
-LEVEL=    	### { ok | warn | crit | unknown | noop | notify }
+LEVEL=    	### { succ | warn | crit | unkn | noop | notify }
 TYPE=    	### { str| file }
 CONTENT=        ### { strings | /path/to/result.file }
 
@@ -86,7 +86,7 @@ else
 	util_uplimit=$( read_eminfo_config disk_iostat util_uplimit )
 fi
 
-# if null return STATE_UNKNOWN.
+# if null return STATE_UNKN.
 
 # if null or invalid set default.
 [ -z "${util_uplimit}" -o ! -z "${util_uplimit//[0-9]}" ] && util_uplimit=50
@@ -95,16 +95,16 @@ fi
 check(){
 
   if [ -z "${dev_list}" ]; then
-	EXIT_STATUS=${STATE_UNKNOWN};
-	LEVEL="unknown";
+	EXIT_STATUS=${STATE_UNKN};
+	LEVEL="unkn";
 	TYPE="str";
 	CONTENT="$(gettext "config {dev_list} empty, nothing to do.")";
 	return
   fi
 
   if [ ! -x "/usr/bin/iostat" ]; then
-	EXIT_STATUS=${STATE_UNKNOWN};
-	LEVEL="unknown";
+	EXIT_STATUS=${STATE_UNKN};
+	LEVEL="unkn";
 	TYPE="str";
 	CONTENT="$(gettext "Util: [/usr/bin/iostat] not prepared.")";
 	return
@@ -152,13 +152,13 @@ check(){
 
   total=$((${warnnum}+${oknum}))
   if [ ${warnnum} -gt 0 ]; then
-	EXIT_STATUS=${STATE_WARNING};
+	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
 	CONTENT="$(gettext "IOStat Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check failed.") | ${result}"
   else
-	EXIT_STATUS=${STATE_OK};
-	LEVEL="ok";
+	EXIT_STATUS=${STATE_SUCC};
+	LEVEL="succ";
 	TYPE="str";
 	CONTENT="$(gettext "IOStat Cehck OK") | $(eval_gettext "\${oknum}/\${total} check success.") | ${result}"
   fi

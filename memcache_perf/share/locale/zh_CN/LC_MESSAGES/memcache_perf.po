@@ -58,8 +58,8 @@ msgstr " 耗时 %f 秒 ### ### "
 msgid "{crit}:{str}:{ Memcache SVR CRITICAL | %d/%d memcache check critical | %s }"
 msgstr "{crit}:{str}:{ Memcache服务异常 | %d/%d 项检查异常 | %s }"
 
-msgid "{unknown}:{str}:{ Memcache SVR UNKNOWN | %d/%d memcache check unknown | %s }"
-msgstr "{unknown}:{str}:{ Memcache服务未知 | %d/%d 项检查未知 | %s }"
+msgid "{unkn}:{str}:{ Memcache SVR UNKNOWN | %d/%d memcache check unknown | %s }"
+msgstr "{unkn}:{str}:{ Memcache服务未知 | %d/%d 项检查未知 | %s }"
 
-msgid "{ok}:{str}:{ Memcache SVR OK | %d/%d memcache check success | %s }"
-msgstr "{ok}:{str}:{ Memcache服务正常 | %d/%d 项检查正常 | %s }"
+msgid "{succ}:{str}:{ Memcache SVR OK | %d/%d memcache check success | %s }"
+msgstr "{succ}:{str}:{ Memcache服务正常 | %d/%d 项检查正常 | %s }"

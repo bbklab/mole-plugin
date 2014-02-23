@@ -15,7 +15,7 @@ binmode STDOUT, ':raw';
 $| = 1;
 
 # return codes
-our ($state_ok,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) = (0,1,2,3,4,5);
+our ($state_succ,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) = (0,1,2,3,4,5);
 
 # return stuff
 our ($rc, $result) = (0,'');
@@ -25,7 +25,7 @@ our $filename = (split /\//, __FILE__)[-1];
 
 # check eminfo
 unless (-f $eminfo && -x $eminfo) {
-  printf "{unknown}:{str}:{$eminfo not prepared.}";
+  printf "{unkn}:{str}:{$eminfo not prepared.}";
   exit $state_unkn;
 }
 
@@ -202,9 +202,9 @@ if ($critnum > 0) {
   printf _"{crit}:{str}:{ Memcache SVR CRITICAL | %d/%d memcache check critical | %s }",$critnum,$total,$result;
   exit $state_crit;
 } elsif ($unknnum > 0) {
-  printf _"{unknown}:{str}:{ Memcache SVR UNKNOWN | %d/%d memcache check unknown | %s }",$unknnum,$total,$result;
+  printf _"{unkn}:{str}:{ Memcache SVR UNKNOWN | %d/%d memcache check unknown | %s }",$unknnum,$total,$result;
   exit $state_unkn;
 } else {
-  printf _"{ok}:{str}:{ Memcache SVR OK | %d/%d memcache check success | %s }",$total,$total,$result;
-  exit $state_ok;
+  printf _"{succ}:{str}:{ Memcache SVR OK | %d/%d memcache check success | %s }",$total,$total,$result;
+  exit $state_succ;
 }

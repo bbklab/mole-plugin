@@ -11,7 +11,7 @@ binmode(STDERR, ":encoding(utf8)");
 $| = 1;
 
 # return codes
-our ($state_ok,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) = (0,1,2,3,4,5);
+our ($state_succ,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) = (0,1,2,3,4,5);
 
 # return stuff
 our ($rc, $result) = (0,'');
@@ -21,7 +21,7 @@ our $filename = (split /\//, __FILE__)[-1];
 
 # check eminfo
 unless (-f $eminfo && -x $eminfo) {
-  printf "{unknown}:{str}:{$eminfo not prepared.}";
+  printf "{unkn}:{str}:{$eminfo not prepared.}";
   exit $state_unkn;
 }
 
@@ -432,5 +432,5 @@ if ($data_config{'cpu_usage'}) {
 ### %result
 
 $result = JSON->new->allow_nonref->utf8(1)->ascii(1)->encode(\%result);
-print "{ok}:{str}:{$filename|$filename|$result}";
-exit $state_ok;
+print "{succ}:{str}:{$filename|$filename|$result}";
+exit $state_succ;

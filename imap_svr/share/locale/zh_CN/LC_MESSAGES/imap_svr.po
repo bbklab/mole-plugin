@@ -55,8 +55,8 @@ msgstr " (耗时 %f 秒) </font> ### ### "
 msgid "{crit}:{str}:{ IMAP SVR CRITICAL | %d/%d imap check critical | %s }"
 msgstr "{crit}:{str}:{ IMAP服务状态异常 | %d/%d 项检查异常 | %s }"
 
-msgid "{unknown}:{str}:{ IMAP SVR UNKNOWN | %d/%d imap check unknown | %s }"
-msgstr "{unknown}:{str}:{ IMAP服务状态未知 | %d/%d  项检查未知 | %s }"
+msgid "{unkn}:{str}:{ IMAP SVR UNKNOWN | %d/%d imap check unknown | %s }"
+msgstr "{unkn}:{str}:{ IMAP服务状态未知 | %d/%d  项检查未知 | %s }"
 
-msgid "{ok}:{str}:{ IMAP SVR OK | %d/%d imap check success | %s }"
-msgstr "{ok}:{str}:{ IMAP服务状态正常 | %d/%d 项检查正常 | %s }"
+msgid "{succ}:{str}:{ IMAP SVR OK | %d/%d imap check success | %s }"
+msgstr "{succ}:{str}:{ IMAP服务状态正常 | %d/%d 项检查正常 | %s }"

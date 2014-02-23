@@ -19,14 +19,14 @@ msgstr "\t%+#D"
 msgid "\n"
 msgstr "\n"
 
-msgid "{unknown}:{str}:{ssd device not defined in config.}"
-msgstr "{unknown}:{str}:{配置文件中未指定SSD设备名}"
+msgid "{unkn}:{str}:{ssd device not defined in config.}"
+msgstr "{unkn}:{str}:{配置文件中未指定SSD设备名}"
 
-msgid "{unknown}:{str}:{device %s not exists or not block devices}"
-msgstr "{unknown}:{str}:{%s 不存在或不是块设备}"
+msgid "{unkn}:{str}:{device %s not exists or not block devices}"
+msgstr "{unkn}:{str}:{%s 不存在或不是块设备}"
 
-msgid "{unknown}:{str}:{ SSD Information UNKNOWN | util megacli/smartctl not prepared | %s or %s not prepared }"
-msgstr "{unknown}:{str}:{ SSD设备信息未知 | megacli 或 smartctl 未准备就绪 | %s 或 %s 未准备就绪 }"
+msgid "{unkn}:{str}:{ SSD Information UNKNOWN | util megacli/smartctl not prepared | %s or %s not prepared }"
+msgstr "{unkn}:{str}:{ SSD设备信息未知 | megacli 或 smartctl 未准备就绪 | %s 或 %s 未准备就绪 }"
 
 msgid "PD ID: %d, Fireware State: %s ### "
 msgstr "物理磁盘编号: %d,  固件状态: %s ### "
@@ -91,8 +91,8 @@ msgstr "百分比值非整数, Wear_Leveling_Count: %s ### "
 msgid "Wear_Leveling_Count not detected. ### "
 msgstr "Wear_Leveling_Count 的值未探测到 ### "
 
-msgid "{unknown}:{str}:{ SSD Information UNKNOWN | collected nothing about ssd | collected nothing about ssd ### maybe raid controller card not recoginized or no ssd devices exist. }"
-msgstr "{unknown}:{str}:{ SSD设备信息未知 | 未搜集到SSD设备信息 | 未搜集到SSD设备信息 ### 也许RAID控制器不识别或不存在, 或者没有SSD设备 }"
+msgid "{unkn}:{str}:{ SSD Information UNKNOWN | collected nothing about ssd | collected nothing about ssd ### maybe raid controller card not recoginized or no ssd devices exist. }"
+msgstr "{unkn}:{str}:{ SSD设备信息未知 | 未搜集到SSD设备信息 | 未搜集到SSD设备信息 ### 也许RAID控制器不识别或不存在, 或者没有SSD设备 }"
 
 msgid "{crit}:{str}:{ SSD CRITICAL | %d/%d ssd healthy check critical | %s }"
 msgstr "{crit}:{str}:{ SSD设备故障 | %d/%d 块SSD设备健康状态故障 | %s }"
@@ -100,5 +100,5 @@ msgstr "{crit}:{str}:{ SSD设备故障 | %d/%d 块SSD设备健康状态故障 | 
 msgid "{warn}:{str}:{ SSD WARNING | %d/%d ssd healthy check warn | %s }"
 msgstr "{warn}:{str}:{ SSD设备告警 | %d/%d 块SSD设备健康状态告警 | %s }"
 
-msgid "{ok}:{str}:{ SSD OK | %d/%d ssd healthy check success | %s }"
-msgstr "{ok}:{str}:{ SSD设备正常 | %d/%d 块SSD设备健康状态正常 | %s }"
+msgid "{succ}:{str}:{ SSD OK | %d/%d ssd healthy check success | %s }"
+msgstr "{succ}:{str}:{ SSD设备正常 | %d/%d 块SSD设备健康状态正常 | %s }"

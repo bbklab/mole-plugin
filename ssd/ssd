@@ -11,7 +11,7 @@ binmode STDOUT, ':raw';
 
 
 # return codes
-our ($state_ok,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) = (0,1,2,3,4,5);
+our ($state_succ,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) = (0,1,2,3,4,5);
 
 # return stuff
 our ($rc, $result) = (0,'');
@@ -21,7 +21,7 @@ our $filename = (split /\//, __FILE__)[-1];
 
 # check eminfo
 unless (-f $eminfo && -x $eminfo) {
-  printf "{unknown}:{str}:{$eminfo not prepared.}";
+  printf "{unkn}:{str}:{$eminfo not prepared.}";
   exit $state_unkn;
 }
 
@@ -149,11 +149,11 @@ if($fh){
   }
 }
 if (!defined $ssd_dev || $ssd_dev eq '') {
-  printf _"{unknown}:{str}:{ssd device not defined in config.}";
+  printf _"{unkn}:{str}:{ssd device not defined in config.}";
   exit $state_unkn;
 }
 unless (-e $ssd_dev && -b $ssd_dev) {
-  printf _"{unknown}:{str}:{device %s not exists or not block devices}",$ssd_dev;
+  printf _"{unkn}:{str}:{device %s not exists or not block devices}",$ssd_dev;
   exit $state_unkn;
 }
 
@@ -293,7 +293,7 @@ if (-f $megacli && -x $megacli && -f $smartctl && -x $smartctl) {
 	}
   }
 } else {
-  printf _"{unknown}:{str}:{ SSD Information UNKNOWN | util megacli/smartctl not prepared | %s or %s not prepared }",$megacli,$smartctl;
+  printf _"{unkn}:{str}:{ SSD Information UNKNOWN | util megacli/smartctl not prepared | %s or %s not prepared }",$megacli,$smartctl;
   exit $state_unkn;
 }
 
@@ -434,7 +434,7 @@ if (@ssd_info){
         $warnnum ++ if $warnflag > 0;
   }
 } else {
-  printf _"{unknown}:{str}:{ SSD Information UNKNOWN | collected nothing about ssd | collected nothing about ssd ### maybe raid controller card not recoginized or no ssd devices exist. }";
+  printf _"{unkn}:{str}:{ SSD Information UNKNOWN | collected nothing about ssd | collected nothing about ssd ### maybe raid controller card not recoginized or no ssd devices exist. }";
   exit $state_unkn;
 }
 
@@ -446,6 +446,6 @@ if ($critnum > 0) {
   printf _"{warn}:{str}:{ SSD WARNING | %d/%d ssd healthy check warn | %s }",$warnnum,$total,$result;
   exit $state_warn;
 } else {
-  printf _"{ok}:{str}:{ SSD OK | %d/%d ssd healthy check success | %s }",$total,$total,$result;
-  exit $state_ok;
+  printf _"{succ}:{str}:{ SSD OK | %d/%d ssd healthy check success | %s }",$total,$total,$result;
+  exit $state_succ;
 }

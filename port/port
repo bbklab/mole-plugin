@@ -8,11 +8,11 @@ if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
         rc=$?
         [ "$rc" != "0" ] && {
-                echo -en "{unknown}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                echo -en "{unkn}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
                 exit 3
         }   
 else
-        echo -en "{unknown}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        echo -en "{unkn}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
         exit 3
 fi
 
@@ -20,7 +20,7 @@ fi
 if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
         source ${BASE_DIR}/bin/include 2>&- 
 else    
-        echo -en "{unknown}:{str}:{include file not exists or empty}"
+        echo -en "{unkn}:{str}:{include file not exists or empty}"
         exit 3
 fi
 
@@ -29,7 +29,7 @@ if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
         export TEXTDOMAINDIR="${LOCALE_DIR}"
         export TEXTDOMAIN="port"
 else    
-        echo -en "{unknown}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        echo -en "{unkn}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
         exit 3
 fi
 
@@ -72,16 +72,16 @@ MODE=0
 [ "$1" == "help" -o "$1" == "h" ] && show_help;
 
 # Return Codes
-STATE_OK=0
-STATE_WARNING=1
-STATE_CRITICAL=2
-STATE_UNKNOWN=3
+STATE_SUCC=0
+STATE_WARN=1
+STATE_CRIT=2
+STATE_UNKN=3
 STATE_NOOP=4
 STATE_NOTIFY=5
 
 # Set Default
 EXIT_STATUS=0
-LEVEL=    	### { ok | warn | crit | unknown | noop | notify }
+LEVEL=    	### { ok | warn | crit | unkn | noop | notify }
 TYPE=    	### { str| file }
 CONTENT=        ### { strings | /path/to/result.file }
 
@@ -93,7 +93,7 @@ else
 fi
 
 
-# if null return STATE_UNKNOWN.
+# if null return STATE_UNKN.
 
 # if null or invalid set default.
 [ -z "${port_list//[ ]}" ] && port_list="22"
@@ -155,8 +155,8 @@ check_single(){
 }
 
   [ -f "/usr/bin/nc" -a -x "/usr/bin/nc" ] || {
-	EXIT_STATUS=${STATE_UNKNOWN};
-        LEVEL="unknown";
+	EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
         TYPE="str";
         CONTENT="$(gettext "utilite [/usr/bin/nc] not prepared.")"
         return
@@ -233,20 +233,20 @@ check_single(){
   [ "${MODE}" == "1" ] && exit
 
   [ "${errnum}" != "0" ] && {
-	EXIT_STATUS=${STATE_CRITICAL};
+	EXIT_STATUS=${STATE_CRIT};
 	LEVEL="crit";
 	TYPE="str";
 	CONTENT="$(gettext "Check Port CRITICAL") | $(eval_gettext "\${errnum}/\${total} check failed.") | "${result}" "
   } || {
 	[ "${oknum}" == "${total}" ] && {
-		EXIT_STATUS=${STATE_OK};
-		LEVEL="ok";
+		EXIT_STATUS=${STATE_SUCC};
+		LEVEL="succ";
 		TYPE="str";
 		CONTENT="$(gettext "Check Port OK") | $(eval_gettext "${oknum}/${total} check success.") | "${result}" "
 	} || {
 		[ "${unknum}" != "0" ] && {
-			EXIT_STATUS=${STATE_UNKNOWN};
-			LEVEL="unknown";
+			EXIT_STATUS=${STATE_UNKN};
+			LEVEL="unkn";
 			TYPE="str";
 			CONTENT="$(gettext "Check Port UNKNOWN") | $(eval_gettext "${unknum}/${total} check unknown.") | "${result}" "
 		}

@@ -55,8 +55,8 @@ msgstr " (耗时 %f 秒) </font>  ### ### "
 msgid "{crit}:{str}:{ SMTP SVR CRITICAL | %d/%d smtp check critical | %s }"
 msgstr "{crit}:{str}:{ SMTP服务状态异常 | %d/%d 项检查异常 | %s }"
 
-msgid "{unknown}:{str}:{ SMTP SVR UNKNOWN | %d/%d smtp check unknown | %s }"
-msgstr "{unknown}:{str}:{ SMTP服务状态未知 | %d/%d 项检查未知 | %s }"
+msgid "{unkn}:{str}:{ SMTP SVR UNKNOWN | %d/%d smtp check unknown | %s }"
+msgstr "{unkn}:{str}:{ SMTP服务状态未知 | %d/%d 项检查未知 | %s }"
 
-msgid "{ok}:{str}:{ SMTP SVR OK | %d/%d smtp check success | %s }"
-msgstr "{ok}:{str}:{ SMTP服务状态正常 | %d/%d 项检查正常 | %s }"
+msgid "{succ}:{str}:{ SMTP SVR OK | %d/%d smtp check success | %s }"
+msgstr "{succ}:{str}:{ SMTP服务状态正常 | %d/%d 项检查正常 | %s }"

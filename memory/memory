@@ -8,11 +8,11 @@ if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
         rc=$?
         [ "$rc" != "0" ] && {
-                echo -en "{unknown}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                echo -en "{unkn}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
                 exit 3
         }   
 else
-        echo -en "{unknown}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        echo -en "{unkn}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
         exit 3
 fi
 
@@ -20,7 +20,7 @@ fi
 if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
         source ${BASE_DIR}/bin/include 2>&- 
 else    
-        echo -en "{unknown}:{str}:{include file not exists or empty}"
+        echo -en "{unkn}:{str}:{include file not exists or empty}"
         exit 3
 fi
 
@@ -29,7 +29,7 @@ if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
         export TEXTDOMAINDIR="${LOCALE_DIR}"
         export TEXTDOMAIN="memory"
 else    
-        echo -en "{unknown}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        echo -en "{unkn}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
         exit 3
 fi
 
@@ -62,16 +62,16 @@ MODE=0
 
 
 # Return Codes
-STATE_OK=0
-STATE_WARNING=1
-STATE_CRITICAL=2
-STATE_UNKNOWN=3
+STATE_SUCC=0
+STATE_WARN=1
+STATE_CRIT=2
+STATE_UNKN=3
 STATE_NOOP=4
 STATE_NOTIFY=5
 
 # Set Default
 EXIT_STATUS=0
-LEVEL=    	### { ok | warn | crit | unknown | noop | notify }
+LEVEL=    	### { succ | warn | crit | unkn | noop | notify }
 TYPE=    	### { str| file }
 CONTENT=        ### { strings | /path/to/result.file }
 
@@ -79,7 +79,7 @@ CONTENT=        ### { strings | /path/to/result.file }
 mem_uplimit=$(read_eminfo_config memory mem_uplimit)
 swp_uplimit=$(read_eminfo_config memory swp_uplimit)
 
-# if null return STATE_UNKNOWN.
+# if null return STATE_UNKN.
 
 # if null or invalid set default.
 [ -z "${mem_uplimit}" -o ! -z "${mem_uplimit//[0-9.]}" ] && mem_uplimit=99.99
@@ -89,8 +89,8 @@ swp_uplimit=$(read_eminfo_config memory swp_uplimit)
 check(){
 
   [ -f "/proc/meminfo" -a -r "/proc/meminfo" ] || {
-	EXIT_STATUS=${STATE_UNKNOWN};
-	LEVEL="unknown";
+	EXIT_STATUS=${STATE_UNKN};
+	LEVEL="unkn";
 	TYPE="str";
 	CONTENT="$(gettext "File: [/proc/meminfo] not prepared.")";
 	return
@@ -106,15 +106,15 @@ check(){
 
   # output plugin format data if MODE=0
   [ -z "${mem_total}" -o ! -z "${mem_total//[0-9]}" -o -z "${mem_free}" -o ! -z "${mem_free//[0-9]}" ] && {
-	EXIT_STATUS=${STATE_UNKNOWN};
-	LEVEL="unknown";
+	EXIT_STATUS=${STATE_UNKN};
+	LEVEL="unkn";
 	TYPE="str";
 	CONTENT="$(eval_gettext "memory total=[\${total}] or memory free=[\${free}] is not numberic.")";
 	return
   }
 
   [ "${mem_total}" == "0" ] && {
-	EXIT_STATUS=${STATE_WARNING};
+	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
 	CONTENT="$(gettext "memory total=[0]. how could it be ?")";
@@ -122,15 +122,15 @@ check(){
   }
 
   [ -z "${swp_total}" -o ! -z "${swp_total//[0-9]}" -o -z "${swp_free}" -o ! -z "${swp_free//[0-9]}" ] && {
-	EXIT_STATUS=${STATE_UNKNOWN};
-	LEVEL="unknown";
+	EXIT_STATUS=${STATE_UNKN};
+	LEVEL="unkn";
 	TYPE="str";
 	CONTENT="$(eval_gettext "swap total=[\${total}] or swap free=[\${free}] is not numberic.")";
 	return
   }
 
   [ "${swp_total}" == "0" ] && {
-	EXIT_STATUS=${STATE_WARNING};
+	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
 	CONTENT="$(gettext "swap total=[0]. how could it be ?")";
@@ -138,8 +138,8 @@ check(){
   }
 
   [ -z "${mem_percent}" -o ! -z "${mem_percent//[0-9.]}" -o -z "${swp_percent}" -o ! -z "${swp_percent//[0-9.]}" ] && {
-	EXIT_STATUS=${STATE_UNKNOWN};
-        LEVEL="unknown";
+	EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
         TYPE="str";
         CONTENT="$(eval_gettext "Retuen is not numberic: [\${mem_percent}] or [\${swp_percent}]")";
 	return 
@@ -177,14 +177,14 @@ check(){
   if [ ${warnnum} -gt 0 ]; then
 	local rsz_top_ps=$(ps -eo pid,comm,rsz|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
 	local vsz_top_ps=$(ps -eo pid,comm,vsz|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
-	EXIT_STATUS=${STATE_WARNING};
+	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
 	CONTENT="$(gettext "Memory/Swap Usage Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check failed.") | ${result} ### $(gettext "RSZ_TOP:") ### ${rsz_top_ps} ### ###  $(gettext "VSZ_TOP:") ### ${vsz_top_ps}"
 	((oknum++))
   else
-	EXIT_STATUS=${STATE_OK};
-	LEVEL="ok";
+	EXIT_STATUS=${STATE_SUCC};
+	LEVEL="succ";
 	TYPE="str";
 	CONTENT="$(gettext "Memory/Swap Usage Check OK") | $(eval_gettext "\${oknum}/\${total} check success.") | ${result}"
   fi

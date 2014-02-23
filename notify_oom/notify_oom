@@ -9,7 +9,7 @@ binmode(STDERR, ":encoding(utf8)");
 binmode STDOUT, ':raw';
 
 # return codes
-our ($state_ok,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) = (0,1,2,3,4,5);
+our ($state_succ,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) = (0,1,2,3,4,5);
 
 # return stuff
 our ($rc, $result) = (0,'');
@@ -20,7 +20,7 @@ our $tracefile = "/var/tmp/$filename.trace";
 
 # check eminfo
 unless (-f $eminfo && -x $eminfo) {
-  printf "{unknown}:{str}:{$eminfo not prepared.}";
+  printf "{unkn}:{str}:{$eminfo not prepared.}";
   exit $state_unkn;
 }
 

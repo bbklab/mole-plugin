@@ -11,7 +11,7 @@ binmode STDOUT, ':raw';
 
 
 # return codes
-our ($state_ok,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) = (0,1,2,3,4,5);
+our ($state_succ,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) = (0,1,2,3,4,5);
 
 # return stuff
 our ($rc, $result) = (0,'');
@@ -21,7 +21,7 @@ our $filename = (split /\//, __FILE__)[-1];
 
 # check eminfo
 unless (-f $eminfo && -x $eminfo) {
-  printf "{unknown}:{str}:{$eminfo not prepared.}";
+  printf "{unkn}:{str}:{$eminfo not prepared.}";
   exit $state_unkn;
 }
 
@@ -429,7 +429,7 @@ if (-f $megacli && -x $megacli) {
 	push @raid_info, \%raid_single;
   }
 } else {
-  printf _"{unknown}:{str}:{ RAID Information UNKNOWN | util megacli not prepared | %s not prepared }",$megacli;
+  printf _"{unkn}:{str}:{ RAID Information UNKNOWN | util megacli not prepared | %s not prepared }",$megacli;
   exit $state_unkn;
 }
 
@@ -701,7 +701,7 @@ if (@raid_info) {
 	$warnnum ++ if $warnflag > 0;
   }
 } else {
-  printf _"{unknown}:{str}:{ RAID Information UNKNOWN | collected nothing about raid | collected nothing about raid ### maybe raid controller card not recoginized or not exist. }";
+  printf _"{unkn}:{str}:{ RAID Information UNKNOWN | collected nothing about raid | collected nothing about raid ### maybe raid controller card not recoginized or not exist. }";
   exit $state_unkn;
 }
 
@@ -713,6 +713,6 @@ if ($critnum > 0) {
   printf _"{warn}:{str}:{ RAID CONTROLLER WARNING | %d/%d raid controller card healthy check warn | %s }",$warnnum,$total,$result;
   exit $state_warn;
 } else {
-  printf _"{ok}:{str}:{ RAID CONTROLLER OK | %d/%d raid controller card healthy check success | %s }",$total,$total,$result;
-  exit $state_ok;
+  printf _"{succ}:{str}:{ RAID CONTROLLER OK | %d/%d raid controller card healthy check success | %s }",$total,$total,$result;
+  exit $state_succ;
 }

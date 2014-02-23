@@ -10,7 +10,7 @@ binmode(STDOUT, ":encoding(utf8)");
 $| = 1;
 
 # return codes
-our ($state_ok,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) = (0,1,2,3,4,5);
+our ($state_succ,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) = (0,1,2,3,4,5);
 
 # return stuff
 our ($rc, $result) = (0,'');
@@ -1022,5 +1022,5 @@ my %result = (
 ### %result
 
 $result = JSON->new->utf8(1)->ascii(1)->encode(\%result);
-print "{ok}:{str}:{$filename|$filename|$result}";
-exit $state_ok;
+print "{succ}:{str}:{$filename|$filename|$result}";
+exit $state_succ;
