@@ -186,7 +186,7 @@ check(){
   [ "${MODE}" == "1" ] && exit;
 
   [ "${critnum}" -gt "0" ] && {
-        EXIT_STATUS=${STATE_WARN};
+        EXIT_STATUS=${STATE_CRIT};
         LEVEL="crit";
         TYPE="str";
         CONTENT="$(gettext "NFS SVR Check CRITICAL") | $(eval_gettext "\${critnum} nfs server check failed") | ${result} "
