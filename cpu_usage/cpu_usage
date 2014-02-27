@@ -6,7 +6,7 @@ BASE_DIR="/usr/local/eminfo/"
 # === LOAD GETTEXT.SH FILE
 if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
-        rc=$?                                                                                                                       
+        rc=$?
         [ "$rc" != "0" ] && {
                 echo -en "{unkn}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
                 exit 3
