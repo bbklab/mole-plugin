@@ -85,4 +85,4 @@ done
 
 %changelog
 * Mon Mar  3 2014 Zhang Guangzheng<zhang.elinks@gmail.com>
-- init buildrpm for esop-plugin-1.0-beta1.rpm
+- init buildrpm for mole-plugin-1.0-beta1.rpm
