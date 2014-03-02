@@ -120,7 +120,7 @@ cd "${path}"/SOURCES/
 tar -czf "${source0}" ${name}-${version}
 rm -rf "${path}"/SOURCES/${name}-${version}
 if [ "${TARMODE}" == "1" ]; then
-  echo "${source0}"
+  echo ""${path}"/SOURCES/${source0}"
   exit 0
 fi
 cp -a "${specfile}" "${path}"/SPECS/
