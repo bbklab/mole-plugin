@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
 
+# BASE_DIR DEF
+[ -z ${BASE_DIR} ] && { 
+        path=$( cd $(dirname $0) && pwd)
+        BASE_DIR=${path%/*}
+}
 
-BASE_DIR="/usr/local/eminfo/"
 # === LOAD GETTEXT.SH FILE
 if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
@@ -83,7 +87,7 @@ if [ "${MODE}" == "1" ]; then
 	interval="$3"
 	count="$4"
 else
-	ifdev_lst=$( read_eminfo_config traffic ifdev_lst )
+	ifdev_lst=$( read_mole_config traffic ifdev_lst )
 	interval=1; count=10;	### set capture count and sleep interval.
 fi
 

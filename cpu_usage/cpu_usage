@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
-
-BASE_DIR="/usr/local/eminfo/"
+# BASE_DIR DEF
+[ -z ${BASE_DIR} ] && { 
+        path=$( cd $(dirname $0) && pwd)
+        BASE_DIR=${path%/*}
+}
 
 # === LOAD GETTEXT.SH FILE
 if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
@@ -77,10 +80,10 @@ TYPE=    	### { str| file }
 CONTENT=        ### { strings | /path/to/result.file }
 
 # Read plugin config value here
-uplimit=$( read_eminfo_config cpu_usage uplimit )
-wa_uplimit=$( read_eminfo_config cpu_usage wa_uplimit )
-sy_uplimit=$( read_eminfo_config cpu_usage sy_uplimit )
-us_uplimit=$( read_eminfo_config cpu_usage us_uplimit )
+uplimit=$( read_mole_config cpu_usage uplimit )
+wa_uplimit=$( read_mole_config cpu_usage wa_uplimit )
+sy_uplimit=$( read_mole_config cpu_usage sy_uplimit )
+us_uplimit=$( read_mole_config cpu_usage us_uplimit )
 
 # if null return STATE_UNKN.
 

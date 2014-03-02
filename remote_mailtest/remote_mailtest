@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
 
+# BASE_DIR DEF
+[ -z ${BASE_DIR} ] && { 
+        path=$( cd $(dirname $0) && pwd)
+        BASE_DIR=${path%/*}
+}
 
-BASE_DIR="/usr/local/eminfo/"
 # === LOAD GETTEXT.SH FILE
 if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
@@ -62,9 +66,9 @@ TYPE=         ### { str| file }
 CONTENT=      ### { strings | /path/to/result.file }
 
 # Read plugin config value here
-sample_email_file=$( read_eminfo_config remote_mailtest sample_email_file )
-mail_body_file=$( read_eminfo_config remote_mailtest mail_body_file )
-helo_greeting_fqdn=$( read_eminfo_config remote_mailtest helo_greeting_fqdn )
+sample_email_file=$( read_mole_config remote_mailtest sample_email_file )
+mail_body_file=$( read_mole_config remote_mailtest mail_body_file )
+helo_greeting_fqdn=$( read_mole_config remote_mailtest helo_greeting_fqdn )
 
 # if null or invalid set default.
 [ -z "${helo_greeting_fqdn}" ] && helo_greeting_fqdn="eyou.net."
@@ -159,7 +163,7 @@ check() {
 	xlist=$( echo -e "${content}" | awk -F ":::" '($1~/'${x}'\>/) {$1=$2="";print;exit;}' )
 	for y in `echo "${xlist}"`
 	do
-		str1=$( ${SENDEMAIL} -f "eminfo@${base_domain}" -t "${y}" -s "${mx_host}" -u "${subject}" -o message-file="${mail_body_file}"  -o fqdn="${helo_greeting_fqdn}" -o message-charset=utf8 2>&1 )
+		str1=$( ${SENDEMAIL} -f "mole@${base_domain}" -t "${y}" -s "${mx_host}" -u "${subject}" -o message-file="${mail_body_file}"  -o fqdn="${helo_greeting_fqdn}" -o message-charset=utf8 2>&1 )
 		rc=$?
   		str2=$( echo -e "${str1}" | awk -F "sendEmail" '{$1="";print}' | awk -F: '{for(x=2;x<=NF;x++) {printf $x}}')
 		if [ "${rc}" == "0" ]; then

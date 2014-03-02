@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
 
+# BASE_DIR DEF
+[ -z ${BASE_DIR} ] && { 
+        path=$( cd $(dirname $0) && pwd)
+        BASE_DIR=${path%/*}
+}
 
-BASE_DIR="/usr/local/eminfo/"
 # === LOAD GETTEXT.SH FILE
 if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
@@ -85,7 +89,7 @@ CONTENT=        ### { strings | /path/to/result.file }
 if [ "${MODE}" == "1" ]; then
         pslist_file="$2"
 else
-	pslist_file=$(read_eminfo_config process pslist_file)
+	pslist_file=$(read_mole_config process pslist_file)
 fi
 
 # if null return STATE_UNKN.
@@ -118,7 +122,7 @@ check() {
   local errnum=0 total=0 result=
 
   local ps_output=$( /bin/ps -eo cmd= 2>&1 )
-  /bin/awk '($0!~/^[ \t]*#/ && $0!~/^[ \t]*$/)' "${pslist_file}" > /tmp/.check_process.eminfo 2>&-
+  /bin/awk '($0!~/^[ \t]*#/ && $0!~/^[ \t]*$/)' "${pslist_file}" > /tmp/.check_process.mole 2>&-
   while read -a line
   do
 	[ "${#line[@]}" != "3" ] && continue				### check filed number
@@ -140,7 +144,7 @@ check() {
 			echo "0  ${pname}:${psnum}:${pnum}"
 		fi
 	fi
-  done < /tmp/.check_process.eminfo
+  done < /tmp/.check_process.mole
 
   # exit if MODE=1  
   [ "${MODE}" == "1" ] && exit;

@@ -1,4 +1,31 @@
 #!/usr/bin/env perl
+
+our $basedir = '/usr/local/esop/agent/mole';
+our $mole = "$basedir/mole";
+
+BEGIN {
+  my $basedir = '/usr/local/esop/agent/mole';
+  my $pllib_dir = "$basedir/opt/plmods";
+  my @incs = (    # set additional path
+        # rhel5 32bit
+        $pllib_dir.'/lib/perl5/',
+        $pllib_dir.'/lib/perl5/5.8.8/',
+        $pllib_dir.'/lib/perl5/site_perl/',
+        $pllib_dir.'/lib/perl5/site_perl/5.8.8/',
+        # rhel5 64bit
+        $pllib_dir.'/lib64/perl5/',
+        $pllib_dir.'/lib64/perl5/5.8.8/',
+        $pllib_dir.'/lib64/perl5/site_perl/',
+        $pllib_dir.'/lib64/perl5/site_perl/5.8.8/',
+        # rhel6 32bit
+        $pllib_dir.'/lib/perl5/',
+        # rhel6 64bit
+        $pllib_dir.'/lib64/perl5/',
+  );
+
+  push @INC, @incs;
+};
+
 use warnings;
 use strict;
 use utf8;
@@ -16,18 +43,17 @@ our ($state_succ,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) 
 # return stuff
 our ($rc, $result) = (0,'');
 
-our $eminfo = '/usr/local/eminfo/eminfo';
 our $filename = (split /\//, __FILE__)[-1];
 
-# check eminfo
-unless (-f $eminfo && -x $eminfo) {
-  printf "{unkn}:{str}:{$eminfo not prepared.}";
+# check mole
+unless (-f $mole && -x $mole) {
+  printf "{unkn}:{str}:{$mole not prepared.}";
   exit $state_unkn;
 }
 
-# read eminfo locale_def
-our $localdir = '/usr/local/eminfo/share/locale/';
-open my $fh, "$eminfo printdef LOCALE_DIR 2>&- |";
+# read mole locale_def
+our $localdir = "$basedir/share/locale/";
+open my $fh, "$mole printdef LOCALE_DIR 2>&- |";
 if($fh){
   while(<$fh>){
   	chomp; $localdir = $_;
@@ -37,14 +63,14 @@ if($fh){
 
 # read plugin locale setting
 our $locale = 'zh_CN.UTF-8';
-open $fh, "$eminfo view $filename locale 2>&- |";
+open $fh, "$mole view $filename locale 2>&- |";
 if($fh){
   while(<$fh>){
         chomp; $locale = $_;
         last;
   }
   if(!defined $locale || $locale eq ''){
-        open my $fh1, "$eminfo view default locale 2>&- |";
+        open my $fh1, "$mole view default locale 2>&- |";
         if($fh1){
                 while(<$fh1>){
                         chomp; $locale = $_;
@@ -71,7 +97,7 @@ bindtextdomain "$filename", "$localdir";
 
 # read plugin config here
 our $wearout_life_uplimit = 80;
-open $fh, "$eminfo view $filename wearout_life_uplimit 2>&- |";
+open $fh, "$mole view $filename wearout_life_uplimit 2>&- |";
 if($fh){
   while(<$fh>){
   	chomp; $wearout_life_uplimit = $_;
@@ -81,7 +107,7 @@ if($fh){
 $wearout_life_uplimit = 80 if $wearout_life_uplimit =~ /\D/;
 
 our $wear_leveling_uplimit = 80;
-open $fh, "$eminfo view $filename wear_leveling_uplimit 2>&- |";
+open $fh, "$mole view $filename wear_leveling_uplimit 2>&- |";
 if($fh){
   while(<$fh>){
   	chomp; $wear_leveling_uplimit = $_;
@@ -91,7 +117,7 @@ if($fh){
 $wear_leveling_uplimit = 80 if $wear_leveling_uplimit =~ /\D/;
 
 our $Reallocated_Sector_Ct = 0;
-open $fh, "$eminfo view $filename Reallocated_Sector_Ct 2>&- |";
+open $fh, "$mole view $filename Reallocated_Sector_Ct 2>&- |";
 if($fh){
   while(<$fh>){
   	chomp; $Reallocated_Sector_Ct = $_;
@@ -101,7 +127,7 @@ if($fh){
 $Reallocated_Sector_Ct = 0 if $Reallocated_Sector_Ct =~ /\D/;
 
 our $Program_Fail_Cnt_Total = 0;
-open $fh, "$eminfo view $filename Program_Fail_Cnt_Total 2>&- |";
+open $fh, "$mole view $filename Program_Fail_Cnt_Total 2>&- |";
 if($fh){
   while(<$fh>){
   	chomp; $Program_Fail_Cnt_Total = $_;
@@ -111,7 +137,7 @@ if($fh){
 $Program_Fail_Cnt_Total = 0 if $Program_Fail_Cnt_Total =~ /\D/;
 
 our $Erase_Fail_Count_Total = 0;
-open $fh, "$eminfo view $filename Erase_Fail_Count_Total 2>&- |";
+open $fh, "$mole view $filename Erase_Fail_Count_Total 2>&- |";
 if($fh){
   while(<$fh>){
   	chomp; $Erase_Fail_Count_Total = $_;
@@ -121,7 +147,7 @@ if($fh){
 $Erase_Fail_Count_Total = 0 if $Erase_Fail_Count_Total =~ /\D/;
 
 our $Runtime_Bad_Block = 0;
-open $fh, "$eminfo view $filename Runtime_Bad_Block 2>&- |";
+open $fh, "$mole view $filename Runtime_Bad_Block 2>&- |";
 if($fh){
   while(<$fh>){
   	chomp; $Runtime_Bad_Block = $_;
@@ -131,7 +157,7 @@ if($fh){
 $Runtime_Bad_Block = 0 if $Runtime_Bad_Block =~ /\D/;
 
 our $Data_Address_Mark_Errs = 0;
-open $fh, "$eminfo view $filename Data_Address_Mark_Errs 2>&- |";
+open $fh, "$mole view $filename Data_Address_Mark_Errs 2>&- |";
 if($fh){
   while(<$fh>){
   	chomp; $Data_Address_Mark_Errs = $_;
@@ -141,7 +167,7 @@ if($fh){
 $Data_Address_Mark_Errs = 0 if $Data_Address_Mark_Errs =~ /\D/;
 
 our $ssd_dev = '';
-open $fh, "$eminfo view $filename ssd_dev 2>&- |";
+open $fh, "$mole view $filename ssd_dev 2>&- |";
 if($fh){
   while(<$fh>){
   	chomp; $ssd_dev = $_;

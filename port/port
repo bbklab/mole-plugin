@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
 
+# BASE_DIR DEF
+[ -z ${BASE_DIR} ] && { 
+        path=$( cd $(dirname $0) && pwd)
+        BASE_DIR=${path%/*}
+}
 
-BASE_DIR="/usr/local/eminfo/"
 # === LOAD GETTEXT.SH FILE
 if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
@@ -89,7 +93,7 @@ CONTENT=        ### { strings | /path/to/result.file }
 if [ "${MODE}" == "1" ]; then
 	port_list="$2"
 else
-	port_list=$( read_eminfo_config port port_list )
+	port_list=$( read_mole_config port port_list )
 fi
 
 

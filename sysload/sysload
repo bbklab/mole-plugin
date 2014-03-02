@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
 
+# BASE_DIR DEF
+[ -z ${BASE_DIR} ] && { 
+        path=$( cd $(dirname $0) && pwd)
+        BASE_DIR=${path%/*}
+}
 
-BASE_DIR="/usr/local/eminfo/"
 # === LOAD GETTEXT.SH FILE
 if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
@@ -80,7 +84,7 @@ TYPE=   	### { str| file }
 CONTENT=        ### { strings | /path/to/result.file }
 
 # Read plugin config value here
-load_uplimit=$(read_eminfo_config sysload load_uplimit)
+load_uplimit=$(read_mole_config sysload load_uplimit)
 
 # if null return STATE_UNKN.
 

@@ -16,17 +16,18 @@ our ($state_succ,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) 
 # return stuff
 our ($rc, $result) = (0,'');
 
-our $eminfo = '/usr/local/eminfo/eminfo';
+our $basedir= '/usr/local/esop/agent/mole';
+our $mole = "$basedir/mole";
 our $filename = (split /\//, __FILE__)[-1];
 
-# check eminfo
-unless (-f $eminfo && -x $eminfo) {
-  printf "{unkn}:{str}:{$eminfo not prepared.}";
+# check mole 
+unless (-f $mole && -x $mole) {
+  printf "{unkn}:{str}:{$mole not prepared.}";
   exit $state_unkn;
 }
 
 our $data_source = "{}";
-open my $fh, "$eminfo view $filename data_source 2>&- |";
+open my $fh, "$mole view $filename data_source 2>&- |";
 if ($fh) {
   while(<$fh>){
 	chomp; $data_source = $_;

@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
 
+# BASE_DIR DEF
+[ -z ${BASE_DIR} ] && { 
+        path=$( cd $(dirname $0) && pwd)
+        BASE_DIR=${path%/*}
+}
 
-BASE_DIR="/usr/local/eminfo/"
 # === LOAD GETTEXT.SH FILE
 if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
@@ -85,9 +89,9 @@ if [ "${MODE}" == "1" ]; then
 	mysql_conn_conf="$3"
 	mysql_time_out="$4"
 else
-	mysqladmin_path=$( read_eminfo_config mysql_ping mysqladmin_path )
-	mysql_conn_conf=$( read_eminfo_config mysql_ping mysql_conn_conf )
-	mysql_time_out=$( read_eminfo_config mysql_ping mysql_time_out )
+	mysqladmin_path=$( read_mole_config mysql_ping mysqladmin_path )
+	mysql_conn_conf=$( read_mole_config mysql_ping mysql_conn_conf )
+	mysql_time_out=$( read_mole_config mysql_ping mysql_time_out )
 fi
 
 # if null return STATE_UNKN.

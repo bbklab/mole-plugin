@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
+# BASE_DIR DEF
+[ -z ${BASE_DIR} ] && { 
+        path=$( cd $(dirname $0) && pwd)
+        BASE_DIR=${path%/*}
+}
 
-BASE_DIR="/usr/local/eminfo/"
 # === LOAD GETTEXT.SH FILE
 if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
@@ -87,11 +91,11 @@ if [ "${MODE}" == "1" ]; then
 	action="$2"
 	filesystem_fstype="$3"
 else
-	filesystem_fstype=$( read_eminfo_config disk_space filesystem_fstype )
-	exclude_mpoint=$( read_eminfo_config disk_space exclude_mpoint )
-	disk_spare_space_uplimit=$( read_eminfo_config disk_space disk_spare_space_uplimit )
-	disk_spare_percent_uplimit=$( read_eminfo_config disk_space disk_spare_percent_uplimit )
-	inode_spare_percent_uplimit=$( read_eminfo_config disk_space inode_spare_percent_uplimit )
+	filesystem_fstype=$( read_mole_config disk_space filesystem_fstype )
+	exclude_mpoint=$( read_mole_config disk_space exclude_mpoint )
+	disk_spare_space_uplimit=$( read_mole_config disk_space disk_spare_space_uplimit )
+	disk_spare_percent_uplimit=$( read_mole_config disk_space disk_spare_percent_uplimit )
+	inode_spare_percent_uplimit=$( read_mole_config disk_space inode_spare_percent_uplimit )
 fi
 
 # if null return STATE_UNKN.

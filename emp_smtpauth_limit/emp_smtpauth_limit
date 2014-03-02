@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 
 
-BASE_DIR="/usr/local/eminfo/"
+# BASE_DIR DEF
+[ -z ${BASE_DIR} ] && { 
+        path=$( cd $(dirname $0) && pwd)
+        BASE_DIR=${path%/*}
+}
+
 # === LOAD GETTEXT.SH FILE
 if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
@@ -78,15 +83,15 @@ CONTENT=        ### { strings | /path/to/result.file }
 if [ "${MODE}" == "1" ]; then
 	action="$2"
 else
-	mysqlcli_path=$( read_eminfo_config emp_smtpauth_limit mysqlcli_path )
-	usrmysql_conn_conf=$( read_eminfo_config emp_smtpauth_limit usrmysql_conn_conf )
-	logmysql_conn_conf=$( read_eminfo_config emp_smtpauth_limit logmysql_conn_conf )
-	mysql_time_out=$( read_eminfo_config emp_smtpauth_limit mysql_time_out )
-	smtp_auth_limit=$( read_eminfo_config emp_smtpauth_limit smtp_auth_limit )
-	smtp_white_list=$( read_eminfo_config emp_smtpauth_limit smtp_white_list )
-	action_pipe_file=$( read_eminfo_config emp_smtpauth_limit action_pipe_file )
-	action_tag_path=$( read_eminfo_config emp_smtpauth_limit action_tag_path )
-	user_max_repeat=$( read_eminfo_config emp_smtpauth_limit user_max_repeat )
+	mysqlcli_path=$( read_mole_config emp_smtpauth_limit mysqlcli_path )
+	usrmysql_conn_conf=$( read_mole_config emp_smtpauth_limit usrmysql_conn_conf )
+	logmysql_conn_conf=$( read_mole_config emp_smtpauth_limit logmysql_conn_conf )
+	mysql_time_out=$( read_mole_config emp_smtpauth_limit mysql_time_out )
+	smtp_auth_limit=$( read_mole_config emp_smtpauth_limit smtp_auth_limit )
+	smtp_white_list=$( read_mole_config emp_smtpauth_limit smtp_white_list )
+	action_pipe_file=$( read_mole_config emp_smtpauth_limit action_pipe_file )
+	action_tag_path=$( read_mole_config emp_smtpauth_limit action_tag_path )
+	user_max_repeat=$( read_mole_config emp_smtpauth_limit user_max_repeat )
 fi
 
 # if null return STATE_UNKN.

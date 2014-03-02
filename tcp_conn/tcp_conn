@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
 
+# BASE_DIR DEF
+[ -z ${BASE_DIR} ] && { 
+        path=$( cd $(dirname $0) && pwd)
+        BASE_DIR=${path%/*}
+}
 
-BASE_DIR="/usr/local/eminfo/"
 # === LOAD GETTEXT.SH FILE
 if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
@@ -115,7 +119,7 @@ CONTENT=        ### { strings | /path/to/result.file }
 if [ "${MODE}" == "1" ]; then
         port_list="$2"
 else
-	port_list=$( read_eminfo_config tcp_conn port_list )
+	port_list=$( read_mole_config tcp_conn port_list )
 fi
 
 # if null return STATE_UNKN.
@@ -162,7 +166,7 @@ check_single(){
 
   local result=" ### $(eval_gettext "Check List: [\${port_list}]") ### ### "
   local oknum=0 errnum=0 unknum=0 total=0
-  local statfile="/tmp/.check_tcpconn_num.statfile.eminfo"
+  local statfile="/tmp/.check_tcpconn_num.statfile.mole"
   /bin/netstat -an > "${statfile}" 2>&-
   [ ! -f "${statfile}" -o ! -s "${statfile}" ] && {
 	EXIT_STATUS=${STATE_UNKN};

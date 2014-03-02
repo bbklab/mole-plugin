@@ -1,4 +1,31 @@
 #!/usr/bin/env perl
+
+our $basedir = '/usr/local/esop/agent/mole';
+our $mole = "$basedir/mole";
+
+BEGIN {
+  my $basedir = '/usr/local/esop/agent/mole';
+  my $pllib_dir = "$basedir/opt/plmods";
+  my @incs = (    # set additional path
+        # rhel5 32bit
+        $pllib_dir.'/lib/perl5/',
+        $pllib_dir.'/lib/perl5/5.8.8/',
+        $pllib_dir.'/lib/perl5/site_perl/',
+        $pllib_dir.'/lib/perl5/site_perl/5.8.8/',
+        # rhel5 64bit
+        $pllib_dir.'/lib64/perl5/',
+        $pllib_dir.'/lib64/perl5/5.8.8/',
+        $pllib_dir.'/lib64/perl5/site_perl/',
+        $pllib_dir.'/lib64/perl5/site_perl/5.8.8/',
+        # rhel6 32bit
+        $pllib_dir.'/lib/perl5/',
+        # rhel6 64bit
+        $pllib_dir.'/lib64/perl5/',
+  );
+
+  push @INC, @incs;
+};
+
 use warnings;
 use strict;
 use utf8;
@@ -15,19 +42,18 @@ our ($state_succ,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) 
 # return stuff
 our ($rc, $result) = (0,'');
 
-our $eminfo = '/usr/local/eminfo/eminfo';
 our $filename = (split /\//, __FILE__)[-1];
 our $tracefile = "/var/tmp/$filename.trace";
 
-# check eminfo
-unless (-f $eminfo && -x $eminfo) {
-  printf "{unkn}:{str}:{$eminfo not prepared.}";
+# check mole 
+unless (-f $mole && -x $mole) {
+  printf "{unkn}:{str}:{$mole not prepared.}";
   exit $state_unkn;
 }
 
-# read eminfo locale_def
-our $localdir = '/usr/local/eminfo/share/locale/';
-open my $fh, "$eminfo printdef LOCALE_DIR 2>&- |";
+# read mole locale_def
+our $localdir = "$basedir/share/locale/";
+open my $fh, "$mole printdef LOCALE_DIR 2>&- |";
 if($fh){
   while(<$fh>){
         chomp; $localdir = $_; 
@@ -37,14 +63,14 @@ if($fh){
 
 # read plugin locale setting
 our $locale = 'zh_CN.UTF-8';
-open $fh, "$eminfo view $filename locale 2>&- |";
+open $fh, "$mole view $filename locale 2>&- |";
 if($fh){
   while(<$fh>){
         chomp; $locale = $_;
         last;
   }
   if(!defined $locale || $locale eq ''){
-        open my $fh1, "$eminfo view default locale 2>&- |";
+        open my $fh1, "$mole view default locale 2>&- |";
         if($fh1){
                 while(<$fh1>){
                         chomp; $locale = $_;
@@ -71,7 +97,7 @@ bindtextdomain "$filename", "$localdir";
 
 # read plugin config here
 our $deliverfile = '/usr/local/eyou/mail/log/deliver_mail.log';
-open $fh, "$eminfo view $filename deliver_logfile 2>&- |";
+open $fh, "$mole view $filename deliver_logfile 2>&- |";
 if($fh){
   while(<$fh>){
 	chomp; $deliverfile = $_;
@@ -79,18 +105,18 @@ if($fh){
   }
 }
 
-our $eminfo_basedir = '/usr/local/eminfo/';
-open $fh, "$eminfo basedir 2>&- |";
+our $mole_basedir = $basedir;
+open $fh, "$mole basedir 2>&- |";
 if($fh){
   while(<$fh>){
-	chomp; $eminfo_basedir = $_;
+	chomp; $mole_basedir = $_;
 	last;
   }
 }
 
 our @attendlst = ();
 our $attendlst = '';
-open $fh, "$eminfo view $filename attention_list 2>&- |";
+open $fh, "$mole view $filename attention_list 2>&- |";
 if($fh){
   while(<$fh>){
   	chomp; $attendlst = $_;
@@ -100,8 +126,8 @@ if($fh){
 if (defined $attendlst && $attendlst ne ''){
   $attendlst =~ s/\A\s*file://;
   unless(-f $attendlst) {
-	if (-f $eminfo_basedir.'/'.$attendlst) {
-  		$attendlst = $eminfo_basedir.'/'.$attendlst;
+	if (-f $mole_basedir.'/'.$attendlst) {
+  		$attendlst = $mole_basedir.'/'.$attendlst;
 	}
   } 
   if (-f $attendlst) {
