@@ -1,4 +1,4 @@
-eminfo-plugin
+mole-plugin
 =============
 
-plugins for eminfo
+plugins for mole 

@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 
 
-BASE_DIR="/usr/local/eminfo"
+# BASE_DIR DEF
+[ -z ${BASE_DIR} ] && { 
+        path=$( cd $(dirname $0) && pwd)
+        BASE_DIR=${path%/*}
+}
+
 if [ -f ${BASE_DIR}/bin/include -a -s ${BASE_DIR}/bin/include ]; then
         source ${BASE_DIR}/bin/include 2>&1
         rc=$?
@@ -14,8 +19,8 @@ else
         exit 1
 fi
 
-dump_reserve_time=$(read_eminfo_config mysql_dump dump_reserve_time)
-dump_savedir=$(read_eminfo_config mysql_dump dump_savedir)
+dump_reserve_time=$(read_mole_config mysql_dump dump_reserve_time)
+dump_savedir=$(read_mole_config mysql_dump dump_savedir)
 
 [ -z "${dump_reserve_time}" -o ! -z "${dump_reserve_time//[0-9]}" ] && dump_reserve_time=90
 [ -z "${dump_savedir}" ] && { 
