@@ -17,7 +17,7 @@ clean
 }
 
 if [ -z "${1}" ]; then
-  specfile="${basedir}/mole-plugin.spec"
+  specfile="${path}/spec_files/mole-plugin.spec"
   name=$(awk -F: '($1~/Name/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
   version=$(awk -F: '($1~/Version/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
   source0=$(awk -F: '($1~/Source0/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
@@ -54,7 +54,7 @@ if [ -z "${1}" ]; then
   )
 else
   if [ -d "${basedir}/${1}" ]; then
-	specfile="${basedir}/${1}.spec"
+	specfile="${path}/spec_files/${1}.spec"
 	name=$(awk -F: '($1~/Name/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
 	version=$(awk -F: '($1~/Version/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
 	source0=$(awk -F: '($1~/Source0/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
