@@ -17,7 +17,7 @@ clean
 }
 
 if [ -z "${1}" ]; then
-  specfile="${basedir}/eminfo-plugin.spec"
+  specfile="${basedir}/mole-plugin.spec"
   name=$(awk -F: '($1~/Name/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
   version=$(awk -F: '($1~/Version/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
   source0=$(awk -F: '($1~/Source0/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
