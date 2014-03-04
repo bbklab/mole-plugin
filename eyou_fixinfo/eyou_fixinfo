@@ -50,7 +50,7 @@ our $filename = (split /\//, __FILE__)[-1];
 
 my $mail_license = '{}';
 my $php = '/usr/local/eyou/mail/opt/bin/php';
-my $decoder = '/usr/local/esop/agent/mole/php/mail/mail_license.php';
+my $decoder = '/usr/local/esop/agent/mole/mail/mail_license.php';
 if (-f $php && -x $php && -f $decoder && -x $decoder) {
 	open my $fh, "sudo -u eyou $php $decoder 2>&-|";
 	if($fh){
