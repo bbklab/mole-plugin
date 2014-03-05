@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
 our $basedir = '/usr/local/esop/agent/mole';
-our $mole = "$basedir/mole";
+our $mole = "$basedir/sbin/mole";
 
 BEGIN {
   my $basedir = '/usr/local/esop/agent/mole';
