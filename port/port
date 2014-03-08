@@ -100,7 +100,13 @@ fi
 # if null return STATE_UNKN.
 
 # if null or invalid set default.
-[ -z "${port_list//[ ]}" ] && port_list="22"
+if [ -z "${port_list}" ]; then
+	if [ -f "/etc/ssh/sshd_config" -a -s "/etc/ssh/sshd_config" ]; then
+		ssh_port=$(awk '($1~/^Port\>/){print $2;exit;}' "/etc/ssh/sshd_config" 2>&- | tr -d '\r\n\t ')
+	fi
+	[ -z "${ssh_port}" ] && ssh_port=22
+	port_list=" tcp:127.0.0.1:${ssh_port}:10 "
+fi 
 
 # check function here
 check(){
