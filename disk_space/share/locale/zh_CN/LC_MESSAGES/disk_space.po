@@ -28,32 +28,29 @@ msgstr "[/etc/mtab] 文件不存在或为空文件."
 msgid "Space Check"
 msgstr "磁盘空间使用率检查"
 
-msgid "filed number [${fdnum}] <> 7"
-msgstr "字段个数为${fdnum}, 不等于7"
+msgid "mount point ${m}, filed number ${fdnum} <> 7"
+msgstr "挂载点{m}, 字段个数为${fdnum}, 不等于7"
 
-msgid "percent filed [${fpercent}] unrecognized"
-msgstr "使用率字段格式无法识别: ${fpercent}"
+msgid "mount point ${m}, percent filed ${fpercent} unrecognized"
+msgstr "挂载点{m}, 使用率字段格式无法识别: ${fpercent}"
 
-msgid "SKIP. as mount point=[${fmount}]"
+msgid "mount point ${fmount} SKIP"
 msgstr "跳过挂载点 ${fmount} 的检查"
 
-msgid "${device} -> ${mount} (${fstype}) : spare [${spare_space}M] <= [${disk_spare_space_uplimit}M]"
-msgstr "设备: ${device}, 挂载点为${mount}, 分区类型${fstype}, 可用空间为${spare_space}M, 低于${disk_spare_space_uplimit}M"
+msgid "${device} -> ${mount} (${fstype}), size: ${size}M,  used: ${used}M, used percent: ${used_pct}% > ${space_pct}%"
+msgstr "设备: ${device}, 挂载点为${mount}, 分区类型${fstype}, 总大小${size}M, 已用${used}M, 已用百分比 ${used_pct}% > ${space_pct}%"
 
-msgid "${device} -> ${mount} (${fstype}) : spare [${spare_space}M]" 
-msgstr "设备: ${device}, 挂载点为${mount}, 分区类型${fstype}, 可用空间为${spare_space}M"
-
-msgid "${device} -> ${mount} (${fstype}) : spare [${spare_pct}%] <= [${disk_spare_percent_uplimit}%]"
-msgstr "设备: ${device}, 挂载点为${mount}, 分区类型${fstype}, 可用百分比为${spare_pct}%, 低于${disk_spare_percent_uplimit}%"
-
-msgid "${device} -> ${mount} (${fstype}) : spare [${spare_pct}%]"
-msgstr "设备: ${device}, 挂载点为${mount}, 分区类型${fstype}, 可用百分比为${spare_pct}%"
+msgid "${device} -> ${mount} (${fstype}), size: ${size}M, used: ${used}M, used percent: ${used_pct}%"
+msgstr "设备: ${device}, 挂载点为${mount}, 分区类型${fstype}, 总大小${size}M, 已用${used}M, 已用百分比 ${used_pct}%"
 
 msgid "Inode Check"
 msgstr "磁盘节点使用率检查"
 
-msgid "${device} -> ${mount} (${fstype}) : spare [${spare_pct}%] <= [${inode_spare_percent_uplimit}%]"
-msgstr "设备: ${device}, 挂载点为${mount}, 分区类型${fstype}, 可用百分比为${spare_pct}%, 低于${inode_spare_percent_uplimit}%"
+msgid "${device} -> ${mount} (${fstype}), size: ${size}, used: ${used}, used percent: ${used_pct}% > ${inode_pct}%"
+msgstr "设备: ${device}, 挂载点为${mount}, 分区类型${fstype}, 节点总数${size}, 已用${used}, 已用百分比 ${used_pct}% > ${inode_pct}%"
+
+msgid "${device} -> ${mount} (${fstype}), size: ${size}, used: ${used}, used percent: ${used_pct}%"
+msgstr "设备: ${device}, 挂载点为${mount}, 分区类型${fstype}, 节点总数${size}, 已用${used}, 已用百分比 ${used_pct}%"
 
 msgid "Disk Space Check WARNING"
 msgstr "磁盘使用率检查告警"

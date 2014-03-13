@@ -126,25 +126,25 @@ check(){
   result="### $(gettext "Space Check") ### "
   for t in `echo "${fstype}"`
   do
-	mpoint=$(awk '($3~/\<'${t}'\>/){print $1}' "/etc/mtab" 2>&-|tr '\n' ' ')
+	mpoint=$(awk '($3~/\<'${t}'\>/){print $2}' "/etc/mtab" 2>&-|tr '\n' ' ')
 	for m in `echo "${mpoint}"`
 	do
 		line=( $(/bin/df -P -T -m "${m}" 2>&- | tail -n +2) )
 		if [ "${#line[@]}" != "7" ]; then
 			((warnnum++))
 			fdnum=${#line[@]}
-			result="${result} $(html_red "$(eval_gettext "mount point ${m}, filed number \${fdnum} <> 7")") ###"
+			result="${result} $(html_red "$(eval_gettext "mount point \${m}, filed number \${fdnum} <> 7")") ###"
 			continue
 		fi
 		if [ "${line[5]//[0-9]}" != "%" ]; then
 			((warnnum++))
 			fpercent=${line[5]}
-			result="${result} $(html_red "$(eval_gettext "mount point ${m}, percent filed \${fpercent} unrecognized")") ###"
+			result="${result} $(html_red "$(eval_gettext "mount point \${m}, percent filed \${fpercent} unrecognized")") ###"
 			continue
 		fi
 		if [ "$(echo -e "${exclude_mpoint}"|grep -E -o -w "${line[6]}")" != "" ]; then
 			fmount=${line[6]}
-			result="${result} ["${line[@]}"] $(eval_gettext "mount point ${fmount} SKIP") ###"
+			result="${result} ["${line[@]}"] $(eval_gettext "mount point \${fmount} SKIP") ###"
 			continue
 		fi
 
@@ -158,19 +158,22 @@ check(){
 		fi
 
 		# reset space_pct if single mount point specified
-		local single_space_pct=$(read_mole_config disk_space "space_pct_${m}" )
-		if [ ! -z "${single_space_pct}" -a -z "${single_space_pct//[0-9]}" ]; then
-			space_pct=${single_space_pct}
-		else
-			space_pct=${default_space_pct}
-		fi
+		# pre-deal special charset
+		#m="$(echo -e "${m}" | sed -e 's#/#\/#g; s#+#\\+#g; s#(#\\(#g; s#)#\\)#g; s#?#\\?#g')"
+		#local single_space_pct=$(read_mole_config disk_space "space_pct_${m}" )
+		#if [ ! -z "${single_space_pct}" -a -z "${single_space_pct//[0-9]}" ]; then
+			#space_pct=${single_space_pct}
+		#else
+			#space_pct=${default_space_pct}
+		#fi
+		space_pct=${default_space_pct}
 
 		# check spare space percent
 		if [ "$( echo "${used_pct}>${space_pct}" | bc 2>&- )" == "1" ]; then
 			((warnnum++))
-			result="${result} $(html_red "$(eval_gettext "\${device} -> \${mount} (\${fstype}), size: ${size}M,  used: ${used}M, used percent: \${used_pct}% > \${space_pct}%")") ### "
+			result="${result} $(html_red "$(eval_gettext "\${device} -> \${mount} (\${fstype}), size: \${size}M,  used: \${used}M, used percent: \${used_pct}% > \${space_pct}%")") ### "
 		else
-			result="${result} $(eval_gettext "\${device} -> \${mount} (\${fstype}), size: ${size}M, used: ${used}M, used percent: \${used_pct}%") ###"
+			result="${result} $(eval_gettext "\${device} -> \${mount} (\${fstype}), size: \${size}M, used: \${used}M, used percent: \${used_pct}%") ###"
 		fi
 	done
   done
@@ -178,25 +181,25 @@ check(){
   result="${result} ### $(gettext "Inode Check") ### "
   for t in `echo "${fstype}"`
   do
-	mpoint=$(awk '($3~/\<'${t}'\>/){print $1}' "/etc/mtab" 2>&-|tr '\n' ' ')
+	mpoint=$(awk '($3~/\<'${t}'\>/){print $2}' "/etc/mtab" 2>&-|tr '\n' ' ')
 	for m in `echo "${mpoint}"`
 	do
 		line=( $(/bin/df -P -T -i "${m}" 2>&- | tail -n +2) )
 		if [ "${#line[@]}" != "7" ]; then
 			((warnnum++))
 			fdnum=${#line[@]}
-			result="${result} $(html_red "$(eval_gettext "mount point ${m}, filed number \${fdnum} <> 7")") ###"
+			result="${result} $(html_red "$(eval_gettext "mount point \${m}, filed number \${fdnum} <> 7")") ###"
 			continue
 		fi
 		if [ "${line[5]//[0-9]}" != "%" ]; then
 			((warnnum++))
 			fpercent=${line[5]}
-			result="${result} $(html_red "$(eval_gettext "mount point ${m}, percent filed \${fpercent} unrecognized")") ###"
+			result="${result} $(html_red "$(eval_gettext "mount point \${m}, percent filed \${fpercent} unrecognized")") ###"
 			continue
 		fi
 		if [ "$(echo -e "${exclude_mpoint}"|grep -E -o -w "${line[6]}")" != "" ]; then
 			fmount=${line[6]}
-			result="${result} ["${line[@]}"] $(eval_gettext "mount point ${fmount} SKIP") ###"
+			result="${result} ["${line[@]}"] $(eval_gettext "mount point \${fmount} SKIP") ###"
 			continue
 		fi
 
@@ -210,19 +213,22 @@ check(){
          	fi  
 
                 # reset inode_pct if single mount point specified
-                local single_inode_pct=$(read_mole_config disk_space "inode_pct_${m}" )
-                if [ ! -z "${single_inode_pct}" -a -z "${single_inode_pct//[0-9]}" ]; then
-                        inode_pct=${single_inode_pct}
-                else
-                        inode_pct=${default_inode_pct}
-                fi  
+		# pre-deal special charset
+		#m="$(echo -e "${m}" | sed -e 's#/#\/#g; s#+#\\+#g; s#(#\\(#g; s#)#\\)#g; s#?#\\?#g')"
+                #local single_inode_pct=$(read_mole_config disk_space "inode_pct_${m}" )
+                #if [ ! -z "${single_inode_pct}" -a -z "${single_inode_pct//[0-9]}" ]; then
+                        #inode_pct=${single_inode_pct}
+                #else
+                        #inode_pct=${default_inode_pct}
+                #fi  
+		inode_pct=${default_inode_pct}
 
 		# check inode spare percent
 		if [ "$(echo "${used_pct}>${inode_pct}" | bc 2>&-)" == "1" ]; then
 			((warnnum++))
-			result="${result} $(html_red "$(eval_gettext "\${device} -> \${mount} (\${fstype}), size: ${size}, used: ${used}, used percent: \${used_pct}% > \${inode_pct}%")") ###"
+			result="${result} $(html_red "$(eval_gettext "\${device} -> \${mount} (\${fstype}), size: \${size}, used: \${used}, used percent: \${used_pct}% > \${inode_pct}%")") ###"
 		else
-			result="${result} $(eval_gettext "\${device} -> \${mount} (\${fstype}), size: ${size}, used: ${used}, used percent: \${used_pct}%") ###"
+			result="${result} $(eval_gettext "\${device} -> \${mount} (\${fstype}), size: \${size}, used: \${used}, used percent: \${used_pct}%") ###"
 		fi
 	done
   done
