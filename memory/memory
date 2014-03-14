@@ -87,6 +87,18 @@ swp_uplimit=$(read_mole_config memory swp_uplimit)
 
 # if null or invalid set default.
 [ -z "${mem_uplimit}" -o ! -z "${mem_uplimit//[0-9.]}" ] && mem_uplimit=99.99
+if [ -z "${swp_uplimit}" -o ! -z "${swp_uplimit//[0-9.]}" ]; then
+	mem_size=$(awk '/^MemTotal:/ {print $2/1024/1024;exit;}' /proc/meminfo 2>&-)
+	if [ -z "${mem_size}" -o ! -z "${mem_size//[0-9.]}" ]; then
+		swp_uplimit=10
+	elif [ "$(echo "${mem_size} >= 16" | bc 2>&-)" == "1" ]; then
+		swp_uplimit=30
+	elif [ "$(echo "${mem_size} >=  8" | bc 2>&-)" == "1" ]; then
+		swp_uplimit=20
+	else
+		swp_uplimit=10
+	fi
+fi
 [ -z "${swp_uplimit}" -o ! -z "${swp_uplimit//[0-9.]}" ] && swp_uplimit=10
 
 # check function here
