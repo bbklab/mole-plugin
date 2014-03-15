@@ -189,13 +189,21 @@ check_single(){
   for port_num in `echo "${port_list}" | tr '[;,/]' ' '`
   do
 	((total++))
-	local port="${port_num%%:*}" num="${port_num##*:}"
-	result="${result} ### $(eval_gettext "Check Tcp-Port [\${port}], Uplimit [\${num}]") ### "
-	[ -z "${port}" -o ! -z "${port//[0-9]}" -o -z "${num}" -o ! -z "${num//[0-9]}" ] && {
+
+	sepnum=$(echo -e "${port_num}" | awk -F":" 'END{print --NF}')
+	if [ "${sepnum}" != "1" ]; then
 		((unknum++))
-		result="${result} $(html_red "$(eval_gettext "[\${port_num}] is invalid: [\${port}] or [\${num}] not numberic")") ### "
+		result="${result} $(html_red "$(eval_gettext "[\${port_num}] is invalid")") ### "
 		continue 1
-	}
+	else
+		local port="${port_num%%:*}" num="${port_num##*:}"
+		result="${result} ### $(eval_gettext "Check Tcp-Port [\${port}], Uplimit [\${num}]") ### "
+		if [ -z "${port}" -o ! -z "${port//[0-9]}" -o -z "${num}" -o ! -z "${num//[0-9]}" ]; then
+			((unknum++))
+			result="${result} $(html_red "$(eval_gettext "[\${port_num}] is invalid: [\${port}] or [\${num}] not numberic")") ### "
+			continue 1
+		fi
+	fi
 
    	tmpstr=$(check_single "${port}" "${num}" "${statfile}")
 	rc=$?

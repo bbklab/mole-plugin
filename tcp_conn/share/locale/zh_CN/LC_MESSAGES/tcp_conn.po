@@ -43,6 +43,9 @@ msgstr "状态文件 [${statfile}] 不存在或为空文件."
 msgid "Check Tcp-Port [${port}], Uplimit [${num}]"
 msgstr "检查端口: ${port}, 连接数上限: ${num}"
 
+msgid "[${port_num}] is invalid"
+msgstr "配置项 ${port_num} 不识别"
+
 msgid "[${port_num}] is invalid: [${port}] or [${num}] not numberic"
 msgstr "配置项 ${port_num} 不识别, [${port}] 或 [${num}] 不是数字"
 
