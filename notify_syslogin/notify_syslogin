@@ -97,7 +97,8 @@ textdomain "$filename";
 bindtextdomain "$filename", "$localdir";
 
 # read plugin config here
-our $authfile = '/var/log/secure';
+our $authfile_default = '/var/log/secure';
+our $authfile = '';
 open $fh, "$mole view $filename authfile 2>&- |";
 if ($fh) {
   while(<$fh>){
@@ -105,6 +106,23 @@ if ($fh) {
 	last;
   }
 }
+if (!$authfile) {
+  my ($el5_file,$el6_file,$syslog_conf) = ('/etc/syslog.conf','/etc/rsyslog.conf','');
+  $syslog_conf = (-f $el5_file) ? $el5_file : $el6_file;
+  if (-f $syslog_conf){
+	if (open my $fh0, "<", $syslog_conf) {
+		while(<$fh0>){
+			next if m/\A\s*#/;
+			if (m/authpriv\.\*/i){
+				$authfile = (split/\s+/)[-1];
+				last;
+			}
+		}
+		close $fh0 if ($fh0);
+	}
+  }
+}
+$authfile = (!$authfile) ? $authfile_default : $authfile;
 
 # define dev, inode, position for {authfile}
 our ($dev, $inode, $position) = ();
