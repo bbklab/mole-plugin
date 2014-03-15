@@ -89,7 +89,24 @@ load_uplimit=$(read_mole_config sysload load_uplimit)
 # if null return STATE_UNKN.
 
 # if null or invalid set default.
-[ -z "${load_uplimit}" -o ! -z "${load_uplimit//[0-9.]}" ] && load_uplimit=10
+load_uplimit_default=10
+if [ -z "${load_uplimit}" -o ! -z "${load_uplimit//[0-9.]}" ]; then
+	cpunum=$(awk '(/^processor\s*\d*.*$/){x++} END{print x}' /proc/cpuinfo 2>&-)
+	if [ -z "${cpunum}" -o ! -z "${cpunum//[0-9]}" ]; then
+		load_uplimit=${load_uplimit_default}
+	else
+		if [ ${cpunum} -le 4 ]; then
+			load_uplimit=4
+		elif [ ${cpunum} -le 8 ]; then
+			load_uplimit=${cpunum}
+		elif [ ${cpunum} -le 16 ]; then
+			load_uplimit=$( echo "${cpunum} * 0.7" | bc 2>&-)
+		else
+			load_uplimit=$( echo "${cpunum} * 0.5" | bc 2>&-)
+		fi
+	fi
+fi
+[ -z "${load_uplimit}" -o ! -z "${load_uplimit//[0-9.]}" ] && load_uplimit=${load_uplimit_default}
 
 # check function here
 check(){
