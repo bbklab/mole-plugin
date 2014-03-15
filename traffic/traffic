@@ -88,7 +88,7 @@ if [ "${MODE}" == "1" ]; then
 	count="$4"
 else
 	ifdev_lst=$( read_mole_config traffic ifdev_lst )
-	interval=1; count=10;	### set capture count and sleep interval.
+	interval=3; count=10;	### set capture count and sleep interval.
 fi
 
 
