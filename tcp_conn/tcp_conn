@@ -125,7 +125,7 @@ fi
 # if null return STATE_UNKN.
 
 # if null or invalid set default.
-[ -z "${port_list//[ ]}" ] && port_list=" 80:300 "
+[ -z "${port_list//[ ]}" ] && port_list=" 80:500 "
 
 # check function here
 check(){

@@ -93,15 +93,16 @@ fi
 
 
 # if null or invalid set default.
+netdev_default="eth0"
+limit_default="5M/s:10M/s:0:0"
 netdev=
-default_limit="5M/s:10M/s:0:0"
 if [ -z "${ifdev_lst}" ]; then
 	if [ -f "/proc/net/dev" ]; then
 		netdev=$( awk -F: '(NF!=2){next;} ($1~/\<lo\>/){next;} {print $1,$2}' /proc/net/dev 2>&- | awk '($2!=0 && $3!=0){print $1;exit;}' | tr -d '\r\n\t ')
 	else
-		netdev="eth0"
+		netdev="${netdev_default}"
 	fi
-	ifdev_lst=" ${netdev}:${default_limit} "
+	ifdev_lst=" ${netdev}:${limit_default} "
 fi
 
 # check function here
