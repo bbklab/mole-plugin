@@ -107,19 +107,20 @@ if ($fh) {
   }
 }
 if (!$messagefile) {
-	my ($el5_file,$el6_file,$syslog_conf) = ('/etc/syslog.conf','/etc/rsyslog.conf','');
-	$syslog_conf = (-f $el5_file) ? $el5_file : $el6_file;
-	if (-f $syslog_conf){
-		if (open my $fh0, "<", $syslog_conf) {
-			while(<$fh0>){
-				next if m/\A\s*#/;
-				if (m/\*\.info\;/i){
-					$messagefile = (split/\s+/)[-1];
-					last;
-				}
+  my ($el5_file,$el6_file,$syslog_conf) = ('/etc/syslog.conf','/etc/rsyslog.conf','');
+  $syslog_conf = (-f $el5_file) ? $el5_file : $el6_file;
+  if (-f $syslog_conf){
+	if (open my $fh0, "<", $syslog_conf) {
+		while(<$fh0>){
+			next if m/\A\s*#/;
+			if (m/\*\.info/i){
+				$messagefile = (split/\s+/)[-1];
+				last;
 			}
 		}
+		close $fh0 if ($fh0);
 	}
+  }
 }
 $messagefile = (!$messagefile) ? $messagefile_default : $messagefile;
 
