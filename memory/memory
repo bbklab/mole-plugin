@@ -173,7 +173,7 @@ check(){
   mem_detail="$(eval_gettext "total=\${mem_total}M  free=\${mem_free}M")"
   if [ "$(echo  "${mem_percent} >= ${mem_uplimit}" | bc 2>&-)" == "1" ]; then
 	((warnnum++))
-	result="${result} ### $(html_yellow "$(eval_gettext "Memory Usage: [\${mem_percent}]% >= Uplimit: [\${mem_uplimit}%]")") ### ${mem_detail} ###"
+	result="${result} ### $(html_red "$(eval_gettext "Memory Usage: [\${mem_percent}]% >= Uplimit: [\${mem_uplimit}%]")") ### ${mem_detail} ###"
   else
 	((oknum++))
 	result="${result} ### $(eval_gettext "Memory Usage: [\${mem_percent}]% <= Uplimit: [\${mem_uplimit}%]") ### ${mem_detail} ###"
@@ -183,7 +183,7 @@ check(){
   swp_detail="$(eval_gettext "total=\${swp_total}M  free=\${swp_free}M")"
   if [ "$(echo  "${swp_percent} >= ${swp_uplimit}" | bc 2>&-)" == "1" ]; then
 	((warnnum++))
-	result="${result} ### $(html_yellow "$(eval_gettext "Swap Usage: [\${swp_percent}]% >= Uplimit: [\${swp_uplimit}%]")") ### ${swp_detail} ###"
+	result="${result} ### $(html_red "$(eval_gettext "Swap Usage: [\${swp_percent}]% >= Uplimit: [\${swp_uplimit}%]")") ### ${swp_detail} ###"
   else
 	((oknum++))
 	result="${result} ### $(eval_gettext "Swap Usage: [\${swp_percent}]% <= Uplimit: [\${swp_uplimit}%]") ### ${swp_detail} ###"

@@ -121,7 +121,7 @@ check() {
 	sepnum=$(echo -e "${pairs}" | awk -F"," 'END{print --NF}')
 	if [ "${sepnum}" != "3" ]; then
 		((unknum++))
-		result="${result} ### $(html_yellow "$(eval_gettext "[\${pairs}] is invalid")") ### ### "
+		result="${result} ### $(html_red "$(eval_gettext "[\${pairs}] is invalid")") ### ### "
 		continue 1
 	fi
 
