@@ -1,0 +1,204 @@
+#!/usr/bin/perl -w
+# $Header$
+# # ============================================================================
+# # 
+# #
+# #       This program is free software; you can redistribute it and/or modify it
+# #       under the terms of the GNU General Public License as published by the
+# #       Free Software Foundation; either version 2, or (at your option) any
+# #       later version.
+# #
+# #       This program is distributed in the hope that it will be useful,
+# #       but WITHOUT ANY WARRANTY; without even the implied warranty of
+# #       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# #       GNU General Public License for more details.
+# #
+# #       You should have received a copy of the GNU General Public License
+# #       along with this program; if not, write to the Free Software
+# #       Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+# #
+# # ============================================================================
+# #
+# #       Description:
+
+=head1 DESCRIPTION 
+
+check_blackberry.pl : Check BlackBerry servers with snmp for pending mails and different services 
+
+=cut
+
+=head1 USAGE
+
+ ./check_blackberry.pl -h ip -C community (-w number -c number) -i information_needed
+
+=cut
+
+#
+#
+# ============================================================================
+#
+# ==============================================================================
+# # How using it ?
+# ============================================================================
+# ============================================================================
+#
+
+=head2 Options
+
+C<-h or --host> : Set here the ip of your host
+
+C<-C or --community> : Set here your own community
+
+C<-w or --warning> : Set the warning level (for pending mails only)
+
+C<-x or --critical> : Set the critical level (for pending mails only)
+
+C<-i or --information> : Set here the service u want to check (options are: pending|BlackBerryEnterpriseServer|MSQLSERVER|MSQLAGENT|BlackBerryAlerte|BlackBerryRouter|BlackBerryController|BlackBerryDispatcher|BlackBerryPolicyService|BlackBerryAttachmentService|BlackBerryMobileDataService|BlackBerrySynchronisationService|MDSserviceApacheTomcatService)
+
+ IMPORTANT:
+snmp must be installed to perform snmpget/snmpwalk
+snmp must be installed on the blackberry server
+
+=cut
+
+=head2 Example
+
+For pending mails with a 1000 mails warning level and a 1500 mails critical level:
+
+./check_blackberry -h 192.168.0.1 -C public -w 1000 -x 1500 -i pending
+
+To check BlackBerryrouter is running :
+
+./check_blackberry -h 192.168.0.1 -C public -i BlackBerryRouter
+
+Have FuN
+
+=cut
+#
+
+
+#
+## ============================================================================
+#
+###################Setting parameters#########################
+use strict;
+use Getopt::Long;
+use warnings;
+
+my $UNKNOW = -1;
+my $OK = 0;
+my $WARNING = 1;
+my $CRITICAL = 2;
+my $state = $UNKNOW;
+my $host = "127.0.0.1";
+my $community = "public";
+my $warning = "1000";
+my $critical = "2000";
+my $information = "pending";
+my $number="0";
+my $string="HOST-RESOURCES-MIB::hrSWRunName.";
+my %hash = (
+'pending' => '.1.3.6.1.4.1.3530.5.25.1.202.1',
+'MSQLSERVER' => 'sqlservr',
+'MSQLAGENT' => 'sqlagent',
+'BlackBerryAlerte' => 'BESAlert',
+'BlackBerryRouter' => 'BlackberryRouter',
+'BlackBerryController' => 'BlackBerryController',
+'BlackBerryDispatcher' => 'BlackBerryDispatcher',
+'BlackBerryPolicyService' => 'ITAdminServer',
+'BlackBerryAttachmentService' => 'BBAttachServer',
+'BlackBerryMobileDataService' => 'bmds',
+'BlackBerrySyncServer' => 'BlackBerrySyncServer',
+'MDSserviceApacheTomcatService' => 'javaservice',
+);
+
+###################Getting options##############################
+GetOptions(
+        "host|h=s" => \$host,
+        "community|C=s"  => \$community,
+        "warning|w=s"  => \$warning,
+        "critical|x=s"      => \$critical,
+	"information|i=s"   => \$information
+);
+chomp($host);
+chomp($community);
+chomp($warning);
+chomp($critical);
+chomp($information);
+#################################################################
+
+my $oid= $hash{"$information"} or die "Enable to monitore this yet";
+
+
+if ($information eq "pending"){
+	    my $get = snmpget($host, $community, $oid);
+            if ($get =~ /: ([1-9]+)/){
+			$number=$1;
+			if ($number <= $warning){
+				print "Pending mails ok: $number\n";
+				exit $OK;
+			}elsif($number > $warning && $number <= $critical){
+				print "Pending mails warning: $number\n";
+				exit $WARNING;
+			}else{
+                        	print "Pending mails critical: $number\n";
+				exit $CRITICAL;
+			}
+		}else{
+			print "None matched\n";
+			exit $UNKNOW;
+		}
+			
+	     }
+
+else{	
+	my $walk = snmpwalk($host, $community); 
+	if ($walk =~ /$oid/){print "Service $oid is running\n";
+				   exit $OK;	
+				  }else{
+				   print "Alert! Service $oid is down\n";
+				   exit $CRITICAL;
+				  }
+    }
+
+
+
+sub snmpwalk
+{
+my ($host, $community)=@_;
+my $walk = `snmpwalk -v 1 -c $community $host HOST-RESOURCES-MIB::hrSWRunName`;
+chomp($walk);
+return $walk;
+}
+
+sub snmpget
+{
+my ($host, $community, $oid)=@_;
+my $get = `snmpget -v 1 -c $community $host .1.3.6.1.4.1.3530.5.25.1.202.1`;
+chomp($get);
+return $get;
+}
+
+
+# ============================================================================
+ #
+=head1 AUTHORS
+
+by R3dl!GhT 
+
+=cut
+
+
+=head1 COPYRIGHT
+
+ Copyright (C) R3Dl!GhT 2007.
+
+This module is free software; you can redistribute it and/or
+modify it under the terms of the GNU Public License.
+
+=cut
+# ============================================================================
+#
+# __END__
+#
+
