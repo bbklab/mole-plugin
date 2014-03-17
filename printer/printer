@@ -1,0 +1,532 @@
+#!/usr/bin/perl
+#########################################################
+#                                                       #
+#                                                       #
+#               SNMP Printer Check in perl              #
+#       Version 1.0 (March 04, 2010)                    #
+#       by Franky Van Liedekerke                        #
+#       E-mail: liedekef@telenet.be                     #
+#                                                       #
+#                                                       #
+# Based on:                                             #
+# check_snmp_printer.sh                                 #
+#       Version 1.5 (January 15, 2010)                  #
+# ( by Jason Leonard                                    #
+#       E-mail: jason_leonard@yahoo.com                 #
+#                                                       #
+# Version History                                       #
+#                                                       #
+# 1.6                                                   #
+#    - some small touchups                              #
+# 1.3                                                   #
+#    - remove weird characters from consumable names    #
+# 1.2                                                   #
+#    - When opt_warning==opt_critical, no more warnings #
+#    are shown for consumables without percentage levels#
+#    - verbose option explained better                  #
+#    - first all critical messages, then warning        #
+#    messages are printed for --consum option           #
+#                                                       #
+# 1.1                                                   #
+# NOTE:                                                 #
+#	Because CONSUM ALL uses a multi-line output,         #
+# you will need to use the $LONGSERVICEOUTPUT$ macro    #
+# in your service notification commands!                #
+#                                                       #
+#	Like the original, this plugin is distributed        #
+# under the GNU GPL license. You may re-destribute only #
+# according to the terms of the GNU GPL.                #
+#                                                       #
+#########################################################
+#########################################################
+#
+# DEPENDS On
+# Net::SNMP perl module
+#
+#########################################################
+
+use strict;
+use lib qw( /usr/lib/nagios/plugins );
+use utils qw( %ERRORS $TIMEOUT &print_revision &support &usage );
+use Net::SNMP;
+use Getopt::Long;
+use Data::Dumper;
+
+# globals
+use vars qw(
+  $PROGNAME $VERSION %procs $snmp $errstr $oid
+  $opt_version $opt_help $opt_timeout $opt_host $opt_community
+  $opt_snmpver $opt_warning $opt_critical $opt_messages $opt_model
+  $opt_consum $opt_exact $opt_tray $opt_pagecount $opt_verbose
+);
+
+# config
+$PROGNAME    = $0;
+$VERSION     = '1.6';
+
+# init options
+$opt_version   = undef;
+$opt_help      = undef;
+$opt_timeout   = $TIMEOUT;
+$opt_host      = undef;
+$opt_community = 'public';
+$opt_snmpver   = 2;
+$opt_warning   = 20; # warning percentage: if lower: warning
+$opt_critical  = 5;  # critical percentage: if lower: critical
+$opt_messages  = undef;
+$opt_model     = undef;
+$opt_consum    = undef;
+$opt_exact     = undef;
+$opt_tray      = undef;
+$opt_pagecount = undef;
+$opt_verbose   = undef;
+
+# get options
+Getopt::Long::Configure('bundling');
+GetOptions(
+  'V|version'         => \$opt_version,
+  'h|help'            => \$opt_help,
+  't|timeout=i'       => \$opt_timeout,
+  'H|host=s'          => \$opt_host,
+  'P|community=s'     => \$opt_community,
+  'S|snmpver=s'       => \$opt_snmpver,
+  'w|warning=i'       => \$opt_warning,
+  'c|critical=i'      => \$opt_critical,
+  'messages'          => \$opt_messages,
+  'model'             => \$opt_model,
+  'consum=s'          => \$opt_consum,
+  'exact'             => \$opt_exact,
+  'tray=i'            => \$opt_tray,
+  'pagecount'         => \$opt_pagecount,
+  'verbose'           => \$opt_verbose,
+) or do {
+  print_usage();
+  exit($ERRORS{'UNKNOWN'});
+};
+
+if($opt_version) {
+  print_version();
+  exit($ERRORS{'UNKNOWN'});
+}
+
+if($opt_help) {
+  print_help();
+  exit($ERRORS{'UNKNOWN'});
+}
+
+if(!$opt_host) {
+  print "Host option not given\n";
+  print_usage();
+  exit($ERRORS{'UNKNOWN'});
+}
+
+# only use one of messages|model|consum|tray|pagecount options
+my $count=0;
+($opt_messages) && ($count++);
+($opt_model) && ($count++);
+($opt_consum) && ($count++);
+(defined($opt_tray)) && ($count++);
+($opt_pagecount) && ($count++);
+if ($count>1) {
+  print "Only use one of messages|model|consum|tray|pagecount options\n\n";
+  print_help();
+  exit($ERRORS{'UNKNOWN'});
+}
+if ($count<1) {
+  print "Only use one of messages|model|consum|tray|pagecount options\n";
+  print_help();
+  exit($ERRORS{'UNKNOWN'});
+}
+
+sub print_usage {
+  my $tab = ' ' x length($PROGNAME);
+  print <<EOB
+Usage:
+ $PROGNAME -H host 
+ $tab [-P snmp_community] [-S snmp_version] [-t timeout]
+ $PROGNAME --version
+ $PROGNAME --help
+EOB
+}
+
+sub print_version {
+  print_revision($PROGNAME, $VERSION);
+}
+
+sub print_help {
+  print_version();
+  print <<EOB;
+
+Check a printer through SNMP.
+
+EOB
+
+  print_usage();
+  print <<EOB;
+
+Required Arguments:
+ -H, --host=HOST
+    The name or address of the host running SNMP.
+ --messages
+    Print the messages of the printer
+ --model
+    Prints the model of the printer
+ --pagecount
+    Prints the number of pages printed
+ --tray=i
+    Checks tray number <i> for paper status, use 0 for all trays
+ --consum="ALL"|"TEST"|<some string>
+    Check consumable containing <some string> for status.
+    Use "TEST" to get a list of all consumables
+    Use "ALL" to get the status of all consumables
+
+Optional Arguments:
+ -P, --community=STRING
+    The community string of the SNMP agent. Default: public
+ -S, --snmpver=STRING
+    The version of snmp to use.  1 and 2 are supported. Default: 1
+ -t, --timeout=INTEGER
+    Number of seconds to wait for a response.
+ --exact
+    Search for exact consumable string, not just substring comparison
+ --verbose
+    When given, also prints out all OK consumables and their levels and
+    the printer messages for option --consum
+EOB
+}
+
+#########################################################
+###		check_model function		   ###
+#########################################################
+
+sub check_model {
+#	Vendor specific items to code here!
+#		possibly serial #
+	my ($oid,$result);
+	my $MODEL="Uknown model";
+	my $SERIAL="";
+	$oid=".1.3.6.1.2.1.25.3.2.1.3.1";
+	$result=$snmp->get_request(-varbindlist => [$oid]);
+	($result) && ($MODEL=$result->{$oid});
+	
+	$oid=".1.3.6.1.2.1.43.5.1.1.17";
+	$result=$snmp->get_request(-varbindlist => [$oid]);
+	($result) && ($SERIAL=$result->{$oid});
+	$SERIAL =~ s/\"//g;
+
+	print "$MODEL, Serial # $SERIAL";
+}
+
+#########################################################
+###		check_messages function		   ###
+#########################################################
+
+sub check_messages {
+#	Vendor specific items to code here!
+	my ($oid,$result);
+	my $MESSAGES="";
+	$oid=".1.3.6.1.2.1.43.18.1.1.8";
+	$result = $snmp->get_entries(-columns => [$oid]);
+	if(not defined($result)) {
+		$oid=".1.3.6.1.2.1.43.16";
+		$result = $snmp->get_entries(-columns => [$oid]);
+	}
+	foreach my $key (keys(%$result)) {
+		$result->{$key} =~ s/\"//g;
+		$result->{$key} =~ s/\n/\!/g;
+		$MESSAGES .= $result->{$key};
+	}
+	if ($MESSAGES eq "") {
+		$MESSAGES= "(Can't determine messages)";
+	}
+	print "$MESSAGES\n";
+}
+
+#########################################################
+###		check_page_count function	   ###
+#########################################################
+sub check_page_count {
+	my ($oid,$result);
+	my $PAGE_COUNT=0;
+	$oid=".1.3.6.1.2.1.43.10.2.1.4.1.1";
+	$result=$snmp->get_request(-varbindlist => [$oid]);
+	if(not defined($result)) {
+		print "CRITICAL - snmp error: " . $snmp->error() . "\n";
+		exit($ERRORS{'CRITICAL'});
+	}
+	$PAGE_COUNT=$result->{$oid};
+	
+	print "Pagecount is $PAGE_COUNT\n";
+	exit($ERRORS{'OK'});
+}
+
+#########################################################
+###		check_consumables function	   ###
+#########################################################
+
+sub check_consumables {
+	my $prTable = '.1.3.6.1.2.1.43.11.1.1';
+	my $prNames = '.1.3.6.1.2.1.43.11.1.1.6.1';
+	my $prCurCap = '.1.3.6.1.2.1.43.11.1.1.9.1';
+	my $prMaxCap = '.1.3.6.1.2.1.43.11.1.1.8.1';
+	my %tmpprs = ();
+
+	if ($_[0] eq "TEST") {
+		print "Consumables you may monitor:\n";
+		my $result = $snmp->get_entries(-columns => [$prNames]);
+		if(not defined($result)) {
+			print "CRITICAL - snmp error: " . $snmp->error() . "\n";
+			exit($ERRORS{'CRITICAL'});
+		}
+		foreach my $key (keys(%$result)) {
+			# remove weird characters
+			$result->{$key} =~ s/[^\w\s]//g;
+			print $result->{$key}."\n";
+		}
+		exit ($ERRORS{'OK'});
+	} else {
+		my $EXITCODE=$ERRORS{'OK'};
+		my $EXITCRITICALSTRING="";
+		my $EXITWARNINGSTRING="";
+		my $EXITOKSTRING="";
+		my $found=0;
+		my $result = $snmp->get_entries(-columns => [$prNames, $prCurCap, $prMaxCap]);
+		if(not defined($result)) {
+			print "CRITICAL - snmp error: " . $snmp->error() . "\n";
+			exit($ERRORS{'CRITICAL'});
+		}
+		foreach my $key (keys(%$result)) {
+			my($base, $index) = ($key =~ /($prTable\.\d+\.\d+)\.(\d+)/);
+			if($base eq $prNames) {
+				# remove weird characters
+				$result->{$key} =~ s/[^\w\s]//g;
+				$tmpprs{$index}{name}  = $result->{$key};
+			}
+			if($base eq $prCurCap) { $tmpprs{$index}{curcap} = $result->{$key}; }
+			if($base eq $prMaxCap) { $tmpprs{$index}{maxcap} = $result->{$key}; }
+		}
+
+		foreach my $key (keys(%tmpprs)) {
+			my $name=$tmpprs{$key}{name};
+			my $curcap=$tmpprs{$key}{curcap};
+			my $maxcap=$tmpprs{$key}{maxcap};
+			if ($_[0] ne "ALL") {
+				if ($opt_exact && $name ne "$_[0]") {
+				   next;
+				} elsif ($name !~ /$_[0]/) {
+				   next;
+				}
+			}
+			$found=1;
+			if ($maxcap>0 && $curcap>0) {
+				my $curcap_pct=sprintf("%.2f",$curcap*100/$maxcap);
+				if ($curcap_pct<=$opt_critical) {
+					# critical messages come first
+					$EXITCRITICALSTRING.="$name is at $curcap_pct% - CRITICAL ! ";
+					$EXITCODE=$ERRORS{'CRITICAL'};
+				} elsif ($curcap_pct<=$opt_warning) {
+					$EXITWARNINGSTRING.="$name is at $curcap_pct% - WARNING ! ";
+					# we only set warnings if no criticals
+					if ($opt_warning!=$opt_critical) {
+					   ($EXITCODE==$ERRORS{'OK'}) && ($EXITCODE=$ERRORS{'WARNING'});
+					}
+				} else {
+					# the ok part is only shown when verbose is on
+					if ($opt_verbose) {
+						$EXITOKSTRING.="$name is at $curcap_pct% - OK! ";
+					}
+				}
+			} else {
+				# Our object is not measurable - it's either FULL or EMPTY (such as a punch dust box)
+				#	Let's report on it's status using appropriate terminology
+				if ($curcap==-3) {
+					$EXITOKSTRING.="$name is FULL - OK! ";
+				} elsif ($curcap==-2) {
+					# The value (-2) means unknown
+					$EXITWARNINGSTRING.="$name is at WARNING level! ";
+					if ($opt_warning!=$opt_critical) {
+					   ($EXITCODE==$ERRORS{'OK'}) && ($EXITCODE=$ERRORS{'WARNING'});
+					}
+				} elsif ($curcap==0) {
+					# Something is empty!
+					$EXITCRITICALSTRING.="$name is at CRITICAL level! ";
+					$EXITCODE=$ERRORS{'CRITICAL'};
+				}
+			}
+		}
+	
+		if ($found==0) {
+			print "Consumable $_[0] not found, please use \"TEST\" to find all consumables\n";
+  			exit($ERRORS{'UNKNOWN'});
+		}
+		if ($EXITCODE==$ERRORS{'OK'}) {
+			if ($opt_verbose) {
+				print $EXITOKSTRING."\n";
+				check_messages();
+			} else {
+				print "All OK\nMessages: ";
+				check_messages();
+			}
+		} else {
+			print $EXITCRITICALSTRING;
+			print $EXITWARNINGSTRING;
+			if ($opt_verbose) {
+				print $EXITOKSTRING."\n";
+				check_messages();
+			}
+		}
+		exit $EXITCODE;
+	}
+}
+
+
+#########################################################
+###		check_paper_trays Function	   ###
+#########################################################
+
+sub check_paper_trays {
+
+#	Vendor specific items to code
+#		tray names
+
+	my $EXITCODE=$ERRORS{'OK'};
+	my $EXITSTRING="";
+	my $found=0;
+	my %tmpprs = ();
+
+	my $trayTable=".1.3.6.1.2.1.43.8.2.1";
+	my $trayCap=".1.3.6.1.2.1.43.8.2.1.10.1";
+	my $trayMaxCap=".1.3.6.1.2.1.43.8.2.1.9.1";
+	my $trayName=".1.3.6.1.2.1.43.8.2.1.13.1";
+	my $trayFeedDim=".1.3.6.1.2.1.43.8.2.1.4.1";
+	my $trayFeedDimUnits=".1.3.6.1.2.1.43.8.2.1.2.1";
+	my $trayXFeedDim=".1.3.6.1.2.1.43.8.2.1.5.1";
+	my $trayXFeedDimUnits=".1.3.6.1.2.1.43.8.2.1.3.1";
+	my $result = $snmp->get_entries(-columns => [$trayCap,$trayMaxCap,$trayName,$trayFeedDim,$trayFeedDimUnits,$trayXFeedDim,$trayXFeedDimUnits]);
+	if(not defined($result)) {
+		print "CRITICAL - snmp error: " . $snmp->error() . "\n";
+		exit($ERRORS{'CRITICAL'});
+	}
+	foreach my $key (keys(%$result)) {
+		my($base, $index) = ($key =~ /($trayTable\.\d+\.\d+)\.(\d+)/);
+		$result->{$key} =~ s/\"//g;
+		if($base eq $trayCap) { $tmpprs{$index}{cap}  = $result->{$key}; }
+		if($base eq $trayMaxCap) { $tmpprs{$index}{maxcap}  = $result->{$key}; }
+		if($base eq $trayName) { $tmpprs{$index}{name} = $result->{$key}; }
+		if($base eq $trayFeedDim) { $tmpprs{$index}{feeddim} = $result->{$key}; }
+		if($base eq $trayFeedDimUnits) { $tmpprs{$index}{feeddimunits} = $result->{$key}; }
+		if($base eq $trayXFeedDim) { $tmpprs{$index}{xfeeddim} = $result->{$key}; }
+		if($base eq $trayXFeedDimUnits) { $tmpprs{$index}{xfeeddimunits} = $result->{$key}; }
+	}
+
+	foreach my $key (keys(%tmpprs)) {
+		my $name=$tmpprs{$key}{name};
+		my $cap=$tmpprs{$key}{cap};
+		my $maxcap=$tmpprs{$key}{maxcap};
+		my $feeddim=$tmpprs{$key}{feeddim};
+		my $feeddimunits=$tmpprs{$key}{feeddimunits};
+		my $xfeeddim=$tmpprs{$key}{xfeeddim};
+		my $xfeeddimunits=$tmpprs{$key}{xfeeddimunits};
+
+
+		# if name is empty, make one with the number
+		if ($name eq "") {
+			$name="Tray $key";
+		}
+		$name =~ s/\n/\!/g;
+
+		# if a specific tray is asked for, skip the rest
+		if ($_[0]>0 && $key!=$_[0]) {
+			next;
+		}
+		$found=1;
+		if ($feeddimunits==3) {
+			# convert ten thousandths of an inch to inches
+			$feeddim/=10000;
+		} elsif ($feeddimunits==4) {
+			# convert micrometers to inches, and get the int portion
+			$feeddim*=0.0000393700787;
+			$feeddim=int($feeddim + .5);
+		}
+		if ($xfeeddimunits==3) {
+			# convert ten thousandths of an inch to inches
+			$xfeeddim/=10000;
+		} elsif ($xfeeddimunits==4) {
+			# convert micrometers to inches, and get the int portion
+			$xfeeddim*=0.0000393700787;
+			$xfeeddim=sprintf("%.1f", $xfeeddim + .01);
+		}
+
+		# now the checking
+		if ($feeddim<=0 || $xfeeddim<=0) {
+			if ($opt_verbose) {
+				$EXITSTRING.= "Ignoring $name\n";
+			}
+		} elsif ($cap == -3) {
+			# The value (-3) means that the printer knows that at least one unit remains.
+			if ($opt_verbose) {
+				$EXITSTRING.= "$name is OK!";
+			}
+		} elsif ($cap==-2) {
+			# The value (-2) means unknown
+			$EXITSTRING.= "$name is UNKNOWN!";
+			($EXITCODE<$ERRORS{'CRITICAL'}) && ($EXITCODE=$ERRORS{'UNKNOWN'});
+		} elsif ($cap==0) {
+			# 0 means there is no paper left! This is our only critical value.
+			$EXITSTRING="$name is EMPTY! Please refill with more $xfeeddim x $feeddim paper !\n".$EXITSTRING;
+			$EXITCODE=$ERRORS{'CRITICAL'};
+		} else {
+			($maxcap==0) && ($maxcap=1);
+			my $cap_pct=sprintf("%.2f",$cap*100/$maxcap);
+			if ($cap_pct <= $opt_critical) {
+				$EXITSTRING.="$name is at $cap_pct% - WARNING! Please refill with more $xfeeddim x $feeddim paper !\n";
+				($EXITCODE<$ERRORS{'WARNING'}) && ($EXITCODE=$ERRORS{'WARNING'});
+			}
+		}
+	}
+	if ($found==0) {
+		print "Tray $_[0] not found, please use \"0\" to find all trays\n";
+  		exit($ERRORS{'UNKNOWN'});
+	}
+	if ($EXITCODE==$ERRORS{'OK'}) {
+		if ($opt_verbose) {
+			print "$EXITSTRING";
+		} else {
+			print "All Trays OK";
+		}
+	} else {
+		print "$EXITSTRING";
+	}
+	exit $EXITCODE;
+}
+
+
+#########################################################
+###			MAIN CODE		   ###
+#########################################################
+
+# set alarm in case we hang
+$SIG{ALRM} = sub {
+  print "CRITICAL - Timeout after $opt_timeout seconds\n";
+  exit($ERRORS{'CRITICAL'});
+};
+alarm($opt_timeout);
+
+# connect to the snmp server
+($snmp, $errstr) = Net::SNMP->session(
+  -hostname  => $opt_host,
+  -version   => $opt_snmpver,
+  -community => $opt_community,
+  -timeout   => $opt_timeout,
+);
+if (!$snmp) {
+  print "Could not create SNMP session: $errstr\n";
+  exit($ERRORS{'UNKNOWN'});
+}
+
+if ($opt_messages) {check_messages(); exit($ERRORS{'OK'});}
+if ($opt_model) {check_model(); exit($ERRORS{'OK'});}
+if ($opt_pagecount) {check_page_count();}
+if ($opt_consum) {check_consumables($opt_consum);}
+if (defined($opt_tray)) {check_paper_trays($opt_tray);}
+
