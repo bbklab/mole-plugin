@@ -1,0 +1,167 @@
+#!/usr/bin/env perl
+
+our $basedir = '/usr/local/esop/agent/mole';
+our $mole = "$basedir/sbin/mole";
+
+BEGIN {
+  my $basedir = '/usr/local/esop/agent/mole';
+  my $pllib_dir = "$basedir/opt/plmods";
+  my @incs = (    # set additional path
+        # rhel5 32bit
+        $pllib_dir.'/lib/perl5/',
+        $pllib_dir.'/lib/perl5/5.8.8/',
+        $pllib_dir.'/lib/perl5/site_perl/',
+        $pllib_dir.'/lib/perl5/site_perl/5.8.8/',
+        # rhel5 64bit
+        $pllib_dir.'/lib64/perl5/',
+        $pllib_dir.'/lib64/perl5/5.8.8/',
+        $pllib_dir.'/lib64/perl5/site_perl/',
+        $pllib_dir.'/lib64/perl5/site_perl/5.8.8/',
+        # rhel6 32bit
+        $pllib_dir.'/lib/perl5/',
+	$pllib_dir.'/share/perl5/',
+        # rhel6 64bit
+        $pllib_dir.'/lib64/perl5/',
+	$pllib_dir.'/share/perl5/',
+  );
+
+  push @INC, @incs;
+};
+
+use strict;
+use warnings;
+use utf8;
+use Net::Ping;
+use Time::HiRes;
+use Benchmark ':hireswallclock';
+use Locale::Messages qw (textdomain bindtextdomain gettext nl_putenv);
+binmode(STDIN, ":encoding(utf8)");
+binmode(STDOUT, ":encoding(utf8)");
+binmode(STDERR, ":encoding(utf8)");
+binmode STDOUT, ':raw';
+
+$| = 1;
+
+# return codes
+our ($state_succ,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) = (0,1,2,3,4,5);
+
+# return stuff
+our ($rc, $result) = (0,'');
+
+our $filename = (split /\//, __FILE__)[-1];
+
+# check mole
+unless (-f $mole && -x $mole) {
+  printf "{unkn}:{str}:{$mole not prepared.}";
+  exit $state_unkn;
+}
+
+# read mole locale_def
+our $localdir = "$basedir/share/locale/";
+open my $fh, "$mole printdef LOCALE_DIR 2>&- |";
+if($fh){
+  while(<$fh>){
+        chomp; $localdir = $_;
+        last;
+  }
+}
+
+# read plugin locale setting
+our $locale = 'zh_CN.UTF-8';
+open $fh, "$mole view $filename locale 2>&- |";
+if($fh){
+  while(<$fh>){
+        chomp; $locale = $_;
+        last;
+  }
+  if(!defined $locale || $locale eq ''){
+        open my $fh1, "$mole view default locale 2>&- |";
+        if($fh1){
+                while(<$fh1>){
+                        chomp; $locale = $_;
+                        last;
+                }
+        }
+  }
+}
+if(!defined $locale || $locale eq ''){
+        $locale = 'zh_CN.UTF-8';
+}elsif($locale eq 'zh_CN' || $locale eq 'zh_CN.UTF-8' || $locale eq 'zh'){
+        $locale = 'zh_CN.UTF-8';
+}elsif($locale eq 'en_US' || $locale eq 'en_US.UTF-8' || $locale eq 'en'){
+        $locale = 'en_US.UTF-8';
+}else{
+        $locale = 'zh_CN.UTF-8';
+}
+nl_putenv("LANGUAGE=$locale");
+
+# set textdomain; bindtextdomain
+sub _ ($) { &gettext; }
+textdomain "$filename";
+bindtextdomain "$filename", "$localdir";
+
+# read plugin config here
+our $dest_hosts = 'mole.eyousop.com:10';
+open $fh, "$mole view $filename dest_hosts 2>&- |";
+if ($fh) {
+  while(<$fh>){
+  	chomp; $dest_hosts = $_;
+	last;
+  }
+}
+
+our $packloss_uplimit = 20;
+open $fh, "$mole view $filename packloss_uplimit 2>&- |";
+if ($fh) {
+  while(<$fh>){
+  	chomp; $packloss_uplimit = $_;
+	last;
+  }
+}
+$packloss_uplimit = 20 if ($packloss_uplimit =~ m/\D/ || !defined $packloss_uplimit);
+
+
+# Main body begin
+my ($total,$critnum,$unknnum) = (0,0,0);
+my ($time_start,$time_stop,$time_duration);
+
+$result = sprintf(_"check list: %s ### ### ",$dest_hosts);
+
+my @dest_pair = split /\s+/, $dest_hosts;
+while(@dest_pair) {
+  $total++;
+  my ($dest, $count) = (split /:/, shift @dest_pair)[0,1];
+  if (!defined $dest || !defined $count) {
+	$result .= sprintf(_"<font color=yellow> dest host or packet count not defined </font> ### ### ");
+	$unknnum++;
+	next;
+  }
+  if ($count =~ /\D/) {
+	$result .= sprintf(_"<font color=yellow> %s:%s packet count not numberic </font> ### ### ",$dest,$count);
+	$unknnum++;
+	next;
+  }
+
+  $time_start = Benchmark->new();
+  my $ping = Net::Ping->new(
+  );
+
+  ERREND: {
+	$time_stop = Benchmark->new();
+	$time_duration = timestr(timediff($time_stop,$time_start),'noc');
+	$time_duration = (split /\s+/, $time_duration )[0];
+	$result .= sprintf(_" (%f seconds) </font> ### ### ",$time_duration);
+	next;
+  }
+}
+# prepare last output
+if ($critnum > 0) {
+  printf _"{crit}:{str}:{ PING CHECK CRITICAL | %d/%d ping check critical | %s }",$critnum,$total,$result;
+  exit $state_crit;
+} elsif ($unknnum > 0) {
+  printf _"{unkn}:{str}:{ PING CHECK UNKNOWN | %d/%d ping check unknown | %s }",$unknnum,$total,$result;
+  exit $state_unkn;
+} else {
+  printf _"{succ}:{str}:{ PING CHECK OK | %d/%d ping check success | %s }",$total,$total,$result;
+  exit $state_succ;
+}
