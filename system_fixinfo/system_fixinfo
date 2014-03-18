@@ -396,7 +396,9 @@ my $userfile = '/etc/passwd';
 if (-f $userfile && -r $userfile) {
   if(open my $fh, "<", $userfile){
 	while(<$fh>){
-		chomp; s/(\A\s+|\s+\Z)//g;
+		chomp; 
+		next if m/\A\s*#/;
+		s/(\A\s+|\s+\Z)//g;
 		my ($name,$uid,$gid,$homedir,$shell) = (split /:/)[0,2,3,5,6];
 		if (defined $shell && -e $shell && $shell =~ /sh\Z/) {
 			my %sysuser = (
