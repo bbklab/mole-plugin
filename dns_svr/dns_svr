@@ -129,6 +129,7 @@ check(){
 	do
 		error=$(/usr/bin/time -p -f "%E" -o "${tmpfile}" /usr/bin/host -t ${y} ${target} 2>&1)
 		rc=$?
+		y=$(echo -e "${y}" | tr '[a-z]' '[A-Z]')
 		if [ "${rc}" == "0" ]; then
 			elapsed=$(head -n1 "${tmpfile}")
 			result="${result} $(eval_gettext "dns resolving [\${y}] record on [\${target}] succeed in [\${elapsed}] seconds") ### "
