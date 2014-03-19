@@ -21,6 +21,7 @@ Requires:		dmidecode >= 2.7, redhat-lsb >= 3.1
 Requires:		glibc-common >= 2.5, pciutils >= 2.2.3
 Requires:		ethtool >= 5, MegaCli >= 8.02.21
 Requires:		bind-utils >= 9.3.3
+Requires:		redhat-lsb >= 3.1
 Requires(post): 	chkconfig
 Requires(preun): 	chkconfig, initscripts
 Requires(postun): 	coreutils >= 5.97
