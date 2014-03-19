@@ -88,15 +88,16 @@ CONTENT=        ### { strings | /path/to/result.file }
 # Read plugin config value here
 if [ "${MODE}" == "1" ]; then
 	action="$2"
-	filesystem_fstype="$3"
+	fstype="$3"
 else
-	filesystem_fstype=$( read_mole_config disk_fs filesystem_fstype )
+	fstype=$( read_mole_config disk_fs fstype )
+	exclude_dev=$( read_mole_config disk_fs exclude_dev )
 fi
 
 # if null return STATE_UNKN.
 
 # if null or invalid set default.
-[ -z "${filesystem_fstype}" ] && filesystem_fstype="ext2 ext3 ext4"
+[ -z "${fstype}" ] && fstype="ext2 ext3 ext4"
 
 # check function here
 check(){
@@ -119,9 +120,9 @@ check(){
 
   local result= mpoint= warnnum=0  unknnum=0
 
-  result="$(eval_gettext "FSTYPE: [\${filesystem_fstype}]") ### ###"
+  result="$(eval_gettext "FSTYPE: [\${fstype}]") ### ###"
   result="${result} ### $(gettext "FileSystem Stat") ### "
-  for t in `echo "${filesystem_fstype}"`
+  for t in `echo "${fstype}"`
   do
 	devices=$(awk '($3~/\<'${t}'\>/){print $1}' "/etc/mtab" 2>&-|tr '\n' ' ')
   	for d in `echo "${devices}"`
@@ -132,6 +133,10 @@ check(){
 			echo "FS_Stat: ${d} ${t} ${stat}"
 			continue
 		}
+		if [ "$(echo -e "${exclude_dev}"|grep -E -o -w "${d}")" != "" ]; then
+			result="${result} $(eval_gettext "(\${t}) device \${d} SKIP") ### "
+			continue
+		fi
 		if [ -z "${stat}" ]; then
 			result="${result} $(eval_gettext "(\${t}) \${d} -> unknown") ### ";
 			((unknnum++))
@@ -145,7 +150,7 @@ check(){
   done
 
   result="${result} ### $(gettext "IO Test") ###"
-  for t in `echo "${filesystem_fstype}"`
+  for t in `echo "${fstype}"`
   do  
         mpoint=$(awk '($3~/\<'${t}'\>/){print $2}' "/etc/mtab" 2>&-|tr '\n' ' ')
         for m in `echo "${mpoint}"`

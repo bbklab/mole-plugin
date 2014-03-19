@@ -25,11 +25,14 @@ msgstr "[/sbin/tune2fs] 不存在或没有执行权限."
 msgid "File: [/etc/mtab] not prepared."
 msgstr " [/etc/mtab] 文件不存在或为空文件."
 
-msgid "FSTYPE: [${filesystem_fstype}]" 
-msgstr "只检查 ${filesystem_fstype} 文件系统类型的分区"
+msgid "FSTYPE: [${fstype}]" 
+msgstr "只检查 ${fstype} 文件系统类型的分区"
 
 msgid "FileSystem Stat"
 msgstr "文件系统状态检查"
+
+msgid "(${t}) device ${d} SKIP"
+msgstr "设备: ${d} 跳过 (文件系统类型${t})"
 
 msgid "(${t}) ${d} -> unknown"
 msgstr "设备: ${d}  文件系统状态未知 (文件系统类型${t})"
