@@ -91,7 +91,7 @@ if [ "${MODE}" == "1" ]; then
 	fstype="$3"
 else
 	fstype=$( read_mole_config disk_fs fstype )
-	exclude_dev=$( read_mole_config disk_fs exclude_dev )
+	exclude=$( read_mole_config disk_fs exclude )
 fi
 
 # if null return STATE_UNKN.
@@ -133,7 +133,7 @@ check(){
 			echo "FS_Stat: ${d} ${t} ${stat}"
 			continue
 		}
-		if [ "$(echo -e "${exclude_dev}"|grep -E -o -w "${d}")" != "" ]; then
+		if [ "$(echo -e "${exclude}"|grep -E -o -w "${d}")" != "" ]; then
 			result="${result} $(eval_gettext "(\${t}) device \${d} SKIP") ### "
 			continue
 		fi
@@ -155,6 +155,11 @@ check(){
         mpoint=$(awk '($3~/\<'${t}'\>/){print $2}' "/etc/mtab" 2>&-|tr '\n' ' ')
         for m in `echo "${mpoint}"`
         do  
+		if [ "$(echo -e "${exclude}"|grep -E -o -w "${m}")" != "" ]; then
+			result="${result} $(eval_gettext "(\${t}) mount point \${m} SKIP") ### "
+			continue
+		fi
+
                 ioerr=$(/bin/touch "${m}/.disk_fs.iotest" 2>&1 1>/dev/null)
   		rc=$?
                 # output data and exit if MODE=1

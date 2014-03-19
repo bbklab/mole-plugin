@@ -44,7 +44,10 @@ msgid "(${t}) ${d} -> ${stat}"
 msgstr "设备: ${d}  文件系统状态异常 ${stat}  (文件系统类型${t})"
 
 msgid "IO Test" 
-msgstr "读写测试"
+msgstr "挂载点读写测试"
+
+msgid "(${t}) mount point ${m} SKIP"
+msgstr "挂载点: ${m} 跳过 (文件系统类型${t})"
 
 msgid "(${t}) ${m} -> iotest Success"
 msgstr "挂载点: ${m} 读写正常 (文件系统类型${t})"
