@@ -3,7 +3,8 @@
 basedir="$(cd $(dirname $0);pwd)"
 destdir="/data/esop_codes/"
 autorpm="${basedir}/rpm_build/autorpm"
-args="basic tarball"
+args1="basic tarball"
+args2="mail  tarball"
 scp_client="/usr/bin/scp"
 build_server=(
   #comment	#address		#port	#user	#path
@@ -19,16 +20,23 @@ check_rc() {
   fi
 }
 
-filename=$( eval "${autorpm} ${args}" )
-check_rc "make rpm"
+filename1=$( eval "${autorpm} ${args1}" )
+check_rc "make rpm for $filename1"
 
-ls "${filename}" >/dev/null 2>&1
-check_rc "check path: ${filename}"
+filename2=$( eval "${autorpm} ${args2}" )
+check_rc "make rpm for $filename2"
 
+ls "${filename1}" >/dev/null 2>&1
+check_rc "check path: ${filename1}"
 
-/bin/cp -f "${filename}" "${destdir}/"
-check_rc "copy to ${destdir}/${filename##*/}"
+ls "${filename2}" >/dev/null 2>&1
+check_rc "check path: ${filename2}"
 
+/bin/cp -f "${filename1}" "${destdir}/"
+check_rc "copy to ${destdir}/${filename1##*/}"
+
+/bin/cp -f "${filename2}" "${destdir}/"
+check_rc "copy to ${destdir}/${filename2##*/}"
 
 exit;
 
