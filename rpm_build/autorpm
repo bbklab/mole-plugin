@@ -10,6 +10,7 @@ cat << HELP
 	${0##*/}  clean
 	${0##*/}  {plugin}
 	${0##*/}  basic tarball
+	${0##*/}  mail  tarball
 HELP
 exit 0
 }
@@ -29,9 +30,6 @@ clean
 
 if [ -z "${1}" ]; then
   specfile="${path}/spec_files/mole-plugin.spec"
-  name=$(awk -F: '($1~/Name/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
-  version=$(awk -F: '($1~/Version/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
-  source0=$(awk -F: '($1~/Source0/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
   plugins=( 
 	cpu_usage
 	disk_fs
@@ -69,12 +67,11 @@ else
 	show_help
   elif [ "${1}" == "basic" -a "${2}" == "tarball" ]; then
 	TARMODE=1
+  elif [ "${1}" == "mail"  -a "${2}" == "tarball" ]; then
+	TARMODE=2
   else
   	if [ -d "${basedir}/${1}" ]; then
 		specfile="${path}/spec_files/${1}.spec"
-		name=$(awk -F: '($1~/Name/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
-		version=$(awk -F: '($1~/Version/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
-		source0=$(awk -F: '($1~/Source0/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
 		plugins=( ${1} )
   	else
 		echo "plugin directory [$1] not exist"
@@ -84,11 +81,8 @@ else
 
 fi
 
-if [ "${TARMODE}" == "1" ]; then
+if [ "${TARMODE}" == "1" ]; then	# reset specfile and plugins
   specfile="${path}/spec_files/mole-plugin.spec"
-  name=$(awk -F: '($1~/Name/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
-  version=$(awk -F: '($1~/Version/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
-  source0=$(awk -F: '($1~/Source0/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
   plugins=( 
        	cpu_usage
        	disk_fs
@@ -103,7 +97,32 @@ if [ "${TARMODE}" == "1" ]; then
        	tcp_conn
        	traffic
   )
+elif [ "${TARMODE}" == "2" ]; then	# reset specfile and plugins
+  specfile="${path}/spec_files/mole-emplugin.spec"
+  plugins=( 
+	pop_svr
+	dns_svr
+	ldap_svr
+	http_svr
+	imap_svr
+	smtp_svr
+	memcache_perf
+	process
+	disk_iostat
+	eyou_fixinfo
+	mail_queue
+	mysql_ping
+	mysql_repl
+	mysql_dump
+	remote_mailtest
+	emp_smtpauth_limit
+  )
 fi
+
+name=$(awk -F: '($1~/Name/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
+version=$(awk -F: '($1~/Version/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
+source0=$(awk -F: '($1~/Source0/){print $2}' "${specfile}" 2>&-|tr -d ' \t')
+
 
 mkdir -p "${path}"/SOURCES/${name}-${version}
 for p in `echo "${plugins[*]}"`
@@ -119,7 +138,7 @@ done
 cd "${path}"/SOURCES/
 tar -czf "${source0}" ${name}-${version}
 rm -rf "${path}"/SOURCES/${name}-${version}
-if [ "${TARMODE}" == "1" ]; then
+if [ "${TARMODE}" != "" ]; then
   echo ""${path}"/SOURCES/${source0}"
   exit 0
 fi
