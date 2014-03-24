@@ -37,6 +37,9 @@ msgstr "<font color=red> 连接IMAP地址 [%s:%d] 在 %d 秒内失败. "
 msgid "connect [%s:%d] return welcome banner ### [%s] (%f seconds) ### "
 msgstr "连接IMAP地址 [%s:%d] 返回欢迎信息: ### [%s] (耗时 %f 秒) ### "
 
+msgid "<font color=red> connect [%s:%d] return welcome banner [%s] "
+msgstr "<font color=red> 连接IMAP地址 [%s:%d] 返回欢迎信息: [%s]"
+
 msgid "<font color=red> connect [%s:%d] didn't return welcome banner "
 msgstr "<font color=red> 连接IMAP地址 [%s:%d] 未返回欢迎信息 "
 
