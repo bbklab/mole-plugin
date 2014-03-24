@@ -127,7 +127,7 @@ check(){
 	devices=$(awk '($3~/\<'${t}'\>/){print $1}' "/etc/mtab" 2>&-|tr '\n' ' ')
   	for d in `echo "${devices}"`
   	do
-		stat=$(/sbin/tune2fs -l "${d}" | awk -F: '($1~/Filesystem state/){gsub(" ","",$2);print $2;exit}')
+		stat=$(/sbin/tune2fs -l "${d}" 2>&- | awk -F: '($1~/Filesystem state/){gsub(" ","",$2);print $2;exit}')
 		# output data and exit if MODE=1
 		[ "${MODE}" == "1" -a "${action}" == "fs" ] && {
 			echo "FS_Stat: ${d} ${t} ${stat}"
