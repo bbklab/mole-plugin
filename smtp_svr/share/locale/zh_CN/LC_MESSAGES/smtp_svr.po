@@ -34,17 +34,41 @@ msgstr "<font color=red> 连接SMTP地址 %s:%d 在 %d 秒内失败, 失败信�
 msgid "<font color=red> connect [%s:%d] failed in %d seconds, maybe in black ip list "
 msgstr "<font color=red> 连接SMTP地址 %s:%d 在 %d 秒内失败 (有可能是被列入IP黑名单) "
 
-msgid "connect [%s:%d] return welcome banner: ### [%s] (%f seconds) ### "
+msgid "connect [%s:%d] return welcome banner ### [%s] (%f seconds) ### "
 msgstr "连接SMTP地址 %s:%d 返回欢迎信息: ### [%s] (耗时 %f 秒) ### "
 
-msgid "<font color=red> connect [%s:%d] didn't return any welcome banner "
+msgid "<font color=red> connect [%s:%d] return welcome banner [%s] "
+msgstr "<font color=red> 连接SMTP地址 %s:%d 返回欢迎信息: %s "
+
+msgid "<font color=red> connect [%s:%d] didn't return welcome banner "
 msgstr "<font color=red> 连接SMTP地址 [%s:%d] 未返回欢迎信息 "
 
-msgid "<font color=red> smtp command: AUTH LOGIN return [code=%d message=%s] "
-msgstr "<font color=red> SMTP命令AUTH LOGIN: 返回代码:%d, 返回信息:%s "
+msgid "<font color=red> smtp command: HELO return [message=%s] "
+msgstr "<font color=red> SMTP命令 HELO: 返回信息:%s "
 
-msgid "smtp command: AUTH LOGIN return [code=%d message=%s] (%f seconds) ### ### "
-msgstr "SMTP命令AUTH LOGIN: 返回代码:%d, 返回信息:%s (耗时 %f 秒) ### ### "
+msgid "smtp command: HELO return [message=%s] (%f seconds) ### "
+msgstr "SMTP命令 HELO: 返回信息:%s (耗时 %f 秒) ### "
+
+msgid "<font color=red> base64 encode on smtp_user/smtp_pass failed. </font> ### ### "
+msgstr "<font color=red> 对用户名或密码Base64编码失败. </font> ### ### "
+
+msgid "<font color=red> smtp command: AUTH LOGIN return [message=%s] "
+msgstr "<font color=red> SMTP命令 AUTH LOGIN: 返回信息:%s "
+
+msgid "smtp command: AUTH LOGIN return [message=%s] (%f seconds) ### "
+msgstr "SMTP命令AUTH LOGIN: 返回信息:%s (耗时 %f 秒) ### "
+
+msgid "<font color=red> smtp command: {Username:} return [message=%s] "
+msgstr "<font color=red> SMTP交互认证输入用户名返回信息:%s"
+
+msgid "smtp command: {Username:} return [message=%s] (%f seconds) ### "
+msgstr "SMTP交互认证输入用户名返回信息:%s (耗时 %f 秒) ### "
+
+msgid "<font color=red> smtp command: {Password:} return [message=%s] "
+msgstr "<font color=red> SMTP交互认证输入密码返回信息:%s"
+
+msgid "smtp command: {Password:} return [message=%s] (%f seconds) ### ### "
+msgstr "SMTP交互认证输入密码返回信息:%s (耗时 %f 秒) ### "
 
 msgid " smtp_user or smtp_pass not defined, smtp login test skip ### ### "
 msgstr " SMTP登录测试跳过, 因为用户或登录密码未设定 ### ### "

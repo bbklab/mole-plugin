@@ -33,6 +33,7 @@ use warnings;
 use utf8;
 use IO::Socket;
 use IO::Socket::INET;
+use MIME::Base64 qw(encode_base64);
 use Time::HiRes;
 use Benchmark ':hireswallclock';
 use Locale::Messages qw (textdomain bindtextdomain gettext nl_putenv);
@@ -139,6 +140,16 @@ if ($fh) {
   }
 }
 
+our $helo_me = 'localhost';
+open $fh, "$mole view $filename helo_me 2>&- |";
+if ($fh) {
+  while(<$fh>){
+	chomp; $helo_me = $_;
+	last;
+  }
+}
+$helo_me = 'localhost' unless ($helo_me && $helo_me ne '');
+
 # Main body begin
 my ($total,$critnum,$unknnum) = (0,0,0);
 my ($time_start,$time_stop,$time_duration);
@@ -178,7 +189,7 @@ while(@addr_pair) {
 	goto ERREND;
   } else {
 	my $welcome = <$smtp>;
-	if ($welcome && $welcome =~ m/\A2\d+\s+/) {
+	if ($welcome && $welcome =~ m/\A2\d\d\s+/) {
 		$welcome =~ s/[\r\n]//g;
 		$time_stop = Benchmark->new();
 		$time_duration = timestr(timediff($time_stop,$time_start),'noc');
@@ -197,10 +208,10 @@ while(@addr_pair) {
 	}
   }
   
-  print $smtp "HELO eyou.net\r\n";
+  print $smtp "HELO $helo_me\r\n";
   my $response = <$smtp>;
   $response =~ s/[\r\n]//g if ($response);
-  unless (defined $response && $response =~ m/\A2\d+\s+/) {
+  unless (defined $response && $response =~ m/\A2\d\d\s+/) {
 	$response = '' if (!defined $response);
 	$result .= sprintf(_"<font color=red> smtp command: HELO return [message=%s] ",$response);
 	$critnum++;
@@ -215,12 +226,19 @@ while(@addr_pair) {
   }
 
   if($smtp_user && $smtp_pass) {
+	$smtp_user = encode_base64($smtp_user,'');	# trim '\n', empty eof
+	$smtp_pass = encode_base64($smtp_pass,'');	# trim '\n', empty eof
+	unless ($smtp_user && $smtp_pass) {
+		$result .= sprintf(_"<font color=red> base64 encode on smtp_user/smtp_pass failed. </font> ### ### ");
+		next;	
+	}
+
 	print $smtp "AUTH LOGIN\r\n";
 	$response = <$smtp>;
 	$response =~ s/[\r\n]//g if ($response);
-	unless (defined $response && $response =~ m/\A\+OK/) {
+	unless (defined $response && $response =~ m/\A3\d\d\s+/) {
 		$response = '' if (!defined $response);
-		$result .= sprintf(_"<font color=red> smtp command: USER return [message=%s] ",$response);
+		$result .= sprintf(_"<font color=red> smtp command: AUTH LOGIN return [message=%s] ",$response);
 		$critnum++;
 		goto ERREND;
 	} else {
@@ -228,32 +246,32 @@ while(@addr_pair) {
 		$time_duration = timestr(timediff($time_stop,$time_start),'noc');
 		$time_duration = (split /\s+/, $time_duration )[0];
 		$response = '' if (!defined $response);
-		$result .= sprintf(_"smtp command: USER return [message=%s] (%f seconds) ### ",$response,$time_duration);
+		$result .= sprintf(_"smtp command: AUTH LOGIN return [message=%s] (%f seconds) ### ",$response,$time_duration);
 		$time_start = Benchmark->new();         ## reset time_start
 	}
 	
-	print $smtp "PASS $smtp_pass\r\n";
+	print $smtp "$smtp_user\r\n";
 	$response = <$smtp>;
 	$response =~ s/[\r\n]//g if ($response);
-	unless (defined $response && $response =~ m/\A\+OK/) {
+	unless (defined $response && $response =~ m/\A3\d\d\s+/) {
 		$response = '' if (!defined $response);
-		$result .= sprintf(_"<font color=red> smtp command: PASS return [message=%s] ",$response);
+		$result .= sprintf(_"<font color=red> smtp command: {Username:} return [message=%s] ",$response);
 		$critnum++;
 		goto ERREND;
 	} else {
 		$time_stop = Benchmark->new();
 		$time_duration = timestr(timediff($time_stop,$time_start),'noc');
 		$time_duration = (split /\s+/, $time_duration )[0];
-		$result .= sprintf(_"smtp command: PASS return [message=%s] (%f seconds) ### ",$response,$time_duration);
+		$result .= sprintf(_"smtp command: {Username:} return [message=%s] (%f seconds) ### ",$response,$time_duration);
 		$time_start = Benchmark->new();         ## reset time_start
 	}
 
-	print $smtp "STAT\r\n";
+	print $smtp "$smtp_pass\r\n";
 	$response = <$smtp>;
 	$response =~ s/[\r\n]//g if ($response);
-	unless (defined $response && $response =~ m/\A\+OK/) {
+	unless (defined $response && $response =~ m/\A2\d\d\s+/) {
 		$response = '' if (!defined $response);
-		$result .= sprintf(_"<font color=red> smtp command: STAT return [message=%s] ",$response);
+		$result .= sprintf(_"<font color=red> smtp command: {Password:} return [message=%s] ",$response);
 		$critnum++;
 		goto ERREND;
 	} else {
@@ -262,7 +280,7 @@ while(@addr_pair) {
 		$time_stop = Benchmark->new();
 		$time_duration = timestr(timediff($time_stop,$time_start),'noc');
 		$time_duration = (split /\s+/, $time_duration )[0];
-		$result .= sprintf(_"smtp command: STAT return [message=%s] (%f seconds) ### ### ",$response,$time_duration);
+		$result .= sprintf(_"smtp command: {Password:} return [message=%s] (%f seconds) ### ### ",$response,$time_duration);
 		$time_start = Benchmark->new();         ## reset time_start
 	}
   } else {
@@ -271,6 +289,7 @@ while(@addr_pair) {
   next;
 
   ERREND: {
+	if ($smtp) { $smtp->close(); };
 	$time_stop = Benchmark->new();
 	$time_duration = timestr(timediff($time_stop,$time_start),'noc');
 	$time_duration = (split /\s+/, $time_duration )[0];

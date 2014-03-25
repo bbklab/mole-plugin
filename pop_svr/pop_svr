@@ -253,6 +253,7 @@ while(@addr_pair) {
   next;
 
   ERREND: {
+	if ($pop) { $pop->close(); }; 
 	$time_stop = Benchmark->new();
 	$time_duration = timestr(timediff($time_stop,$time_start),'noc');
 	$time_duration = (split /\s+/, $time_duration )[0];
