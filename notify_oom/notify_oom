@@ -153,8 +153,8 @@ sub loadpos {
 
 # Main body begin
 unless (-f $messagefile) {
-  printf _"{noop}:{str}:{ message file [%s] not exists. }",$messagefile;
-  exit $state_noop;
+  printf _"{unkn}:{str}:{ message file [%s] not exists. }",$messagefile;
+  exit $state_unkn;
 }
 # 1. load position from tracefile
 loadpos ($tracefile);
@@ -170,8 +170,8 @@ if ($dev ne $nowdev || $inode ne $nowinode) {	# maybe messagefile logrotated
 }
 # 3. open message file and goto last position directly
 unless (open FH, "<$messagefile") {
-  printf _"{noop}:{str}:{ open message file [%s] failed. }",$messagefile;
-  exit $state_noop;
+  printf _"{unkn}:{str}:{ open message file [%s] failed. }",$messagefile;
+  exit $state_unkn;
 }
 seek (FH,$position,0);		# directly goto last position
 # 4. scan message file record
@@ -188,8 +188,8 @@ savepos ($messagefile, $newpos, $tracefile);
 close FH;
 # 6. prepare last output
 unless (@record) {
-  printf _"{noop}:{str}:{no oom event captured}";
-  exit $state_noop;
+  printf _"{succ}:{str}:{no oom event captured}";
+  exit $state_succ;
 } else {
   while (@record) {
   	$result .= shift @record;
