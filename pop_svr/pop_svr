@@ -226,7 +226,7 @@ while(@addr_pair) {
 		$time_stop = Benchmark->new();
 		$time_duration = timestr(timediff($time_stop,$time_start),'noc');
 		$time_duration = (split /\s+/, $time_duration )[0];
-		$result .= sprintf(_"pop command: PASS return [message=%s] (%f seconds) ### ### ",$response,$time_duration);
+		$result .= sprintf(_"pop command: PASS return [message=%s] (%f seconds) ### ",$response,$time_duration);
 		$time_start = Benchmark->new();         ## reset time_start
 	}
 

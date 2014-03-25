@@ -52,8 +52,8 @@ msgstr "POP命令USER: 返回信息:%s (耗时 %f 秒) ### "
 msgid "<font color=red> pop command: PASS return [message=%s] "
 msgstr "<font color=red> POP命令PASS: 返回信息:%s "
 
-msgid "pop command: PASS return [message=%s] (%f seconds) ### ### "
-msgstr "POP命令PASS: 返回信息:%s (耗时 %f 秒) ### ### "
+msgid "pop command: PASS return [message=%s] (%f seconds) ### "
+msgstr "POP命令PASS: 返回信息:%s (耗时 %f 秒) ### "
 
 msgid "<font color=red> pop command: STAT return [message=%s] "
 msgstr "<font color=red> POP命令STAT: 返回信息:%s"
