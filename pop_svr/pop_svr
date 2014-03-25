@@ -31,7 +31,8 @@ BEGIN {
 use strict;
 use warnings;
 use utf8;
-use Net::POP3;
+use IO::Socket;
+use IO::Socket::INET;
 use Time::HiRes;
 use Benchmark ':hireswallclock';
 use Locale::Messages qw (textdomain bindtextdomain gettext nl_putenv);
@@ -39,6 +40,8 @@ binmode(STDIN, ":encoding(utf8)");
 binmode(STDOUT, ":encoding(utf8)");
 binmode(STDERR, ":encoding(utf8)");
 binmode STDOUT, ':raw';
+
+$| = 1;
 
 # return codes
 our ($state_succ,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) = (0,1,2,3,4,5);
@@ -123,7 +126,7 @@ open $fh, "$mole view $filename pop_user 2>&- |";
 if ($fh) {
   while(<$fh>){
   	chomp; $pop_user = $_;
-  	last
+  	last;
   }
 }
 
@@ -152,16 +155,17 @@ while(@addr_pair) {
 	next;
   }
   if ($pop_port =~ /\D/) {
-	$result .= sprintf(_"<font color=yellow> %s:%d pop port not numberic </font> ### ### ",$pop_host,$pop_port,);
+	$result .= sprintf(_"<font color=yellow> %s:%s pop port not numberic </font> ### ### ",$pop_host,$pop_port,);
 	$unknnum++;
 	next;
   }
 
   $time_start = Benchmark->new();
-  my $pop=Net::POP3->new(
-	Host    =>	$pop_host,
-	Port	=> 	$pop_port,
-	Timeout =>	($time_out =~ /\D/)?10:$time_out,
+  my $pop=IO::Socket::INET->new(
+        PeerAddr =>     $pop_host,
+        PeerPort =>     $pop_port,
+        Proto    =>     'tcp',
+        Timeout =>      ($time_out =~ /\D/)?10:$time_out,
   );
   unless (defined $pop) {
 	if ($@) {
@@ -173,30 +177,32 @@ while(@addr_pair) {
 	$critnum++;
 	goto ERREND;
   } else {
-	my $welcome = $pop->banner();
-	if ($welcome) {
+	my $welcome = <$pop>;
+	if ($welcome && $welcome =~ m/\A\+OK/) {
 		$welcome =~ s/[\r\n]//g;
 		$time_stop = Benchmark->new();
 		$time_duration = timestr(timediff($time_stop,$time_start),'noc');
 		$time_duration = (split /\s+/, $time_duration )[0];
-		$result .= sprintf(_"connect [%s:%d] return welcome banner: ### [%s] (%f seconds) ### ",$pop_host,$pop_port,$welcome,$time_duration);
+		$result .= sprintf(_"connect [%s:%d] return welcome banner ### [%s] (%f seconds) ### ",$pop_host,$pop_port,$welcome,$time_duration);
 		$time_start = Benchmark->new();		## reset time_start
 	} else {
-		$result .= sprintf(_"<font color=red> connect [%s:%d] didn't return welcome banner ",$pop_host,$pop_port);
+		if ($welcome && $welcome ne '') {
+			$welcome =~ s/[\r\n]//g;
+			$result .= sprintf(_"<font color=red> connect [%s:%d] return welcome banner [%s] ",$pop_host,$pop_port,$welcome);
+		} else {
+			$result .= sprintf(_"<font color=red> connect [%s:%d] didn't return welcome banner ",$pop_host,$pop_port);
+		}
 		$critnum++;
 		goto ERREND;
 	}
   }
   if($pop_user && $pop_pass) {
-	my ($rcode,$response);
-	$pop->user($pop_user);
-	$response = $pop->message();
-	$response =~ s/[\r\n]//g if defined $response;
-	$rcode = $pop->code();
-	unless (defined $rcode && $rcode =~ m/\A2/) {
-		$rcode = '' if (!defined $rcode);
+	print $pop "USER $pop_user\r\n";
+	my $response = <$pop>;
+	$response =~ s/[\r\n]//g if ($response);
+	unless (defined $response && $response =~ m/\A\+OK/) {
 		$response = '' if (!defined $response);
-		$result .= sprintf(_"<font color=red> pop command: USER return [code=%d message=%s] ",$rcode,$response);
+		$result .= sprintf(_"<font color=red> pop command: USER return [message=%s] ",$response);
 		$critnum++;
 		goto ERREND;
 	} else {
@@ -204,24 +210,41 @@ while(@addr_pair) {
 		$time_duration = timestr(timediff($time_stop,$time_start),'noc');
 		$time_duration = (split /\s+/, $time_duration )[0];
 		$response = '' if (!defined $response);
-		$result .= sprintf(_"pop command: USER return [code=%d message=%s] (%f seconds) ### ",$rcode,$response,$time_duration);
+		$result .= sprintf(_"pop command: USER return [message=%s] (%f seconds) ### ",$response,$time_duration);
 		$time_start = Benchmark->new();         ## reset time_start
 	}
-	$pop->pass($pop_pass);
-	$response = $pop->message();
-	$response =~ s/[\r\n]//g if defined $response;
-	$rcode = $pop->code();
-	unless (defined $rcode && $rcode =~ m/\A2/) {
-		$rcode = '' if (!defined $rcode);
+	
+	print $pop "PASS $pop_pass\r\n";
+	$response = <$pop>;
+	$response =~ s/[\r\n]//g if ($response);
+	unless (defined $response && $response =~ m/\A\+OK/) {
 		$response = '' if (!defined $response);
-		$result .= sprintf(_"<font color=red> pop command: PASS return [code=%d message=%s] ",$rcode,$response);
+		$result .= sprintf(_"<font color=red> pop command: PASS return [message=%s] ",$response);
 		$critnum++;
 		goto ERREND;
 	} else {
 		$time_stop = Benchmark->new();
 		$time_duration = timestr(timediff($time_stop,$time_start),'noc');
 		$time_duration = (split /\s+/, $time_duration )[0];
-		$result .= sprintf(_"pop command: PASS return [code=%d message=Authorized Success] (%f seconds) ### ### ",$rcode,$time_duration);
+		$result .= sprintf(_"pop command: PASS return [message=%s] (%f seconds) ### ### ",$response,$time_duration);
+		$time_start = Benchmark->new();         ## reset time_start
+	}
+
+	print $pop "STAT\r\n";
+	$response = <$pop>;
+	$response =~ s/[\r\n]//g if ($response);
+	unless (defined $response && $response =~ m/\A\+OK/) {
+		$response = '' if (!defined $response);
+		$result .= sprintf(_"<font color=red> pop command: STAT return [message=%s] ",$response);
+		$critnum++;
+		goto ERREND;
+	} else {
+		print $pop "QUIT\r\n" if $pop;
+		$pop->close() if $pop;
+		$time_stop = Benchmark->new();
+		$time_duration = timestr(timediff($time_stop,$time_start),'noc');
+		$time_duration = (split /\s+/, $time_duration )[0];
+		$result .= sprintf(_"pop command: STAT return [message=%s] (%f seconds) ### ### ",$response,$time_duration);
 		$time_start = Benchmark->new();         ## reset time_start
 	}
   } else {

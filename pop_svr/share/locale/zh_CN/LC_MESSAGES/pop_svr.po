@@ -25,8 +25,8 @@ msgstr "要检查的POP地址列表: %s ### ### "
 msgid "<font color=yellow> pop_host or pop_port not defined </font> ### ### "
 msgstr "<font color=yellow> POP地址或POP端口未定义. </font> ### ### "
 
-msgid "<font color=yellow> %s:%d pop port not numberic </font> ### ### "
-msgstr "<font color=yellow> %s:%d POP端口非整数数字 </font> ### ### "
+msgid "<font color=yellow> %s:%s pop port not numberic </font> ### ### "
+msgstr "<font color=yellow> %s:%s POP端口非整数数字 </font> ### ### "
 
 msgid "<font color=red> connect [%s:%d] failed in %d seconds, return [%s] "
 msgstr "<font color=red> 连接POP地址 %s:%d 在 %d 秒内失败, 失败信息: [%s] "
@@ -34,23 +34,32 @@ msgstr "<font color=red> 连接POP地址 %s:%d 在 %d 秒内失败, 失败信息
 msgid "<font color=red> connect [%s:%d] failed in %d seconds "
 msgstr "<font color=red> 连接POP地址 %s:%d 在 %d 秒内失败. "
 
-msgid "connect [%s:%d] return welcome banner: ### [%s] (%f seconds) ### "
-msgstr "连接POP地址 %s:%d 返回欢迎信息: ### [%s] (耗时 %f 秒) ###"
+msgid "connect [%s:%d] return welcome banner ### [%s] (%f seconds) ### "
+msgstr "连接POP地址 %s:%d 返回欢迎信息 ### [%s] (耗时 %f 秒) ###"
+
+msgid "<font color=red> connect [%s:%d] return welcome banner [%s] "
+msgstr "<font color=red> 连接POP地址 %s:%d 返回欢迎信息 [%s] "
 
 msgid "<font color=red> connect [%s:%d] didn't return welcome banner "
 msgstr "<font color=red> 连接POP地址 [%s:%d] 未返回欢迎信息 "
 
-msgid "<font color=red> pop command: USER return [code=%d message=%s] "
-msgstr "<font color=red> POP命令USER: 返回代码:%d, 返回信息:%s "
+msgid "<font color=red> pop command: USER return [message=%s] "
+msgstr "<font color=red> POP命令USER: 返回信息:%s "
 
-msgid "pop command: USER return [code=%d message=%s] (%f seconds) ### "
-msgstr "POP命令USER: 返回代码:%d, 返回信息:%s (耗时 %f 秒) ### "
+msgid "pop command: USER return [message=%s] (%f seconds) ### "
+msgstr "POP命令USER: 返回信息:%s (耗时 %f 秒) ### "
 
-msgid "<font color=red> pop command: PASS return [code=%d message=%s] "
-msgstr "<font color=red> POP命令PASS: 返回代码:%d, 返回信息:%s "
+msgid "<font color=red> pop command: PASS return [message=%s] "
+msgstr "<font color=red> POP命令PASS: 返回信息:%s "
 
-msgid "pop command: PASS return [code=%d message=Authorized Success] (%f seconds) ### ### "
-msgstr "POP命令PASS: 返回代码:%d, 返回信息:Authorized Success (耗时 %f 秒) ### ### "
+msgid "pop command: PASS return [message=%s] (%f seconds) ### ### "
+msgstr "POP命令PASS: 返回信息:%s (耗时 %f 秒) ### ### "
+
+msgid "<font color=red> pop command: STAT return [message=%s] "
+msgstr "<font color=red> POP命令STAT: 返回信息:%s"
+
+msgid "pop command: STAT return [message=%s] (%f seconds) ### ### "
+msgstr "POP命令STAT: 返回信息:%s (耗时 %f 秒) ### ### "
 
 msgid " pop_user or pop_pass not defined, pop login test skip ### ### "
 msgstr " POP登录测试跳过, 因为用户或登录密码未设定 ### ### "
