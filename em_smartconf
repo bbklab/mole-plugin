@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+####################################
+#                                  #
+#  --*--< Global Variables >--*--  #
+#                                  #
+####################################
+
+# VER DEF
+VERSION="0.1"
+
+# DIR DEF
+EM_INSTALL="/usr/local/eyou/mail"
+EMG_INSTALL="/var/emdg"
+EMG_OPT_INSTALL="/opt"
+EM_CONFDIR="$EM_INSTALL/etc"
+EMG_CONFDIR="$EMG_INSTALL/etc"
+
+# EM FILE DEF
+EM_CONFIG="$EM_CONFDIR/eyou_mail.ini"
+EM_INIT_CONFIG="$EM_CONFDIR/em_init_config"
+EM_MTA_CONFIG="$EM_CONFDIR/em_mta.ini"
+EM_PHPD_CONFIG="$EM_CONFDIR/em_phpd.ini"
+EM_PLUGIN_CONFIG="$EM_CONFDIR/em_plugins.ini"
+EM_MIGRATE_CONFIG="$EM_CONFDIR/em_migrate.ini"
+
+# EMG FILE DEF
+EMG_CONFIG="$EMG_CONFDIR/mail.conf"
+
+# MOLE DEF
+ESOP_DIR="/usr/local/esop/agent"
+MOLE_DIR="$ESOP_DIR/mole"
+MOLE_FILE="$MOLE_DIR/sbin/mole"
+
+
+####################################
+#                                  #
+#  --*--< Public Functions >--*--  #
+#                                  #
+####################################
+
+
+
+
+####################################
+#                                  #
+#  --*--< Main Body Begin >--*--   #
+#                                  #
+####################################
+
+
+# first collect config stuff
+em_start=()
+if [ -f "${EM_INIT_CONFIG}" -a -s "${EM_INIT_CONFIG}" ]; then
+	em_start=( $(awk 'BEGIN{x=0;y=0} ($0~/^[ \t]*ARRAY_START=\(/){x=1;y=1;next;} \
+		($0~/^[ \t]*#/){next;} (x==1 && y==1 && $0~/^[ \t]*\)/){exit;} \
+		(x==1 && y==1){print} ' "${EM_INIT_CONFIG}" 2>&-) )
+fi
+
+emg_start=()
+
+# process user args
+mode="print, config"
