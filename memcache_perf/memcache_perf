@@ -200,7 +200,7 @@ while(@addr_pair) {
 		$cmd_get = $1;
 	}
   }
-  $memcache->close();
+  $memcache->close() if ($memcache);
   unless ($pid ne '' && $uptime ne '' && $version ne '') {
 	$critnum++;
   }
@@ -218,6 +218,7 @@ while(@addr_pair) {
   next;
 
   ERREND: {
+  	$memcache->close() if ($memcache);
 	$time_stop = Benchmark->new();
 	$time_duration = timestr(timediff($time_stop,$time_start),'noc');
 	$time_duration = (split /\s+/, $time_duration )[0];
