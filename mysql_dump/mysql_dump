@@ -159,7 +159,7 @@ check() {
 	CONTENT="$(gettext "Mysql Dump BackUp CRITICAL") | $(gettext "create backup directory failed") | $(gettext "ERROR_INFO:") ### ${errstr} "
 	return
   else
-	result="$(gettext "dump save directory:") ${dirpath} ### ### "
+	result="${result} $(gettext "dump save directory:") ${dirpath} ### ### "
   fi
 
   if [ -f "/${mysql_dump_tables##*file:}" -a -s "/${mysql_dump_tables##*file:}" ]; then
