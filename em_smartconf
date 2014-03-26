@@ -39,7 +39,32 @@ MOLE_FILE="$MOLE_DIR/sbin/mole"
 #                                  #
 ####################################
 
+read_conf() {
+	local file=$1 config=$2 kvsep=$3
+	local result=
 
+	if [ ! -z "${kvsep}" ]; then
+		awk="/bin/awk -F"${kvsep}""
+	else
+		awk="/bin/awk"
+	fi
+
+	if [ -f "${file}" -a -s "${file}" ]; then
+		result=$( ${awk} '($1~/'$config'\>/) {$1="";print;exit;}' "${file}" 2>&- )
+		result=$( echo -e "${result}" | tr -d '[" \t\n]' | sed -e 's/\x00//g;s/\x0D//g' )
+	fi
+	echo -en "${result}"
+}
+read_conf "/usr/local/eyou/mail-backup-20140316-161651/etc/eyou_mail.ini" "server_me" "="
+
+read_iniconf() {
+	local file=$1 section=$2 config=$3 kvsep=$4
+	local result=
+	if [ -f "${file}" -a -s "${file}" ]; then
+		:
+	fi
+	echo -en "${result}"
+}
 
 
 ####################################
@@ -56,6 +81,8 @@ if [ -f "${EM_INIT_CONFIG}" -a -s "${EM_INIT_CONFIG}" ]; then
 		($0~/^[ \t]*#/){next;} (x==1 && y==1 && $0~/^[ \t]*\)/){exit;} \
 		(x==1 && y==1){print} ' "${EM_INIT_CONFIG}" 2>&-) )
 fi
+
+
 
 emg_start=()
 
