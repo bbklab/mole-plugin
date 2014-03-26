@@ -28,6 +28,9 @@ msgstr "配置参数 dump_savedir 未定义."
 msgid "utitile [${mysqldump_path}] not prepared."
 msgstr "[${mysqldump_path}] 不存在或没有执行权限."
 
+msgid "dump save directory:"
+msgstr "备份导出目录为:"
+
 msgid "directory: [${dump_savedir}] not exist or accessable"
 msgstr "目录 [${dump_savedir}] 不存在或没有写入权限."
 

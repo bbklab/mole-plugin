@@ -158,6 +158,8 @@ check() {
 	TYPE="str";
 	CONTENT="$(gettext "Mysql Dump BackUp CRITICAL") | $(gettext "create backup directory failed") | $(gettext "ERROR_INFO:") ### ${errstr} "
 	return
+  else
+	result="$(gettext "dump save directory:") ${dirpath} ### ### "
   fi
 
   if [ -f "/${mysql_dump_tables##*file:}" -a -s "/${mysql_dump_tables##*file:}" ]; then
@@ -173,7 +175,7 @@ check() {
 				($0~/^[ \t]*$/){next;}\
 				($0~/^ *\[ *'${dbname}' *\] *$/){k=1;x=1;next}\
 				(x==1 && $0~/^ *\[ *.* *\] *$/ && $0!~/^ *\[ *'${dbname}' *\] *$/ ){exit;}\
-				( k==1 && x==1 ){printf "%s %s ",db,$0;}'  "${dbtb_file}" 2>&- )
+				( k==1 && x==1 && $0!~/^[ \t]*#/ ){printf "%s %s ",db,$0;}'  "${dbtb_file}" 2>&- )
 		array_dbtb_list=( ${array_dbtb_list}  ${dbtb_tmp} )
 	done
   else
