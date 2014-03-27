@@ -19,7 +19,7 @@ Requires:		curl >= 7.15.5, bc >= 1.06
 Requires:		findutils >= 4.2.27, net-tools >= 1.60
 Requires:		dmidecode >= 2.7, redhat-lsb >= 3.1
 Requires:		glibc-common >= 2.5, pciutils >= 2.2.3
-Requires:		ethtool >= 5
+Requires:		ethtool >= 5, sysstat >= 7.0.0
 Requires:		bind-utils >= 9.3.3
 Requires:		redhat-lsb >= 3.1
 Requires(post): 	chkconfig
