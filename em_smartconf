@@ -40,28 +40,27 @@ MOLE_FILE="$MOLE_DIR/sbin/mole"
 ####################################
 
 read_conf() {
-	local file=$1 config=$2 kvsep=$3
+	local file=$1 config=$2
 	local result=
 
-	if [ ! -z "${kvsep}" ]; then
-		awk="/bin/awk -F"${kvsep}""
-	else
-		awk="/bin/awk"
-	fi
-
 	if [ -f "${file}" -a -s "${file}" ]; then
-		result=$( ${awk} '($1~/'$config'\>/) {$1="";print;exit;}' "${file}" 2>&- )
+		result=$( awk -F"=" '($1~/'$config'\>/) {$1="";print;exit;}' "${file}" 2>&- )
 		result=$( echo -e "${result}" | tr -d '[" \t\n]' | sed -e 's/\x00//g;s/\x0D//g' )
 	fi
 	echo -en "${result}"
 }
-read_conf "/usr/local/eyou/mail-backup-20140316-161651/etc/eyou_mail.ini" "server_me" "="
 
 read_iniconf() {
-	local file=$1 section=$2 config=$3 kvsep=$4
+	local file=$1 section=$2 config=$3
 	local result=
 	if [ -f "${file}" -a -s "${file}" ]; then
-		:
+		result=$( cat ${file} | tr '\t' ' ' |\
+                        awk -F "=" '\
+                                ($0~/^ *\[ *'${section}' *\] *$/){k=1;x=1;next}\
+                                ( x==1 && $0~/^ *\[ *.* *\] *$/ && $0!~/^ *\[ *'${section}' *\] *$/ ){exit}\
+                                ( k==1 && x==1 && $1~/^'${config}'\>/ ){$1="";print;exit}' 2>&- |\
+                         sed -e 's/^[ \t]*//; s/[ \t]*$//;' 2>&- )
+		result=$( echo -e "${result}" | tr -d '[" \t\n]' | sed -e 's/\x00//g;s/\x0D//g' )
 	fi
 	echo -en "${result}"
 }
