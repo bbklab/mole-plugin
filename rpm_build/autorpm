@@ -102,13 +102,12 @@ if [ "${TARMODE}" == "1" ]; then	# reset specfile and plugins
 elif [ "${TARMODE}" == "2" ]; then	# reset specfile and plugins
   specfile="${path}/spec_files/mole-emplugin.spec"
   plugins=( 
-	pop_svr
 	dns_svr
+	pop_svr
 	http_svr
 	imap_svr
 	smtp_svr
 	emp_mailqueue	
-	mysql_ping
   )
 fi
 
