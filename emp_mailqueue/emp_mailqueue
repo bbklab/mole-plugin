@@ -31,7 +31,7 @@ fi
 # === SET TEXTDOMAINDIR TEXTDOMAIN
 if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
         export TEXTDOMAINDIR="${LOCALE_DIR}"
-        export TEXTDOMAIN="mail_queue"
+        export TEXTDOMAIN="emp_mailqueue"
 else    
         echo -en "{unkn}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
         exit 3
@@ -39,7 +39,7 @@ fi
 
 
 # === SET GLOBAL LOCALE
-glocale=$(get_locale mail_queue)
+glocale=$(get_locale emp_mailqueue)
 if [ -z "${glocale}" ]; then
         export LANG="zh_CN.UTF-8"           ## read from sysenv
 elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
@@ -82,7 +82,7 @@ TYPE=""    	### { str| file }
 CONTENT=""      ### { strings | /path/to/result.file }
 
 # Read plugin config value here
-uplimit=$(read_mole_config mail_queue uplimit)
+uplimit=$(read_mole_config emp_mailqueue uplimit)
 
 # if null return STATE_UNKN.
 

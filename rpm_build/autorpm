@@ -40,7 +40,7 @@ if [ -z "${1}" ]; then
 	fdnum
 	http_svr
 	imap_svr
-	mail_queue
+	emp_mailqueue
 	memcache_perf
 	memory
 	mysql_dump
@@ -107,7 +107,7 @@ elif [ "${TARMODE}" == "2" ]; then	# reset specfile and plugins
 	http_svr
 	imap_svr
 	smtp_svr
-	mail_queue
+	emp_mailqueue	
 	mysql_ping
   )
 fi
