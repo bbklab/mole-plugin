@@ -47,7 +47,7 @@ msgid "Memory Usage: [${mem_percent}]% >= Uplimit: [${mem_uplimit}%]"
 msgstr "内存使用率为${mem_percent}%,  超出上限${mem_uplimit}%"
 
 msgid "Memory Usage: [${mem_percent}]% <= Uplimit: [${mem_uplimit}%]"
-msgstr "内使用率为${mem_percent}%"
+msgstr "内存使用率为${mem_percent}%"
 
 msgid "Swap Usage: [${swp_percent}]% >= Uplimit: [${swp_uplimit}%]"
 msgstr "交换使用率为${swp_percent}%, 超出上限${swp_uplimit}%"
