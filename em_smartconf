@@ -65,6 +65,29 @@ read_iniconf() {
 	echo -en "${result}"
 }
 
+get_emstart() {
+	local result=
+	if [ -f "${EM_INIT_CONFIG}" -a -s "${EM_INIT_CONFIG}" ]; then
+		result=$(awk 'BEGIN{x=0;y=0} ($0~/^[ \t]*ARRAY_START=\(/){x=1;y=1;next;} \
+			($0~/^[ \t]*#/){next;} (x==1 && y==1 && $0~/^[ \t]*\)/){exit;} \
+			(x==1 && y==1){print} ' "${EM_INIT_CONFIG}" 2>&-)
+	fi
+	echo -en "${result}"
+}
+
+get_emgstart() {
+	local result=
+	
+	echo -en "${result}"
+}
+
+# Check item is subset of sets or not ?
+# Return 	0,1 
+#
+is_sub() {
+	local item=$1  sets=$2
+}
+
 
 ####################################
 #                                  #
@@ -73,17 +96,12 @@ read_iniconf() {
 ####################################
 
 
-# first collect config stuff
-em_start=()
-if [ -f "${EM_INIT_CONFIG}" -a -s "${EM_INIT_CONFIG}" ]; then
-	em_start=( $(awk 'BEGIN{x=0;y=0} ($0~/^[ \t]*ARRAY_START=\(/){x=1;y=1;next;} \
-		($0~/^[ \t]*#/){next;} (x==1 && y==1 && $0~/^[ \t]*\)/){exit;} \
-		(x==1 && y==1){print} ' "${EM_INIT_CONFIG}" 2>&-) )
-fi
+# collectint config stuff
+em_start=( $(get_emstart) )
+emg_start=( $(get_emgstart) )
 
-
-
-emg_start=()
+em_port=
+em_g_port=
 
 # process user args
-mode="print, config"
+# mode="print, config"

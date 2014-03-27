@@ -87,10 +87,12 @@ if [ "${TARMODE}" == "1" ]; then	# reset specfile and plugins
        	cpu_usage
        	disk_fs
        	disk_space
+ 	disk_iostat
        	memory
        	notify_oom
        	notify_syslogin
        	port
+ 	process
        	sysload
        	system_dyninfo
        	system_fixinfo
@@ -102,20 +104,11 @@ elif [ "${TARMODE}" == "2" ]; then	# reset specfile and plugins
   plugins=( 
 	pop_svr
 	dns_svr
-	ldap_svr
 	http_svr
 	imap_svr
 	smtp_svr
-	memcache_perf
-	process
-	disk_iostat
-	eyou_fixinfo
 	mail_queue
 	mysql_ping
-	mysql_repl
-	mysql_dump
-	remote_mailtest
-	emp_smtpauth_limit
   )
 fi
 
