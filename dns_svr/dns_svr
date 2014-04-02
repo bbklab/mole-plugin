@@ -125,7 +125,7 @@ check(){
 			result="${result} $(eval_gettext "dns resolving [\${y}] on [\${target}] succeed! details: \${status} \${detail}") ### "
 		else
 			((warnnum++))
-			error=$(echo -e "${error}" | tr -d '\r\n')
+			error=$(echo -e "${error}" | tr '\r\n' ' ')
 			result="${result} $(html_red "$(eval_gettext "dns resolving [\${y}] on [\${target}] error! details: \${status} [\${error}]")") ### "
 		fi
 	done
