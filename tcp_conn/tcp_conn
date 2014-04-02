@@ -158,7 +158,7 @@ check_single(){
 		local output="$(eval_gettext "Total: [\${total}] < Limit: [\${limit}]") ### "
 		return_code=0
 	fi
-  	local output="${output} $(echo -e "${conn_stat} ### ### $(gettext "IP Connect Stat:") ### ${ip_stat} ### " | sed -e 's/$/ ### /g' | tr -d '\n' )"
+  	local output="${output} $(echo -e "${conn_stat} ### $(gettext "IP Connect Stat:") ### ${ip_stat} ### " | sed -e 's/$/ ### /g' | tr -d '\n' )"
   fi
   echo -e "${output}"
   return ${return_code}
