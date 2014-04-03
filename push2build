@@ -32,3 +32,6 @@ check_rc "check path: ${filename2}"
 
 /bin/cp -f "${filename2}" "${destdir}/"
 check_rc "copy to ${destdir}/${filename2##*/}"
+
+${autorpm} clean
+check_rc "rpm clean"
