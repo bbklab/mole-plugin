@@ -31,6 +31,12 @@ msgstr "系统负载检查告警"
 msgid "load [${loadave} >= ${load_uplimit}]"
 msgstr "系统负载为${loadave}, 超出上限${load_uplimit}"
 
+msgid "recent load average:"
+msgstr "最近系统负载情况:"
+
+msgid "cpu usage top10:"
+msgstr "CPU占用最高的10个进程:"
+
 msgid "System Load Check OK"
 msgstr "系统负载检查正常"
 

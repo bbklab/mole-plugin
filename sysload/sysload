@@ -119,7 +119,8 @@ check(){
   }
 
   # collect data
-  local loadave=$( cut -d" " -f1 /proc/loadavg 2>&1 )
+  local loadave=$(cut -d" " -f1     /proc/loadavg 2>&1)
+  local details=$(awk '{printf "1min:%s 5min:%s 15min:%s\n",$1,$2,$3}' /proc/loadavg 2>&-)
 
   [ -z "${loadave}" -o ! -z "${loadave//[0-9.]}" ] && {
         EXIT_STATUS=${STATE_UNKN};
@@ -137,10 +138,11 @@ check(){
 
   # output plugin format data if MODE=0
   if [ "$(echo  "${loadave} >= ${load_uplimit}" | bc 2>&-)" == "1" ]; then
+	local top_pcpu_ps=$(ps -eo pid,comm,pcpu|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
 	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
-	CONTENT="$(gettext "System Load Check CRITICAL") | $(eval_gettext "load [\${loadave} >= \${load_uplimit}]")"
+	CONTENT="$(gettext "System Load Check CRITICAL") | $(eval_gettext "load [\${loadave} >= \${load_uplimit}]") | $(gettext "recent load average:") ${details} ### ### $(gettext "cpu usage top10:") ###  ${top_pcpu_ps}"
   else
 	EXIT_STATUS=${STATE_SUCC};
 	LEVEL="succ";
