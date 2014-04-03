@@ -120,6 +120,14 @@ check(){
   local mem_percent=$( echo "scale=3; 100 * (1 - ${mem_free}/${mem_total})" | bc 2>&- )
   local swp_percent=$( echo "scale=3; 100 * (1 - ${swp_free}/${swp_total})" | bc 2>&- )
 
+  # human readable
+  if (echo -e "${mem_percent}" | grep -E -o "^\.") >/dev/null 2>&1; then
+	mem_percent="0${mem_percent}"
+  fi
+  if (echo -e "${swp_percent}" | grep -E -o "^\.") >/dev/null 2>&1; then
+	swp_percent="0${swp_percent}"
+  fi
+
   # output plugin format data if MODE=0
   [ -z "${mem_total}" -o ! -z "${mem_total//[0-9]}" -o -z "${mem_free}" -o ! -z "${mem_free//[0-9]}" ] && {
 	EXIT_STATUS=${STATE_UNKN};
