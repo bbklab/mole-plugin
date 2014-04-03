@@ -173,6 +173,14 @@ check_single(){
 	ip_rate=$(( ${ip} / (${count} * ${interval}) ))
 	op_rate=$(( ${op} / (${count} * ${interval}) ))
 
+	# human readable
+  	if (echo -e "${ib_rate_m}" | grep -E -o "^\.") >/dev/null 2>&1; then
+        	ib_rate_m="0${ib_rate_m}"
+  	fi  
+  	if (echo -e "${ob_rate_m}" | grep -E -o "^\.") >/dev/null 2>&1; then
+        	ob_rate_m="0${ob_rate_m}"
+  	fi  
+
 	if [ "$( echo "${ib_rate_m} >= ${iblimit_m}" | bc 2>&- )" == "1" ]; then
 		return_code=1
 		output="${output} $(html_red "$(gettext "bytes flowin rate:") ${ib_rate_m}M/s") ### "
