@@ -49,6 +49,9 @@ msgstr "CPU用户态使用率为 ${us_usage}%"
 msgid "CPU Usage Check WARNING"
 msgstr "CPU使用情况告警"
 
+msgid "cpu usage top10:"
+msgstr "CPU占用最高的10个进程:"
+
 msgid "${warnnum}/${total} check failed."
 msgstr "${warnnum}/${total} 项检查告警."
 

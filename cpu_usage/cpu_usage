@@ -159,7 +159,7 @@ check(){
 	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
-	CONTENT="$(gettext "CPU Usage Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check failed.") | ${result} ### ${top_pcpu_ps}"
+	CONTENT="$(gettext "CPU Usage Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check failed.") | ${result} ### ### $(gettext "cpu usage top10:") ### ${top_pcpu_ps}"
   else
 	EXIT_STATUS=${STATE_SUCC};
 	LEVEL="succ";
