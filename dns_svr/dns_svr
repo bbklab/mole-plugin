@@ -120,6 +120,7 @@ check(){
 		rc=$?
 		y=$(echo -e "${y}" | tr '[a-z]' '[A-Z]')
 		status=$(echo -e "${error}" |grep -E -o "status: (\w)+," | tail -n1)
+		status=$(echo -e "${status}" | sed -e 's/status://g')
 		if [ "${rc}" == "0" ]; then
 			detail=$(echo -e "${error}" | awk '(/^Received/) {print}'  | tail -n1)
 			result="${result} $(eval_gettext "dns resolving [\${y}] on [\${target}] succeed! details: \${status} \${detail}") ### "
