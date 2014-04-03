@@ -17,17 +17,18 @@ check_rc() {
 filename1=$( eval "${autorpm} ${args1}" )
 check_rc "make rpm for $filename1"
 
-filename2=$( eval "${autorpm} ${args2}" )
-check_rc "make rpm for $filename2"
-
 ls "${filename1}" >/dev/null 2>&1
 check_rc "check path: ${filename1}"
 
-ls "${filename2}" >/dev/null 2>&1
-check_rc "check path: ${filename2}"
-
 /bin/cp -f "${filename1}" "${destdir}/"
 check_rc "copy to ${destdir}/${filename1##*/}"
+
+
+filename2=$( eval "${autorpm} ${args2}" )
+check_rc "make rpm for $filename2"
+
+ls "${filename2}" >/dev/null 2>&1
+check_rc "check path: ${filename2}"
 
 /bin/cp -f "${filename2}" "${destdir}/"
 check_rc "copy to ${destdir}/${filename2##*/}"
