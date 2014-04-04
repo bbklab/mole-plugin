@@ -65,6 +65,9 @@ done
 /usr/local/esop/agent/mole/share/
 
 %post
+# init plugin configs
+plugins=( dns_svr http_svr imap_svr pop_svr smtp_svr emp_mailqueue )
+/bin/bash /usr/local/%{name}/agent/mole/bin/autoconf rpminit ${plugin[*]}
 
 %preun
 
