@@ -100,7 +100,7 @@ if [ "${TARMODE}" == "1" ]; then	# reset specfile and plugins
        	traffic
   )
 elif [ "${TARMODE}" == "2" ]; then	# reset specfile and plugins
-  specfile="${path}/spec_files/mole-emplugin.spec"
+  specfile="${path}/spec_files/esop-plugingroup-mail.spec "
   plugins=( 
 	dns_svr
 	pop_svr

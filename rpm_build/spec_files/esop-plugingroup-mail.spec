@@ -8,7 +8,9 @@ Packager: 	Zhang Guangzheng <zhang.elinks@gmail.com>
 BuildRoot: 	/var/tmp/%{name}-%{version}-%{release}-root
 Source0: 	esop-plugingroup-mail-0.1-beta1.tgz
 Requires:		esop >= 1.0-beta2 
-Requires:		bind-utils >= 9.3.3, perl >= 5.8.8
+Requires:		bind-utils >= 9.3.3
+Requires:		findutils >= 4.2.27
+Requires:		perl >= 5.8.8
 #
 # All of version requires are based on OS rhel5.1 release
 #
