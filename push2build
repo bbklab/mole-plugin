@@ -14,6 +14,21 @@ check_rc() {
   fi
 }
 
+# def spec files
+spec_dir="$basedir/rpm_build/spec_files/"
+spec_files=(
+	"esop-plugingroup-mail.spec"
+)
+
+for((i=0;i<=${#spec_files[*]}-1;i++))
+do
+	if [ -f "${spec_dir}/${spec_files[$i]}" ]; then
+		/bin/cp  -f "${spec_dir}/${spec_files[$i]}"  "${destdir}/${spec_files[$i]}"
+		check_rc "publish ${spec_files[$i]}"
+	fi
+done
+
+
 filename1=$( eval "${autorpm} ${args1}" )
 check_rc "make rpm for $filename1"
 
