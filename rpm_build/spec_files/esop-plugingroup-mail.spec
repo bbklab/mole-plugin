@@ -67,11 +67,14 @@ done
 %post
 # init plugin configs
 plugins=( dns_svr http_svr imap_svr pop_svr smtp_svr emp_mailqueue )
-/bin/bash /usr/local/%{name}/agent/mole/bin/autoconf rpminit ${plugin[*]}
+/bin/bash /usr/local/esop/agent/mole/bin/autoconf rpminit ${plugin[*]}
+:
 
 %preun
+:
 
 %postun
+:
 
 %changelog
 * Fri Apr  4 2014 Zhang Guangzheng<zhang.elinks@gmail.com>
