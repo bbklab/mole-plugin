@@ -116,7 +116,7 @@ check(){
 	for y in `echo -e "${types}" | tr '[,]' ' '`
 	do
 		((total++))
-		error=$(/usr/bin/host -v -T -W ${max_wait_time} -t ${y} ${target} 2>&1)
+		error=$(/usr/bin/host -v -W ${max_wait_time} -t ${y} ${target} 2>&1)
 		rc=$?
 		y=$(echo -e "${y}" | tr '[a-z]' '[A-Z]')
 		status=$(echo -e "${error}" |grep -E -o "status: (\w)+," | tail -n1)
