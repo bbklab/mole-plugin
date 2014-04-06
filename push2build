@@ -1,7 +1,7 @@
 #!/bin/bash
 
 basedir="$(cd $(dirname $0);pwd)"
-destdir="/data/esop_codes/"
+destdir="/data/esop_codes"
 autorpm="${basedir}/rpm_build/autorpm"
 args1="basic tarball"
 args2="mail  tarball"
