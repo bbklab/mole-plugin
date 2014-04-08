@@ -225,6 +225,23 @@ while(@addr_pair) {
 	$time_start = Benchmark->new();         ## reset time_start
   }
 
+  print $smtp "NOOP\r\n";
+  $response = <$smtp>;
+  $response =~ s/[\r\n]//g if ($response);
+  unless (defined $response && $response =~ m/\A2\d\d\s+/) {
+	$response = '' if (!defined $response);
+	$result .= sprintf(_"<font color=red> smtp command: NOOP return [message=%s] ",$response);
+	$critnum++;
+	goto ERREND;
+  } else {
+	$time_stop = Benchmark->new();
+	$time_duration = timestr(timediff($time_stop,$time_start),'noc');
+	$time_duration = (split /\s+/, $time_duration )[0];
+	$response = '' if (!defined $response);
+	$result .= sprintf(_"smtp command: NOOP return [message=%s] (%f seconds) ### ",$response,$time_duration);
+	$time_start = Benchmark->new();         ## reset time_start
+  }
+
   if($smtp_user && $smtp_pass) {
 	$smtp_user = encode_base64($smtp_user,'');	# trim '\n', empty eof
 	$smtp_pass = encode_base64($smtp_pass,'');	# trim '\n', empty eof

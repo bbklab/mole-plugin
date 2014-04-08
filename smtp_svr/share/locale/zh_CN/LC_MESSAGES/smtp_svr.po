@@ -49,6 +49,12 @@ msgstr "<font color=red> SMTP命令 HELO: 返回信息:%s "
 msgid "smtp command: HELO return [message=%s] (%f seconds) ### "
 msgstr "SMTP命令 HELO: 返回信息:%s (耗时 %f 秒) ### "
 
+msgid "<font color=red> smtp command: NOOP return [message=%s] "
+msgstr "<font color=red> SMTP命令 NOOP: 返回信息:%s "
+
+msgid "smtp command: NOOP return [message=%s] (%f seconds) ### "
+msgstr "SMTP命令 NOOP: 返回信息:%s (耗时 %f 秒) ### "
+
 msgid "<font color=red> base64 encode on smtp_user/smtp_pass failed. </font> ### ### "
 msgstr "<font color=red> 对用户名或密码Base64编码失败. </font> ### ### "
 
@@ -56,7 +62,7 @@ msgid "<font color=red> smtp command: AUTH LOGIN return [message=%s] "
 msgstr "<font color=red> SMTP命令 AUTH LOGIN: 返回信息:%s "
 
 msgid "smtp command: AUTH LOGIN return [message=%s] (%f seconds) ### "
-msgstr "SMTP命令AUTH LOGIN: 返回信息:%s (耗时 %f 秒) ### "
+msgstr "SMTP命令 AUTH LOGIN: 返回信息:%s (耗时 %f 秒) ### "
 
 msgid "<font color=red> smtp command: {Username:} return [message=%s] "
 msgstr "<font color=red> SMTP交互认证输入用户名返回信息:%s"
