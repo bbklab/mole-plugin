@@ -196,6 +196,24 @@ while(@addr_pair) {
 		goto ERREND;
 	}
   }
+
+  print $imap "A01 NOOP\r\n";
+  my $response = <$imap>;
+  $response =~ s/[\r\n]//g if ($response);
+  unless (defined $response && $response =~ m/\AA01\s+OK\s+/i) {
+        $response = '' if (!defined $response);
+        $result .= sprintf(_"<font color=red> imap command: A01 NOOP return [message=%s] ",$response);
+        $critnum++;
+        goto ERREND;
+  } else {
+        $time_stop = Benchmark->new();
+        $time_duration = timestr(timediff($time_stop,$time_start),'noc');
+        $time_duration = (split /\s+/, $time_duration )[0];
+        $response = '' if (!defined $response);
+        $result .= sprintf(_"imap command: A01 NOOP return [message=%s] (%f seconds) ### ",$response,$time_duration);
+        $time_start = Benchmark->new();         ## reset time_start
+  }
+
   if($imap_user && $imap_pass) {
 	print $imap "A01 LOGIN $imap_user $imap_pass\r\n";	## if without \r, will hang up for 30s.
 	my $response = <$imap>;
