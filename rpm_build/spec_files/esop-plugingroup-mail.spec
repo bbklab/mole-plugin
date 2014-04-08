@@ -77,5 +77,5 @@ plugins=( dns_svr http_svr imap_svr pop_svr smtp_svr emp_mailqueue )
 :
 
 %changelog
-* Fri Apr  4 2014 Zhang Guangzheng<zhang.elinks@gmail.com>
+* Tue Apr  8 2014 Zhang Guangzheng<zhangguangzheng@eyou.net>
 - 发布: 0.1-beta1
