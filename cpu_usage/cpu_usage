@@ -145,7 +145,7 @@ check(){
 	result="${result} $(eval_gettext "cpu sys usage: [\${sy_usage}%] <= uplimit: [\${sy_uplimit}%]") ###"
   fi
 
-  if [ "$(echo  "${us_usage} >= ${uplimit}" | bc 2>&-)" == "1" ]; then
+  if [ "$(echo  "${us_usage} >= ${us_uplimit}" | bc 2>&-)" == "1" ]; then
 	((warnnum++))
 	result="${result} $(html_red "$(eval_gettext "cpu user usage: [\${us_usage}%] >= uplimit: [\${us_uplimit}%]")") ###"
   else
