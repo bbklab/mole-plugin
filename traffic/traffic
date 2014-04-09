@@ -94,7 +94,7 @@ fi
 
 # if null or invalid set default.
 netdev_default="eth0"
-limit_default="50M/s:75M/s:0:0"
+limit_default="30M/s:50M/s:0:0"
 netdev=
 if [ -z "${ifdev_lst}" ]; then
 	if [ -f "/proc/net/dev" ]; then
