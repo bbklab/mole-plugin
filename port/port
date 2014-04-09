@@ -172,7 +172,7 @@ check_single(){
         return
   }
 
-  local result=" ### $(eval_gettext "Check List: [${port_list}]") ### ### "
+  local result=" ### $(eval_gettext "Check List: [\${port_list}]") ### ### "
   local oknum=0 errnum=0 unknum=0 total=0
   for pairs in `echo "${port_list}" | tr '[;,/]' ' '`
   do
