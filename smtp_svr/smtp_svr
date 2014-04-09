@@ -103,7 +103,7 @@ textdomain "$filename";
 bindtextdomain "$filename", "$localdir";
 
 # read plugin config here
-our $addr_port = '127.0.0.1:110';
+our $addr_port = '127.0.0.1:25';
 open $fh, "$mole view $filename addr_port 2>&- |";
 if ($fh) {
   while(<$fh>){
