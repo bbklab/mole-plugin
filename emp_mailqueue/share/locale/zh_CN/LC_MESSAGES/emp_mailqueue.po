@@ -25,7 +25,7 @@ msgstr "未找到邮件队列目录"
 msgid "{Local/Remote/Bounce}/Info not directory"
 msgstr "{Local/Remte/Bounce}/Info 目录不存在"
 
-msgid "Queuing Letters Number CRITICAL"
+msgid "Queuing Letters Number WARNING"
 msgstr "队列信件数检查告警"
 
 msgid "${total} letters"

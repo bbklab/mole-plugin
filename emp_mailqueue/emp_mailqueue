@@ -121,10 +121,10 @@ check(){
 
   if [ ! -z "${total}" -a -z "${total//[0-9]}" ]; then
  	[ "$( echo "${total} >= ${uplimit}" | bc 2>&- )" == "1" ] && {
-		EXIT_STATUS="${STATE_CRIT}"
-		LEVEL="crit"
+		EXIT_STATUS="${STATE_WARN}"
+		LEVEL="warn"
 		TYPE="str"
-		CONTENT="$(gettext "Queuing Letters Number CRITICAL") | $(eval_gettext "\${total} letters") | $(html_red "$(eval_gettext "\${total} letters")") ### ### $(eval_gettext "letters in local: [\${ln}]") ### $(eval_gettext "letters in remote: [\${rn}]") ### $(eval_gettext "letters in bounce: [\${bn}]") ### $(eval_gettext "letters in mlist: [\${mn}]") ### $(eval_gettext "letters in tmp: [\${tn}]") ### "
+		CONTENT="$(gettext "Queuing Letters Number WARNING") | $(eval_gettext "\${total} letters") | $(html_red "$(eval_gettext "\${total} letters")") ### ### $(eval_gettext "letters in local: [\${ln}]") ### $(eval_gettext "letters in remote: [\${rn}]") ### $(eval_gettext "letters in bounce: [\${bn}]") ### $(eval_gettext "letters in mlist: [\${mn}]") ### $(eval_gettext "letters in tmp: [\${tn}]") ### "
 	} || {
 		EXIT_STATUS="${STATE_SUCC}"
 		LEVEL="succ"
