@@ -124,18 +124,18 @@ check(){
 		EXIT_STATUS="${STATE_CRIT}"
 		LEVEL="crit"
 		TYPE="str"
-		CONTENT="$(gettext "Queuing Letters Number CRITICAL") | $(eval_gettext "\${total} letters") | $(eval_gettext "letters in local: [\${ln}]") ### $(eval_gettext "letters in remote: [\${rn}]") ### $(eval_gettext "letters in bounce: [\${bn}]") ### $(eval_gettext "letters in mlist: [\${mn}]") ### $(eval_gettext "letters in tmp: [\${tn}]") ### "
+		CONTENT="$(gettext "Queuing Letters Number CRITICAL") | $(eval_gettext "\${total} letters") | $(html_red "$(eval_gettext "\${total} letters")") ### ### $(eval_gettext "letters in local: [\${ln}]") ### $(eval_gettext "letters in remote: [\${rn}]") ### $(eval_gettext "letters in bounce: [\${bn}]") ### $(eval_gettext "letters in mlist: [\${mn}]") ### $(eval_gettext "letters in tmp: [\${tn}]") ### "
 	} || {
 		EXIT_STATUS="${STATE_SUCC}"
 		LEVEL="succ"
 		TYPE="str"
-		CONTENT="$(gettext "Queuing Letters Number OK") | $(eval_gettext "\${total} letters") | $(eval_gettext "letters in local: [\${ln}]") ### $(eval_gettext "letters in remote: [\${rn}]") ### $(eval_gettext "letters in bounce: [\${bn}]") ### $(eval_gettext "letters in mlist: [\${mn}]") ### $(eval_gettext "letters in tmp: [\${tn}]") ### "
+		CONTENT="$(gettext "Queuing Letters Number OK") | $(eval_gettext "\${total} letters") | $(eval_gettext "\${total} letters") ### ### $(eval_gettext "letters in local: [\${ln}]") ### $(eval_gettext "letters in remote: [\${rn}]") ### $(eval_gettext "letters in bounce: [\${bn}]") ### $(eval_gettext "letters in mlist: [\${mn}]") ### $(eval_gettext "letters in tmp: [\${tn}]") ### "
 	}
   else
 	EXIT_STATUS=${STATE_UNKN}
 	LEVEL="unkn"
 	TYPE="str"
-	CONTENT="$(gettext "Queuing Letters Number Unknown") | $(eval_gettext "total: [${total}] not numberic") | $(eval_gettext "letters in local: [\${ln}]") ### $(eval_gettext "letters in remote: [\${rn}]") ### $(eval_gettext "letters in bounce: [\${bn}]") ### $(eval_gettext "letters in mlist: [\${mn}]") ### $(eval_gettext "letters in tmp: [\${tn}]") ### "
+	CONTENT="$(gettext "Queuing Letters Number Unknown") | $(eval_gettext "total: [${total}] not numberic") | $(html_yellow "$(eval_gettext "\${total} letters")") ### ### $(eval_gettext "letters in local: [\${ln}]") ### $(eval_gettext "letters in remote: [\${rn}]") ### $(eval_gettext "letters in bounce: [\${bn}]") ### $(eval_gettext "letters in mlist: [\${mn}]") ### $(eval_gettext "letters in tmp: [\${tn}]") ### "
   fi
 }
 
