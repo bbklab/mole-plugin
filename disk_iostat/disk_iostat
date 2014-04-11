@@ -93,7 +93,7 @@ fi
 # if null return STATE_UNKN.
 
 # if null or invalid set default.
-[ -z "${util_uplimit}" -o ! -z "${util_uplimit//[0-9]}" ] && util_uplimit=50
+[ -z "${util_uplimit}" -o ! -z "${util_uplimit//[0-9]}" ] && util_uplimit=70
 
 # check function here
 check(){
