@@ -97,9 +97,8 @@ netdev_default="eth0"
 limit_default="30M/s:50M/s:0:0"
 netdev=
 if [ -z "${ifdev_lst}" ]; then
-	if [ -f "/proc/net/dev" ]; then
-		netdev=$( awk -F: '(NF!=2){next;} ($1~/\<lo\>/){next;} {print $1,$2}' /proc/net/dev 2>&- | awk '($2!=0 && $3!=0){print $1;exit;}' | tr -d '\r\n\t ')
-	else
+	netdev=$( get_inetorder 2>&- | awk '{print $1;exit;}' )
+	if [ -z "${netdev}" ]; then
 		netdev="${netdev_default}"
 	fi
 	ifdev_lst=" ${netdev}:${limit_default} "
