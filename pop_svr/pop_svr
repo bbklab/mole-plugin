@@ -197,23 +197,6 @@ while(@addr_pair) {
 	}
   }
 
-  print $pop "NOOP\r\n";
-  my $response = <$pop>;
-  $response =~ s/[\r\n]//g if ($response);
-  unless (defined $response && $response =~ m/\A\+OK/) {
-	$response = '' if (!defined $response);
-	$result .= sprintf(_"<font color=red> pop command: NOOP return [message=%s] ",$response);
-	$critnum++;
-	goto ERREND;
-  } else {
-	$time_stop = Benchmark->new();
-	$time_duration = timestr(timediff($time_stop,$time_start),'noc');
-	$time_duration = (split /\s+/, $time_duration )[0];
-	$response = '' if (!defined $response);
-	$result .= sprintf(_"pop command: NOOP return [message=%s] (%f seconds) ### ",$response,$time_duration);
-	$time_start = Benchmark->new();         ## reset time_start
-  }
-
   if($pop_user && $pop_pass) {
 	print $pop "USER $pop_user\r\n";
 	my $response = <$pop>;

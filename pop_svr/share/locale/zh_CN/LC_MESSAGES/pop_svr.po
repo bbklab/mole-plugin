@@ -43,12 +43,6 @@ msgstr "<font color=red> 连接POP地址 %s:%d 返回欢迎信息 [%s] "
 msgid "<font color=red> connect [%s:%d] didn't return welcome banner "
 msgstr "<font color=red> 连接POP地址 [%s:%d] 未返回欢迎信息 "
 
-msgid "<font color=red> pop command: NOOP return [message=%s] "
-msgstr "<font color=red> POP命令NOOP: 返回信息:%s "
-
-msgid "pop command: NOOP return [message=%s] (%f seconds) ### "
-msgstr "POP命令NOOP: 返回信息:%s (耗时 %f 秒) ### "
-
 msgid "<font color=red> pop command: USER return [message=%s] "
 msgstr "<font color=red> POP命令USER: 返回信息:%s "
 
