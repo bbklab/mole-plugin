@@ -114,14 +114,21 @@ check(){
 	return
   fi
 
+  local mtabfile="/etc/mtab"
+
   # collect data
   local iostat_data=$( /usr/bin/iostat -d -x ${dev_list} 1 5 2>&1 )
   
-  oknum=0 warnnum=0 result=
+  oknum=0 warnnum=0 unknnum=0 result=
   for dev in ${dev_list}
   do
+	((total++))
 	# skip device that not exists
-	[ -e "${dev}" ] || continue
+	if [ ! -e "${dev}" ]; then
+		((unknnum++))
+		result="${result} $(html_red "$(eval_gettext "\${dev} not exist")") ### "
+		continue
+	fi
 
 	if [ -L "${dev}" ]; then	# in case of lvm
 		dev_tmpname="$(/bin/readlink ${dev} 2>&-)"
@@ -133,8 +140,12 @@ check(){
 	util=$( echo -e "${iostat_data}" | /bin/awk '($1~/^'${devname}'\>/){x+=$NF} END{print x/5}' 2>&- )
 	[ -z "${util}" -o ! -z "${util//[0-9.]}" ] && util=0
 
-	mpoint=$( /bin/awk -v d="${dev}" '($1==d){print $2}' /etc/mtab 2>&- )
-	[ -z "${mpoint}" ] && mpoint="NULL"
+	mpoint=$( /bin/awk -v d="${dev}" '($1==d){print $2;exit;}' "${mtabfile}" 2>&- )
+	if [ -z "${mpoint}" ]; then
+		((warnnum++))
+		result="${result} $(html_red "$(eval_gettext "\${dev} not mounted")" ) ###"
+		continue
+	fi
 
   	# output data and exit if MODE=1
   	[ "${MODE}" == "1" ] && {
@@ -154,12 +165,16 @@ check(){
   # exit if MODE=1
   [ "${MODE}" == "1" ] && exit
 
-  total=$((${warnnum}+${oknum}))
   if [ ${warnnum} -gt 0 ]; then
 	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
 	CONTENT="$(gettext "IOStat Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check failed.") | ${result}"
+  elif [ ${unknnum} -gt 0 ]; then
+	EXIT_STATUS=${STATE_UNKN};
+	LEVEL="unkn";
+	TYPE="str";
+	CONTENT="$(gettext "IOStat Check UNKNOWN") | $(eval_gettext "\${unknnum}/\${total} check unknown.") | ${result}"
   else
 	EXIT_STATUS=${STATE_SUCC};
 	LEVEL="succ";
