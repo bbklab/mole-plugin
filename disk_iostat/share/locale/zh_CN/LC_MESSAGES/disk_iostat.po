@@ -29,7 +29,7 @@ msgid "${dev} not exist"
 msgstr "设备: ${dev} 不存在."
 
 msgid "${dev} not mounted"
-msgstr "设备: ${dev} 未挂载到文件系统"
+msgstr "设备: ${dev} 未挂载到系统"
 
 msgid "${dev} (${mpoint}) io busy percent: [${util}%] <= uplimit: [${util_uplimit}%]"
 msgstr "设备: ${dev} (挂载点${mpoint}) IO繁忙程度为 ${util}%"
