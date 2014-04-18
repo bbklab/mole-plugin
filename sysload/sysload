@@ -142,7 +142,7 @@ check(){
 	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
-	CONTENT="$(gettext "System Load Check CRITICAL") | $(eval_gettext "load [\${loadave} >= \${load_uplimit}]") | $(gettext "recent load average:") ${details} ### ### $(gettext "cpu usage top10:") ###  ${top_pcpu_ps}"
+	CONTENT="$(gettext "System Load Check CRITICAL") | $(eval_gettext "load [\${loadave} >= \${load_uplimit}]") | $(html_red "$(eval_gettext "load [\${loadave} >= \${load_uplimit}]")") ### ### $(gettext "recent load average:") ${details} ### ### $(gettext "cpu usage top10:") ###  ${top_pcpu_ps}"
   else
 	EXIT_STATUS=${STATE_SUCC};
 	LEVEL="succ";
