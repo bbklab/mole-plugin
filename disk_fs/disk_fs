@@ -197,7 +197,7 @@ check(){
 		EXIT_STATUS=${STATE_UNKN};
 		LEVEL="unkn";
 		TYPE="str";
-		CONTENT="$(gettext "IO/FS Check UNKNOWN") | $(eval_gettext "${unknnum} check unknown") | ${result} "
+		CONTENT="$(gettext "IO/FS Check UNKNOWN") | $(eval_gettext "\${unknnum} check unknown") | ${result} "
 	} || {
 		EXIT_STATUS="${STATE_SUCC}"
 		LEVEL="succ"
