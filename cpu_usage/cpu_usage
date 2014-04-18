@@ -88,10 +88,6 @@ us_uplimit=$( read_mole_config cpu_usage us_uplimit )
 # if null return STATE_UNKN.
 
 # if null or invalid set default.
-[ -z "${uplimit}" -o ! -z "${uplimit//[0-9]}" ] && uplimit=75
-[ -z "${wa_uplimit}" -o ! -z "${wa_uplimit//[0-9]}" ] && wa_uplimit=20
-[ -z "${sy_uplimit}" -o ! -z "${sy_uplimit//[0-9]}" ] && sy_uplimit=30
-[ -z "${us_uplimit}" -o ! -z "${us_uplimit//[0-9]}" ] && us_uplimit=50
 
 # check function here
 check(){
@@ -101,6 +97,46 @@ check(){
 	LEVEL="unkn";
 	TYPE="str";
 	CONTENT="$(gettext "Command: [/usr/bin/vmstat] not prepared.")";
+	return
+  fi
+
+  if is_int "${uplimit}" && is_between "${uplimit}" "0" "100"; then
+	:
+  else
+	EXIT_STATUS=${STATE_UNKN};
+	LEVEL="unkn";
+	TYPE="str";
+	CONTENT="$(eval_gettext "uplimit [\${uplimit}] should be int and between 0-100.")";
+	return
+  fi
+
+  if is_int "${wa_uplimit}" && is_between "${wa_uplimit}" "0" "100"; then
+  	:
+  else
+	EXIT_STATUS=${STATE_UNKN};
+	LEVEL="unkn";
+	TYPE="str";
+	CONTENT="$(eval_gettext "wa_uplimit [\${wa_uplimit}] should be int and between 0-100.")";
+	return
+  fi
+
+  if is_int "${sy_uplimit}" && is_between "${sy_uplimit}" "0" "100"; then
+	:
+  else
+	EXIT_STATUS=${STATE_UNKN};
+	LEVEL="unkn";
+	TYPE="str";
+	CONTENT="$(eval_gettext "sy_uplimit [\${sy_uplimit}] should be int and between 0-100.")";
+	return
+  fi
+
+  if is_int "${us_uplimit}" && is_between "${us_uplimit}" "0" "100"; then
+	:
+  else
+	EXIT_STATUS=${STATE_UNKN};
+	LEVEL="unkn";
+	TYPE="str";
+	CONTENT="$(eval_gettext "us_uplimit [\${us_uplimit}] should be int and between 0-100.")";
 	return
   fi
 

@@ -22,6 +22,18 @@ msgstr "\n"
 msgid "Command: [/usr/bin/vmstat] not prepared."
 msgstr "[/usr/bin/vmstat] 不存在或没有执行权限."
 
+msgid "uplimit [${uplimit}] should be int and between 0-100."
+msgstr "uplimit配置 [${uplimit}] 应该是1-100之间的整数."
+
+msgid "wa_uplimit [${wa_uplimit}] should be int and between 0-100."
+msgstr "wa_uplimit配置 [${wa_uplimit}] 应该是1-100之间的整数."
+
+msgid "sy_uplimit [${sy_uplimit}] should be int and between 0-100."
+msgstr "sy_uplimit配置 [${sy_uplimit}] 应该是1-100之间的整数."
+
+msgid "us_uplimit [${us_uplimit}] should be int and between 0-100."
+msgstr "us_uplimit配置 [${us_uplimit}] 应该是1-100之间的整数."
+
 msgid "cpu usage: [${p_usage}%] >= uplimit: [${uplimit}%]"
 msgstr "CPU整体使用率为 ${p_usage}%, 超出上限 ${uplimit}%"
 
