@@ -31,7 +31,8 @@ BEGIN {
 use strict;
 use warnings;
 use utf8;
-use Locale::Messages qw (textdomain bindtextdomain gettext nl_putenv);
+use Locale::Messages qw (textdomain bindtextdomain gettext nl_putenv :locale_h :libintl_h);
+use POSIX qw (setlocale LC_ALL);
 binmode(STDIN, ":encoding(utf8)");
 binmode(STDOUT, ":encoding(utf8)");
 binmode(STDERR, ":encoding(utf8)");
@@ -89,7 +90,9 @@ if(!defined $locale || $locale eq ''){
 }else{
         $locale = 'zh_CN.UTF-8';
 }
+setlocale(LC_ALL,$locale);
 nl_putenv("LANGUAGE=$locale");
+nl_putenv("LANG=$locale");
 
 # set textdomain; bindtextdomain
 sub _ ($) { &gettext; }
