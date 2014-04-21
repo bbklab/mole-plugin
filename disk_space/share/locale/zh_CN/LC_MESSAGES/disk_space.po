@@ -25,6 +25,12 @@ msgstr "[/bin/df] 不存在或没有执行权限."
 msgid "File: [/etc/mtab] not prepared."
 msgstr "[/etc/mtab] 文件不存在或为空文件."
 
+msgid "space_pct [${space_pct}] should be int and between 0-100."
+msgstr "space_pct配置 [${space_pct}] 应该是1-100之间的整数."
+
+msgid "inode_pct [${inode_pct}] should be int and between 0-100."
+msgstr "inode_pct配置 [${inode_pct}] 应该是1-100之间的整数."
+
 msgid "Space Check"
 msgstr "磁盘空间使用率检查"
 

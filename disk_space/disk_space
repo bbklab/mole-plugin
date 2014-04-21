@@ -89,8 +89,8 @@ if [ "${MODE}" == "1" ]; then
 else
 	fstype=$( read_mole_config disk_space fstype)
 	exclude_mpoint=$( read_mole_config disk_space exclude_mpoint )
-	default_space_pct=$( read_mole_config disk_space space_pct)
-	default_inode_pct=$( read_mole_config disk_space inode_pct)
+	space_pct=$( read_mole_config disk_space space_pct)
+	inode_pct=$( read_mole_config disk_space inode_pct)
 fi
 
 # if null return STATE_UNKN.
@@ -98,8 +98,6 @@ fi
 # if null or invalid set default.
 [ -z "${fstype}" ] && fstype="ext2 ext3 ext4"
 [ -z "${exclude_mpoint}" ] && exclude_mpoint="/boot"
-[ -z "${default_space_pct}" -o ! -z "${default_space_pct//[0-9]}" ] && default_space_pct=90
-[ -z "${default_inode_pct}" -o ! -z "${default_inode_pct//[0-9]}" ] && default_inode_pct=90
 
 
 # check function here
@@ -120,6 +118,26 @@ check(){
 	CONTENT="$(gettext "File: [/etc/mtab] not prepared.")";
 	return
   }
+
+  if is_int "${space_pct}" && is_between "${space_pct}" "0" "100"; then
+        :
+  else
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
+        TYPE="str";
+        CONTENT="$(eval_gettext "space_pct [\${space_pct}] should be int and between 0-100.")";
+        return
+  fi
+
+  if is_int "${inode_pct}" && is_between "${inode_pct}" "0" "100"; then
+        :
+  else
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
+        TYPE="str";
+        CONTENT="$(eval_gettext "inode_pct [\${inode_pct}] should be int and between 0-100.")";
+        return
+  fi
 
   local result= mpoint= warnnum=0
 
@@ -156,17 +174,6 @@ check(){
 			echo "Disk_Space: ${device} ${fstype} ${mount} ${size}M ${used}M ${used_pct}%"
 			continue
 		fi
-
-		# reset space_pct if single mount point specified
-		# pre-deal special charset
-		#m="$(echo -e "${m}" | sed -e 's#/#\/#g; s#+#\\+#g; s#(#\\(#g; s#)#\\)#g; s#?#\\?#g')"
-		#local single_space_pct=$(read_mole_config disk_space "space_pct_${m}" )
-		#if [ ! -z "${single_space_pct}" -a -z "${single_space_pct//[0-9]}" ]; then
-			#space_pct=${single_space_pct}
-		#else
-			#space_pct=${default_space_pct}
-		#fi
-		space_pct=${default_space_pct}
 
 		# check spare space percent
 		if [ "$( echo "${used_pct}>${space_pct}" | bc 2>&- )" == "1" ]; then
@@ -211,17 +218,6 @@ check(){
                 	echo "Inode_Space: ${device} ${fstype} ${mount} ${size} ${used} ${used_pct}%"
                 	continue
          	fi  
-
-                # reset inode_pct if single mount point specified
-		# pre-deal special charset
-		#m="$(echo -e "${m}" | sed -e 's#/#\/#g; s#+#\\+#g; s#(#\\(#g; s#)#\\)#g; s#?#\\?#g')"
-                #local single_inode_pct=$(read_mole_config disk_space "inode_pct_${m}" )
-                #if [ ! -z "${single_inode_pct}" -a -z "${single_inode_pct//[0-9]}" ]; then
-                        #inode_pct=${single_inode_pct}
-                #else
-                        #inode_pct=${default_inode_pct}
-                #fi  
-		inode_pct=${default_inode_pct}
 
 		# check inode spare percent
 		if [ "$(echo "${used_pct}>${inode_pct}" | bc 2>&-)" == "1" ]; then
