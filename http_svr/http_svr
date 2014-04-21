@@ -119,10 +119,10 @@ check(){
 	addr=$(echo "${x}" | awk -F: '{print $2}')
 	port=$(echo "${x}" | awk -F: '{print $NF}')
 	[ "${prot}" == "https" ] && {
-	arr=($(curl -s -k -o /dev/null -w "%{http_code} %{time_total}s %{size_download}Bytes" "${prot}://${addr}:${port}" 2>&1))
+	arr=($(/usr/bin/curl --max-time ${time_out} -s -k -o /dev/null -w "%{http_code} %{time_total}s %{size_download}Bytes" "${prot}://${addr}:${port}" 2>&1))
 	}
 	[ "${prot}" == "http" ] && {
-	arr=($(curl -s -o /dev/null -w "%{http_code} %{time_total}s %{size_download}Bytes" "${prot}://${addr}:${port}" 2>&1))
+	arr=($(/usr/bin/curl --max-time ${time_out} -s -o /dev/null -w "%{http_code} %{time_total}s %{size_download}Bytes" "${prot}://${addr}:${port}" 2>&1))
 	}
 	# output data and exit if MODE=1
 	[ "${MODE}" == "1" ] && {
