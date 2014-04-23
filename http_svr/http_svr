@@ -99,7 +99,6 @@ fi
 
 # if null or invalid set default.
 [ -z "${addr_port}" ] && addr_port="http:127.0.0.1:80"
-[ -z "${time_out}" -o ! -z "${time_out//[0-9]}" ] && time_out=10
 
 # check function here
 check(){
@@ -110,6 +109,16 @@ check(){
         CONTENT="$(gettext "utilite [/usr/bin/curl] not prepared.")"
         return
   }
+
+  if is_int "${time_out}"; then
+        :
+  else
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
+        TYPE="str";
+        CONTENT="$(eval_gettext "time_out [\${time_out}] should be int.")";
+        return
+  fi  
 
   local total=  err_num=0  result=
   for x in `echo "${addr_port}"`;
