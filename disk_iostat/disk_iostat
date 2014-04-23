@@ -93,7 +93,6 @@ fi
 # if null return STATE_UNKN.
 
 # if null or invalid set default.
-[ -z "${util_uplimit}" -o ! -z "${util_uplimit//[0-9]}" ] && util_uplimit=70
 
 # check function here
 check(){
@@ -105,6 +104,17 @@ check(){
 	CONTENT="$(gettext "config {dev_list} empty, nothing to do.")";
 	return
   fi
+
+  if is_int "${util_uplimit}" && is_between "${util_uplimit}" "0" "100"; then
+        :
+  else
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
+        TYPE="str";
+        CONTENT="$(eval_gettext "util_uplimit [\${util_uplimit}] should be int and between 0-100.")";
+        return
+  fi 
+
 
   local iostat="${UTIL_IOSTAT}"
   [ -f "${iostat}" -a -x "${iostat}" ] || iostat="/usr/bin/iostat"

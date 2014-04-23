@@ -22,6 +22,9 @@ msgstr "\n"
 msgid "config {dev_list} empty, nothing to do."
 msgstr "插件配置参数 {dev_list} 未设定"
 
+msgid "util_uplimit [${util_uplimit}] should be int and between 0-100."
+msgstr "util_uplimit配置 [${util_uplimit}] 应该是1-100之间的整数."
+
 msgid "Util: [/usr/bin/iostat] not prepared."
 msgstr "[/usr/bin/iostat] 不存在或没有执行权限."
 
