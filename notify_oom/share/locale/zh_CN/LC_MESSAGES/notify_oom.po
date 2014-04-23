@@ -26,7 +26,7 @@ msgid "{unkn}:{str}:{ open message file [%s] failed. }"
 msgstr "{unkn}:{str}:{ 打开系统Message文件 [%s] 失败. }"
 
 msgid "{succ}:{str}:{no oom event captured}"
-msgstr "{succ}:{str}:{ 未发现OOM事件. }"
+msgstr "{succ}:{str}:{ 未发现OOM事件 }"
 
 msgid "oom event | captured oom event | "
 msgstr "发现系统OOM事件 | 发现系统OOM事件 | "
