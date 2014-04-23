@@ -92,8 +92,7 @@ fi
 # if null return STATE_UNKN.
 
 # if null or invalid set default.
-[ -z "${dns_check_lst}" ] && dns_check_lst="eyou.net:mx,ns,soa  mail.eyou.net:a  1.1.1.1:ptr"
-[ -z "${max_wait_time}" -o ! -z "${max_wait_time//[0-9]}" ] && max_wait_time=10
+[ -z "${dns_check_lst}" ] && dns_check_lst="eyou.net:mx,ns"
 
 # check function here
 check(){
@@ -105,6 +104,17 @@ check(){
 	CONTENT="$(gettext "Util: [/usr/bin/host] not prepared.")"
 	return
   }
+
+  if is_int "${max_wait_time}"; then
+        :
+  else
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
+        TYPE="str";
+        CONTENT="$(eval_gettext "max_wait_time [\${max_wait_time}] should be int.")";
+        return
+  fi
+
 
   local result= warnnum=0  unknnum=0 total=0
 

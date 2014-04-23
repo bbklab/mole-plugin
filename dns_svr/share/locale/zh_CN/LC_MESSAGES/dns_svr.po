@@ -19,11 +19,11 @@ msgstr "\t%+#D"
 msgid "\n"
 msgstr "\n"
 
-msgid "Util: [/usr/bin/time] not prepared."
-msgstr "[/usr/bin/time] 不存在或没有执行权限."
-
 msgid "Util: [/usr/bin/host] not prepared."
 msgstr "[/usr/bin/host] 不存在或没有执行权限."
+
+msgid "max_wait_time [${max_wait_time}] should be int."
+msgstr "配置max_wait_time [${max_wait_time}] 应该是整数."
 
 msgid "DNS Check List: [${dns_check_lst}]" 
 msgstr "DNS检查项目列表: ${dns_check_lst}"
