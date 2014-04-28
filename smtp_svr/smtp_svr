@@ -37,7 +37,7 @@ use MIME::Base64 qw(encode_base64);
 use Time::HiRes;
 use Benchmark ':hireswallclock';
 use Locale::Messages qw (textdomain bindtextdomain gettext nl_putenv :locale_h :libintl_h);
-use POSIX qw (setlocale LC_ALL);
+use POSIX qw (setlocale);
 binmode(STDIN, ":encoding(utf8)");
 binmode(STDOUT, ":encoding(utf8)");
 binmode(STDERR, ":encoding(utf8)");

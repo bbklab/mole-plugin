@@ -32,7 +32,7 @@ use strict;
 use warnings;
 use utf8;
 use Locale::Messages qw (textdomain bindtextdomain gettext nl_putenv :locale_h :libintl_h);
-use POSIX qw (setlocale LC_ALL);
+use POSIX qw (setlocale);
 binmode(STDIN, ":encoding(utf8)");
 binmode(STDOUT, ":encoding(utf8)");
 binmode(STDERR, ":encoding(utf8)");
