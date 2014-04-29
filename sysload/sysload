@@ -89,24 +89,6 @@ load_uplimit=$(read_mole_config sysload load_uplimit)
 # if null return STATE_UNKN.
 
 # if null or invalid set default.
-load_uplimit_default=10
-if [ -z "${load_uplimit}" -o ! -z "${load_uplimit//[0-9.]}" ]; then
-	cpunum=$(awk '(/^processor\s*\d*.*$/){x++} END{print x}' /proc/cpuinfo 2>&-)
-	if [ -z "${cpunum}" -o ! -z "${cpunum//[0-9]}" ]; then
-		load_uplimit=${load_uplimit_default}
-	else
-		if [ ${cpunum} -le 4 ]; then
-			load_uplimit=4
-		elif [ ${cpunum} -le 8 ]; then
-			load_uplimit=${cpunum}
-		elif [ ${cpunum} -le 16 ]; then
-			load_uplimit=$( echo "${cpunum} * 0.7" | bc 2>&-)
-		else
-			load_uplimit=$( echo "${cpunum} * 0.5" | bc 2>&-)
-		fi
-	fi
-fi
-[ -z "${load_uplimit}" -o ! -z "${load_uplimit//[0-9.]}" ] && load_uplimit=${load_uplimit_default}
 
 # check function here
 check(){
@@ -118,17 +100,29 @@ check(){
 	return
   }
 
+  if is_float "${load_uplimit}" || is_int "${load_uplimit}" ; then
+	:
+  else
+	EXIT_STATUS=${STATE_UNKN};
+	LEVEL="unkn";
+	TYPE="str";
+	CONTENT="$(eval_gettext "load_uplimit [\${load_uplimit}] should be int or float.")"
+	return
+  fi
+
   # collect data
   local loadave=$(cut -d" " -f1     /proc/loadavg 2>&1)
   local details=$(awk '{printf "1min:%s 5min:%s 15min:%s\n",$1,$2,$3}' /proc/loadavg 2>&-)
 
-  [ -z "${loadave}" -o ! -z "${loadave//[0-9.]}" ] && {
+  if is_float "${loadave}" || is_int "${loadave}"; then
+	:
+  else
         EXIT_STATUS=${STATE_UNKN};
         LEVEL="unkn";
         TYPE="str";
         CONTENT="$(eval_gettext "Retuen is not numberic: [\${loadave}]")"
         return
-  }
+  fi
 
   # output data and exit if MODE=1
   [ "${MODE}" == "1" ] && {

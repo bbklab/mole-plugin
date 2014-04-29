@@ -22,6 +22,9 @@ msgstr "\n"
 msgid "FILE: [/proc/loadavg] or [/proc/cpuinfo] not prepared."
 msgstr "[/proc/loadavg] 或 [/proc/cpuinfo] 文件不存在."
 
+msgid "load_uplimit [${load_uplimit}] should be int or float."
+msgstr "load_uplimit配置 [${load_uplimit}] 应该是整数或小数."
+
 msgid "Retuen is not numberic: [${loadave}]"
 msgstr "获取到的系统负载非数字: [${loadave}]"
 

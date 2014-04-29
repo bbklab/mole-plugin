@@ -86,20 +86,6 @@ swp_uplimit=$(read_mole_config memory swp_uplimit)
 # if null return STATE_UNKN.
 
 # if null or invalid set default.
-[ -z "${mem_uplimit}" -o ! -z "${mem_uplimit//[0-9.]}" ] && mem_uplimit=99.99
-if [ -z "${swp_uplimit}" -o ! -z "${swp_uplimit//[0-9.]}" ]; then
-	mem_size=$(awk '/^MemTotal:/ {print $2/1024/1024;exit;}' /proc/meminfo 2>&-)
-	if [ -z "${mem_size}" -o ! -z "${mem_size//[0-9.]}" ]; then
-		swp_uplimit=10
-	elif [ "$(echo "${mem_size} >= 16" | bc 2>&-)" == "1" ]; then
-		swp_uplimit=10
-	elif [ "$(echo "${mem_size} >=  8" | bc 2>&-)" == "1" ]; then
-		swp_uplimit=20
-	else
-		swp_uplimit=30
-	fi
-fi
-[ -z "${swp_uplimit}" -o ! -z "${swp_uplimit//[0-9.]}" ] && swp_uplimit=10
 
 # check function here
 check(){
@@ -111,6 +97,26 @@ check(){
 	CONTENT="$(gettext "File: [/proc/meminfo] not prepared.")";
 	return
   }
+
+  if is_float "${mem_uplimit}" || is_int "${mem_uplimit}" ; then
+	:
+  else
+	EXIT_STATUS=${STATE_UNKN};
+	LEVEL="unkn";
+	TYPE="str";
+	CONTENT="$(eval_gettext "mem_uplimit [\${mem_uplimit}] should be int or float.")";
+	return
+  fi
+
+  if is_float "${swp_uplimit}" || is_int "${swp_uplimit}" ; then
+	:
+  else
+	EXIT_STATUS=${STATE_UNKN};
+	LEVEL="unkn";
+	TYPE="str";
+	CONTENT="$(eval_gettext "swp_uplimit [\${swp_uplimit}] should be int or float.")";
+	return
+  fi
 
   # collect data
   local mem_total=$(awk '/^MemTotal:/ {print $2;exit;}' /proc/meminfo 2>&-)
@@ -129,13 +135,15 @@ check(){
   fi
 
   # output plugin format data if MODE=0
-  [ -z "${mem_total}" -o ! -z "${mem_total//[0-9]}" -o -z "${mem_free}" -o ! -z "${mem_free//[0-9]}" ] && {
+  if is_int "${mem_total}" && is_int "${mem_free}"; then
+	:
+  else
 	EXIT_STATUS=${STATE_UNKN};
 	LEVEL="unkn";
 	TYPE="str";
-	CONTENT="$(eval_gettext "memory total=[\${total}] or memory free=[\${free}] is not numberic.")";
+	CONTENT="$(eval_gettext "memory total=[\${mem_total}] or memory free=[\${mem_free}] is not numberic.")";
 	return
-  }
+  fi
 
   [ "${mem_total}" == "0" ] && {
 	EXIT_STATUS=${STATE_WARN};
@@ -145,13 +153,15 @@ check(){
 	return
   }
 
-  [ -z "${swp_total}" -o ! -z "${swp_total//[0-9]}" -o -z "${swp_free}" -o ! -z "${swp_free//[0-9]}" ] && {
+  if is_int "${swp_total}" && is_int "${swp_free}" ; then
+	:
+  else
 	EXIT_STATUS=${STATE_UNKN};
 	LEVEL="unkn";
 	TYPE="str";
-	CONTENT="$(eval_gettext "swap total=[\${total}] or swap free=[\${free}] is not numberic.")";
+	CONTENT="$(eval_gettext "swap total=[\${swp_total}] or swap free=[\${swp_free}] is not numberic.")";
 	return
-  }
+  fi
 
   [ "${swp_total}" == "0" ] && {
 	EXIT_STATUS=${STATE_WARN};
@@ -161,13 +171,25 @@ check(){
 	return
   }
 
-  [ -z "${mem_percent}" -o ! -z "${mem_percent//[0-9.]}" -o -z "${swp_percent}" -o ! -z "${swp_percent//[0-9.]}" ] && {
+  if is_float "${mem_percent}" || is_int "${mem_percent}"; then
+	:
+  else
 	EXIT_STATUS=${STATE_UNKN};
         LEVEL="unkn";
         TYPE="str";
-        CONTENT="$(eval_gettext "Retuen is not numberic: [\${mem_percent}] or [\${swp_percent}]")";
+        CONTENT="$(eval_gettext "Retuened mem_percent should be float: [\${mem_percent}]")";
 	return 
-  }
+  fi
+
+  if is_float "${swp_percent}" || is_int "${swp_percent}"; then
+	:
+  else
+	EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
+        TYPE="str";
+        CONTENT="$(eval_gettext "Retuened swp_percent should be float: [\${swp_percent}]")";
+	return 
+  fi
 
   # output data and exit if MODE=1
   [ "${MODE}" == "1" ] && {
