@@ -123,7 +123,7 @@ check(){
   do
 	target=$(echo -e "${x}" | awk -F: '{print $1}')
 	types=$(echo -e "${x}" | awk -F: '{print $2}')
-	for y in `echo -e "${types}" | tr '[,]' ' '`
+	for y in `echo -e "${types}" | tr ',' ' '`
 	do
 		((total++))
 		error=$(/usr/bin/host -v -W ${max_wait_time} -t ${y} ${target} 2>&1)

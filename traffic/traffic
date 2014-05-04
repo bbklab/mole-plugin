@@ -218,7 +218,7 @@ check_single(){
   local result=" ### $(gettext "Check List:") [${ifdev_lst}] ### ### "
   local oknum=0 warnnum=0 unknum=0 total=0
 
-  for pairs in `echo "${ifdev_lst}" | tr '[;,]' ' '`
+  for pairs in `echo "${ifdev_lst}"`
   do
 	((total++))
 	sepnum=$(echo -e "${pairs}" | awk -F":" 'END{print --NF}')

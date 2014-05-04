@@ -178,7 +178,7 @@ check_single(){
 
   # output data and exit if MODE=1
   [ "${MODE}" == "1" ] && {
-	for port_num in `echo "${port_list}" | tr '[;,/]' ' '`
+	for port_num in `echo "${port_list}"`
 	do
 		check_single "${port_num%%:*}" 0  "${statfile}"   ## No need to set limit number
 	done
@@ -186,7 +186,7 @@ check_single(){
   }
 
   # output plugin format data if MODE=0
-  for port_num in `echo "${port_list}" | tr '[;,/]' ' '`
+  for port_num in `echo "${port_list}"`
   do
 	((total++))
 
