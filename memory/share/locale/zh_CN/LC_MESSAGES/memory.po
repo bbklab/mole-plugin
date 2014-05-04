@@ -38,7 +38,7 @@ msgid "swap total=[${swp_total}] or swap free=[${swp_free}] is not numberic."
 msgstr "交换总大小${total} 或交换使用大小${free} 非数字"
 
 msgid "swap total=[0]. how could it be ?"
-msgstr "交换总大小为0, 这怎么可能呢?"
+msgstr "交换总大小为0, 没有激活的交换分区/设备?"
 
 msgid "Retuened mem_percent should be float: [${mem_percent}]"
 msgstr "内存使用率${mem_percent} 应该是整数或浮点数"
