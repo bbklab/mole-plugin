@@ -43,20 +43,20 @@ msgstr "挂载点{m}, 使用率字段格式无法识别: ${fpercent}"
 msgid "mount point ${fmount} SKIP"
 msgstr "跳过挂载点 ${fmount} 的检查"
 
-msgid "${device} -> ${mount} (${fstype}), size: ${size}M,  used: ${used}M, used percent: ${used_pct}% > ${space_pct}%"
-msgstr "设备: ${device}, 挂载点为${mount}, 分区类型${fstype}, 总大小${size}M, 已用${used}M, 已用百分比 ${used_pct}% > ${space_pct}%"
+msgid "${device} -> ${mount} (${fstype}), size: ${size}G,  used: ${used}G, used percent: ${used_pct}% > ${space_pct}%"
+msgstr "设备: ${device}, 挂载点:${mount}(${fstype}), 总大小${size}G, 已用${used}G(${used_pct}%) > ${space_pct}%"
 
-msgid "${device} -> ${mount} (${fstype}), size: ${size}M, used: ${used}M, used percent: ${used_pct}%"
-msgstr "设备: ${device}, 挂载点为${mount}, 分区类型${fstype}, 总大小${size}M, 已用${used}M, 已用百分比 ${used_pct}%"
+msgid "${device} -> ${mount} (${fstype}), size: ${size}G, used: ${used}G, used percent: ${used_pct}%"
+msgstr "设备: ${device}, 挂载点:${mount}(${fstype}), 总大小${size}G, 已用${used}G(${used_pct}%)"
 
 msgid "Inode Check"
 msgstr "磁盘节点使用率检查"
 
 msgid "${device} -> ${mount} (${fstype}), size: ${size}, used: ${used}, used percent: ${used_pct}% > ${inode_pct}%"
-msgstr "设备: ${device}, 挂载点为${mount}, 分区类型${fstype}, 节点总数${size}, 已用${used}, 已用百分比 ${used_pct}% > ${inode_pct}%"
+msgstr "设备: ${device}, 挂载点:${mount}(${fstype}), 节点数${size}, 已用${used}(${used_pct}%) > ${inode_pct}%"
 
 msgid "${device} -> ${mount} (${fstype}), size: ${size}, used: ${used}, used percent: ${used_pct}%"
-msgstr "设备: ${device}, 挂载点为${mount}, 分区类型${fstype}, 节点总数${size}, 已用${used}, 已用百分比 ${used_pct}%"
+msgstr "设备: ${device}, 挂载点:${mount}(${fstype}), 节点数${size}, 已用${used}(${used_pct}%)"
 
 msgid "Disk Space Check WARNING"
 msgstr "磁盘使用率检查告警"

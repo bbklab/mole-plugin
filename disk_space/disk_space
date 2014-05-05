@@ -168,6 +168,8 @@ check(){
 
 		local device="${line[0]}"  fstype="${line[1]}"  size="${line[2]}" used="${line[3]}"
 		local used_pct=$(echo "${line[5]}"|tr -d '%')  mount="${line[6]}"
+		size=$(echo -e "scale=3; ${size}/1024"|bc 2>&-)
+		used=$(echo -e "scale=3; ${used}/1024"|bc 2>&-)
 
 		# output data and exit if MODE=1
 		if [ "${MODE}" == "1" -a "${action}" == "space" ]; then
@@ -178,9 +180,9 @@ check(){
 		# check spare space percent
 		if [ "$( echo "${used_pct}>${space_pct}" | bc 2>&- )" == "1" ]; then
 			((warnnum++))
-			result="${result} $(html_red "$(eval_gettext "\${device} -> \${mount} (\${fstype}), size: \${size}M,  used: \${used}M, used percent: \${used_pct}% > \${space_pct}%")") ### "
+			result="${result} $(html_red "$(eval_gettext "\${device} -> \${mount} (\${fstype}), size: \${size}G,  used: \${used}G, used percent: \${used_pct}% > \${space_pct}%")") ### "
 		else
-			result="${result} $(eval_gettext "\${device} -> \${mount} (\${fstype}), size: \${size}M, used: \${used}M, used percent: \${used_pct}%") ###"
+			result="${result} $(eval_gettext "\${device} -> \${mount} (\${fstype}), size: \${size}G, used: \${used}G, used percent: \${used_pct}%") ###"
 		fi
 	done
   done
