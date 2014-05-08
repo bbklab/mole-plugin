@@ -19,6 +19,12 @@ msgstr "\t%+#D"
 msgid "\n"
 msgstr "\n"
 
+msgid "{unkn}:{str}:{ time_out shoule be defined as int.}"
+msgstr "{unkn}:{str}:{ 配置项time_out 未定义, 应该定义为正整数. }"
+
+msgid "{unkn}:{str}:{ time_out [%s] shoule be int.}"
+msgstr "{unkn}:{str}:{ 配置项time_out [%s] 应该为正整数. }"
+
 msgid "check list: %s ### ### "
 msgstr "要检查的POP地址列表: %s ### ### "
 
