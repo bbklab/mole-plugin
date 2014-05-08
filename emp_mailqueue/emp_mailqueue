@@ -87,7 +87,6 @@ uplimit=$(read_mole_config emp_mailqueue uplimit)
 # if null return STATE_UNKN.
 
 # if null or invalid set default.
-[ -z "${uplimit}" -o ! -z "${uplimit//[0-9]}" ] && uplimit="300"
 
 # check function here
 check(){
@@ -97,6 +96,16 @@ check(){
   local bdir="/usr/local/eyou/mail/queue/Bounce/Info"
   local mdir="/usr/local/eyou/mail/queue/Mlist/Info"
   local tdir="/usr/local/eyou/mail/queue/Tmp/Info"
+
+  if is_int "${uplimit}"; then
+        :
+  else
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
+        TYPE="str";
+        CONTENT="$(eval_gettext "uplimit [\${uplimit}] should be int.")";
+        return
+  fi 
 
   [ -d "${ldir}" -a -d "${rdir}" -a -d "${bdir}" ] || {
 	EXIT_STATUS=${STATE_UNKN}
