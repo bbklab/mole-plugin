@@ -114,7 +114,7 @@ if ($fh) {
   }
 }
 
-our $time_out = 10;
+our $time_out = undef;
 open $fh, "$mole view $filename time_out 2>&- |";
 if ($fh) {
   while(<$fh>){
@@ -122,7 +122,13 @@ if ($fh) {
 	last;
   }
 }
-$time_out = 10 if ($time_out =~ m/\D/ || !defined $time_out);
+if (!defined $time_out) {
+  printf _"{unkn}:{str}:{ time_out shoule be defined as int.}";
+  exit $state_unkn;
+} elsif ($time_out =~ m/\D/) {
+  printf _"{unkn}:{str}:{ time_out [%s] shoule be int.}",$time_out;
+  exit $state_unkn;
+}
 
 our $imap_user = '';
 open $fh, "$mole view $filename imap_user 2>&- |";
