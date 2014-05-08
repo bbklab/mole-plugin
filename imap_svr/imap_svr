@@ -31,10 +31,12 @@ BEGIN {
 use strict;
 use warnings;
 use utf8;
+use Encode;
 use IO::Socket;
 use IO::Socket::INET;
 use Time::HiRes;
 use Benchmark ':hireswallclock';
+# use Smart::Comments;
 use Locale::Messages qw (textdomain bindtextdomain gettext nl_putenv :locale_h :libintl_h);
 use POSIX qw (setlocale);
 binmode(STDIN, ":encoding(utf8)");
@@ -187,6 +189,20 @@ while(@addr_pair) {
 	goto ERREND;
   } else {
 	my $welcome = <$imap>;
+	### orig: $welcome
+	if ($welcome && $welcome ne '') {
+		eval {my $tmpstr = $welcome; Encode::decode("utf8", $tmpstr, 1)};
+		if ($@) {
+			eval {my $tmpstr = $welcome; Encode::decode("gbk", $tmpstr, 1)};
+			if ($@) {
+				$welcome = Encode::decode("gb2312", $welcome);
+			} else {
+				$welcome = Encode::decode("gbk", $welcome);
+			}
+		}
+		Encode::_utf8_off($welcome);
+		### decode: $welcome
+	}
 	if ($welcome && $welcome =~ m/\A.\s+OK\s+/) {
 		$welcome =~ s/[\r\n]//g;
 		$time_stop = Benchmark->new();
@@ -208,7 +224,21 @@ while(@addr_pair) {
 
   print $imap "A01 NOOP\r\n";
   my $response = <$imap>;
-  $response =~ s/[\r\n]//g if ($response);
+  ### orig: $response
+  if ($response && $response ne '') {
+	$response =~ s/[\r\n]//g;
+	eval {my $tmpstr = $response; Encode::decode("utf8", $tmpstr, 1)};
+	if ($@) {
+		eval {my $tmpstr = $response; Encode::decode("gbk", $tmpstr, 1)};
+		if ($@) {
+			$response = Encode::decode("gb2312", $response);
+		} else {
+			$response = Encode::decode("gbk", $response);
+		}
+	}
+	Encode::_utf8_off($response);
+  	### decode: $response
+  }
   unless (defined $response && $response =~ m/\AA01\s+OK\s+/i) {
         $response = '' if (!defined $response);
         $result .= sprintf(_"<font color=red> imap command: A01 NOOP return [message=%s] ",$response);
@@ -226,7 +256,21 @@ while(@addr_pair) {
   if($imap_user && $imap_pass) {
 	print $imap "A01 LOGIN $imap_user $imap_pass\r\n";	## if without \r, will hang up for 30s.
 	my $response = <$imap>;
-	$response =~ s/[\r\n]//g if ($response);
+  	### orig: $response
+  	if ($response && $response ne '') {
+		$response =~ s/[\r\n]//g;
+		eval {my $tmpstr = $response; Encode::decode("utf8", $tmpstr, 1)};
+		if ($@) {
+			eval {my $tmpstr = $response; Encode::decode("gbk", $tmpstr, 1)};
+			if ($@) {
+				$response = Encode::decode("gb2312", $response);
+			} else {
+				$response = Encode::decode("gbk", $response);
+			}
+		}
+		Encode::_utf8_off($response);
+		### decode: $response
+  	}
 	unless (defined $response && $response =~ m/\AA01\s+OK\s+/i) {
 		$response = '' if (!defined $response);
 		$result .= sprintf(_"<font color=red> imap command: A01 LOGIN return [message=%s] ",$response);
