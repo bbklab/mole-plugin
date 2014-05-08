@@ -31,11 +31,13 @@ BEGIN {
 use strict;
 use warnings;
 use utf8;
+use Encode;
 use IO::Socket;
 use IO::Socket::INET;
 use MIME::Base64 qw(encode_base64);
 use Time::HiRes;
 use Benchmark ':hireswallclock';
+# use Smart::Comments;
 use Locale::Messages qw (textdomain bindtextdomain gettext nl_putenv :locale_h :libintl_h);
 use POSIX qw (setlocale);
 binmode(STDIN, ":encoding(utf8)");
@@ -198,6 +200,20 @@ while(@addr_pair) {
 	goto ERREND;
   } else {
 	my $welcome = <$smtp>;
+	### orig: $welcome
+	if ($welcome && $welcome ne '') {
+		eval {my $tmpstr = $welcome; Encode::decode("utf8", $tmpstr, 1)};
+		if ($@) {
+			eval {my $tmpstr = $welcome; Encode::decode("gbk", $tmpstr, 1)};
+			if ($@) {
+				$welcome = Encode::decode("gb2312", $welcome);
+			} else {
+				$welcome = Encode::decode("gbk", $welcome);
+			}
+		}
+		Encode::_utf8_off($welcome);
+		### decode: $welcome
+	}
 	if ($welcome && $welcome =~ m/\A2\d\d\s+/) {
 		$welcome =~ s/[\r\n]//g;
 		$time_stop = Benchmark->new();
@@ -219,7 +235,21 @@ while(@addr_pair) {
   
   print $smtp "HELO $helo_me\r\n";
   my $response = <$smtp>;
-  $response =~ s/[\r\n]//g if ($response);
+  ### orig: $response
+  if ($response && $response ne '') {
+       $response =~ s/[\r\n]//g;
+       eval {my $tmpstr = $response; Encode::decode("utf8", $tmpstr, 1)};
+       if ($@) {
+               eval {my $tmpstr = $response; Encode::decode("gbk", $tmpstr, 1)};
+               if ($@) {
+                       $response = Encode::decode("gb2312", $response);
+               } else {
+                       $response = Encode::decode("gbk", $response);
+               }
+       }
+       Encode::_utf8_off($response);
+       ### decode: $response
+  }
   unless (defined $response && $response =~ m/\A2\d\d\s+/) {
 	$response = '' if (!defined $response);
 	$result .= sprintf(_"<font color=red> smtp command: HELO return [message=%s] ",$response);
@@ -236,7 +266,21 @@ while(@addr_pair) {
 
   print $smtp "NOOP\r\n";
   $response = <$smtp>;
-  $response =~ s/[\r\n]//g if ($response);
+  ### orig: $response
+  if ($response && $response ne '') {
+       $response =~ s/[\r\n]//g;
+       eval {my $tmpstr = $response; Encode::decode("utf8", $tmpstr, 1)};
+       if ($@) {
+               eval {my $tmpstr = $response; Encode::decode("gbk", $tmpstr, 1)};
+               if ($@) {
+                       $response = Encode::decode("gb2312", $response);
+               } else {
+                       $response = Encode::decode("gbk", $response);
+               }
+       }
+       Encode::_utf8_off($response);
+       ### decode: $response
+  }
   unless (defined $response && $response =~ m/\A2\d\d\s+/) {
 	$response = '' if (!defined $response);
 	$result .= sprintf(_"<font color=red> smtp command: NOOP return [message=%s] ",$response);
@@ -261,7 +305,21 @@ while(@addr_pair) {
 
 	print $smtp "AUTH LOGIN\r\n";
 	$response = <$smtp>;
-	$response =~ s/[\r\n]//g if ($response);
+	### orig: $response
+	if ($response && $response ne '') {
+		$response =~ s/[\r\n]//g;
+		eval {my $tmpstr = $response; Encode::decode("utf8", $tmpstr, 1)};
+		if ($@) {
+			eval {my $tmpstr = $response; Encode::decode("gbk", $tmpstr, 1)};
+			if ($@) {
+				$response = Encode::decode("gb2312", $response);
+			} else {
+				$response = Encode::decode("gbk", $response);
+			}
+		}
+		Encode::_utf8_off($response);
+		### decode: $response
+	}
 	unless (defined $response && $response =~ m/\A3\d\d\s+/) {
 		$response = '' if (!defined $response);
 		$result .= sprintf(_"<font color=red> smtp command: AUTH LOGIN return [message=%s] ",$response);
@@ -278,7 +336,21 @@ while(@addr_pair) {
 	
 	print $smtp "$smtp_user\r\n";
 	$response = <$smtp>;
-	$response =~ s/[\r\n]//g if ($response);
+	### orig: $response
+	if ($response && $response ne '') {
+		$response =~ s/[\r\n]//g;
+		eval {my $tmpstr = $response; Encode::decode("utf8", $tmpstr, 1)};
+		if ($@) {
+			eval {my $tmpstr = $response; Encode::decode("gbk", $tmpstr, 1)};
+			if ($@) {
+				$response = Encode::decode("gb2312", $response);
+			} else {
+				$response = Encode::decode("gbk", $response);
+			}
+		}
+		Encode::_utf8_off($response);
+		### decode: $response
+	}
 	unless (defined $response && $response =~ m/\A3\d\d\s+/) {
 		$response = '' if (!defined $response);
 		$result .= sprintf(_"<font color=red> smtp command: {Username:} return [message=%s] ",$response);
@@ -294,7 +366,21 @@ while(@addr_pair) {
 
 	print $smtp "$smtp_pass\r\n";
 	$response = <$smtp>;
-	$response =~ s/[\r\n]//g if ($response);
+	### orig: $response
+	if ($response && $response ne '') {
+		$response =~ s/[\r\n]//g;
+		eval {my $tmpstr = $response; Encode::decode("utf8", $tmpstr, 1)};
+		if ($@) {
+			eval {my $tmpstr = $response; Encode::decode("gbk", $tmpstr, 1)};
+			if ($@) {
+				$response = Encode::decode("gb2312", $response);
+			} else {
+				$response = Encode::decode("gbk", $response);
+			}
+		}
+		Encode::_utf8_off($response);
+		### decode: $response
+	}
 	unless (defined $response && $response =~ m/\A2\d\d\s+/) {
 		$response = '' if (!defined $response);
 		$result .= sprintf(_"<font color=red> smtp command: {Password:} return [message=%s] ",$response);
