@@ -18,3 +18,57 @@ msgstr "\t%+#D"
 
 msgid "\n"
 msgstr "\n"
+
+msgid "{unkn}:{str}:{ list_length not defined.}"
+msgstr "{unkn}:{str}:{ 配置项 list_length 未定义.}"
+
+msgid "{unkn}:{str}:{ time_out shoule be defined as int.}"
+msgstr "{unkn}:{str}:{ 配置项 time_out 为定义, 应该定义为正整数. }"
+
+msgid "{unkn}:{str}:{ time_out [%s] shoule be int.}"
+msgstr "{unkn}:{str}:{ 配置项 time_out [%s] 应该定义为正整数.}"
+
+msgid "check redis: %s ### check list: %s ### ### "
+msgstr "要检查的Redis地址列表: %s ### 要检查的队列: %s ### ### "
+
+msgid "<font color=yellow> redis_host or redis_port not defined </font> ### ### "
+msgstr "<font color=yellow>  Redis地址或Redis端口未设定 </font> ### ### "
+
+msgid "<font color=yellow> %s:%s redis port should be int </font> ### ### "
+msgstr "<font color=yellow> %s:%s Redis端口不是整数数字 </font> ### ### "
+
+msgid "<font color=red> connect [%s:%d] failed in %d seconds, return [%s] "
+msgstr "<font color=red> 连接Redis地址 [%s:%d] 在 %d 秒内失败, 失败信息: [%s] "
+
+msgid "<font color=red> connect [%s:%d] failed in %d seconds. "
+msgstr "<font color=red> 连接Redis地址 [%s:%d] 在 %d 秒内失败. "
+
+msgid "connect redis server %s:%d succeed. (%f seconds) ### "
+msgstr "连接Redis地址 [%s:%d] 成功. (耗时 %f 秒) ### "
+
+msgid "<font color=yellow> length limit %s should be int </font> ### "
+msgstr "<font color=yellow> 队列长度阈值 %s 应该定义为正整数 </font> ### "
+
+msgid "<font color=red> redis command: LLEN %s return [message=%s] "
+msgstr "<font color=red> Redis指令: LLEN %s 返回信息 [%s]"
+
+msgid "<font color=red> redis list %s length: %d > %d (%f seconds) </font> ### "
+msgstr "<font color=red> Redis队列 %s 长度 %d > %d (耗时 %f 秒) </font> ### "
+
+msgid "redis list %s length: %d (%f seconds) ### "
+msgstr "Redis队列 %s 长度 %d (耗时 %f 秒) ### "
+
+msgid " (%f seconds) </font> ### "
+msgstr " (耗时 %f 秒) </font> ### "
+
+msgid " (%f seconds) </font> ### ### "
+msgstr " (耗时 %f 秒) </font> ### ### "
+
+msgid "{crit}:{str}:{ REDIS LIST LENGTH CRITICAL | %d/%d redis list check critical | %s }"
+msgstr "{crit}:{str}:{ Redis队列长度检查告警 | %d/%d 项Redis队列长度检查告警 | %s }"
+
+msgid "{unkn}:{str}:{ REDIS LIST LENGTH UNKNOWN | %d/%d redis list check unknown | %s }"
+msgstr "{unkn}:{str}:{ Redis队列长度检查未知 | %d/%d 项Redis队列长度检查未知 | %s }"
+
+msgid "{succ}:{str}:{ REDIS LIST LENGTH OK | %d/%d redis list check success | %s }"
+msgstr "{succ}:{str}:{ Redis队列长度检查正常 | %d/%d 项Redis队列长度检查正常 | %s }"

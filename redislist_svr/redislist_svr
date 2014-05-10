@@ -150,25 +150,28 @@ if (!defined $time_out) {
 my ($total,$critnum,$unknnum) = (0,0,0);
 my ($time_start,$time_stop,$time_duration);
 
-$result = sprintf(_"check list: %s ### ### ",$addr_port);
+$result = sprintf(_"check redis: %s ### check list: %s ### ### ",$addr_port,$list_length);
+### $addr_port
+### $list_length
 
 my @addr_pair = split /\s+/, $addr_port;
+my @list_pair = split /\s+/, $list_length;
+$total = @addr_pair * @list_pair;
+### @addr_pair
+### @list_pair
+### $total
 while(@addr_pair) {
-  $total++;
   my ($redis_host, $redis_port) = (split /:/, shift @addr_pair)[0,1];
   if (!defined $redis_host || !defined $redis_port) {
 	$result .= sprintf(_"<font color=yellow> redis_host or redis_port not defined </font> ### ### ");
-	$unknnum++;
+	$unknnum+=@list_pair;
 	next;
   }
   if ($redis_port =~ /\D/) {
-	$result .= sprintf(_"<font color=yellow> %s:%s redis port not numberic </font> ### ### ",$redis_host,$redis_port);
-	$unknnum++;
+	$result .= sprintf(_"<font color=yellow> %s:%s redis port should be int </font> ### ### ",$redis_host,$redis_port);
+	$unknnum+=@list_pair;
 	next;
   }
-
-  my @addr_pair = split /\s+/, $addr_port;
-  my ($list_name, $length_limit) = (split /:/, shift @list_length)[0,1];
 
   $time_start = Benchmark->new();
   my $redis=IO::Socket::INET->new(
@@ -184,26 +187,63 @@ while(@addr_pair) {
 	} else {
 		$result .= sprintf(_"<font color=red> connect [%s:%d] failed in %d seconds. ",$redis_host,$redis_port,$time_out);
 	}
-	$critnum++;
+	$critnum+=@list_pair;
 	goto ERREND;
+  } else {
+	$time_stop = Benchmark->new();
+	$time_duration = timestr(timediff($time_stop,$time_start),'noc');
+	$time_duration = (split /\s+/, $time_duration )[0];
+	$result .= sprintf(_"connect redis server %s:%d succeed. (%f seconds) ### ",$redis_host,$redis_port,$time_duration);
+	$time_start = Benchmark->new();         ## reset time_start
   }
 
-  print $redis "LLEN ma.json\r\n";
-  my $response = <$redis>;
-  unless (defined $response && $response =~ m/\A:(\d+)/i) {
-        $response = '' if (!defined $response);
-        $result .= sprintf(_"<font color=red> redis command: LLEN %s return [message=%s] ",$response);
-        $critnum++;
-        goto ERREND;
-  } else {
-	my $nowerlen = $1;
-        $time_stop = Benchmark->new();
-        $time_duration = timestr(timediff($time_stop,$time_start),'noc');
-        $time_duration = (split /\s+/, $time_duration )[0];
-        $response = '' if (!defined $response);
-        $result .= sprintf(_"redis command: LLEN %s return [message=%s] (%f seconds) ### ",$response,$time_duration);
-        $time_start = Benchmark->new();         ## reset time_start
+  my @list_pair_inner = @list_pair;
+  while(@list_pair_inner) {
+  	my ($list_name, $length_limit) = (split /:/, shift @list_pair_inner)[0,1];
+
+	if ($length_limit =~ /\D/) {
+		$result .= sprintf(_"<font color=yellow> length limit %s should be int </font> ### ",$length_limit);
+		$unknnum++;
+		next;
+	}
+
+  	print $redis "LLEN $list_name\r\n";
+	my $response = <$redis>;
+	$response =~ s/[\r\n]//g if (defined $response);
+	### $response
+  	unless (defined $response && $response =~ m/\A:(\d+)/i) {
+        	$response = '' if (!defined $response);
+		### $response
+        	$result .= sprintf(_"<font color=red> redis command: LLEN %s return [message=%s] ",$list_name,$response);
+        	$critnum++;
+		### $critnum
+		goto ERREND_1;
+  	} else {
+		my $nowerlen = $1;
+		### $nowerlen
+        	$time_stop = Benchmark->new();
+        	$time_duration = timestr(timediff($time_stop,$time_start),'noc');
+        	$time_duration = (split /\s+/, $time_duration )[0];
+        	$response = '' if (!defined $response);
+		if ($nowerlen > $length_limit) {
+        		$result .= sprintf(_"<font color=red> redis list %s length: %d > %d (%f seconds) </font> ### ",$list_name,$nowerlen,$length_limit,$time_duration);
+        		$critnum++;
+		} else {
+        		$result .= sprintf(_"redis list %s length: %d (%f seconds) ### ",$list_name,$nowerlen,$time_duration);
+		}
+        	$time_start = Benchmark->new();         ## reset time_start
+  	}
+   	next;
+
+  	ERREND_1: {
+		$time_stop = Benchmark->new();
+		$time_duration = timestr(timediff($time_stop,$time_start),'noc');
+		$time_duration = (split /\s+/, $time_duration )[0];
+		$result .= sprintf(_" (%f seconds) </font> ### ",$time_duration);
+		### iam_at_ERREND_1
+  	}
   }
+  $result .= " ### ";
 
   next;
 
