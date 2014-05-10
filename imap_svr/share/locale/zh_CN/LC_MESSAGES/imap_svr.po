@@ -64,7 +64,7 @@ msgstr "IMAP登录命令: A01 LOGIN 返回信息 [%s] (耗时 %f 秒) ### ### "
 msgid " imap_user or imap_pass not defined, imap login test skip ### ### "
 msgstr "IMAP登录测试跳过, 因为未指定IMAP用户或IMAP登录密码 ### ### "
 
-msgid " (%f seconds) ### ### "
+msgid " (%f seconds) </font> ### ### "
 msgstr " (耗时 %f 秒) </font> ### ### "
 
 msgid "{crit}:{str}:{ IMAP SVR CRITICAL | %d/%d imap check critical | %s }"
