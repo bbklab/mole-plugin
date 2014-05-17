@@ -15,6 +15,13 @@ check_rc() {
 }
 
 # def spec files
+
+if [ "$(id -u)" != "0" ]; then
+  echo " root privileges required! "
+  exit 1
+fi
+
+
 spec_dir="$basedir/rpm_build/spec_files/"
 spec_files=(
 	"esop-plugingroup-mail.spec"
