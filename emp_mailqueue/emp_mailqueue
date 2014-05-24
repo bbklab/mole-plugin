@@ -133,7 +133,7 @@ check(){
 		EXIT_STATUS="${STATE_WARN}"
 		LEVEL="warn"
 		TYPE="str"
-		CONTENT="$(gettext "Queuing Letters Number WARNING") | $(eval_gettext "\${total} letters") | $(html_red "$(eval_gettext "\${total} letters")") ### ### $(eval_gettext "letters in local: [\${ln}]") ### $(eval_gettext "letters in remote: [\${rn}]") ### $(eval_gettext "letters in bounce: [\${bn}]") ### $(eval_gettext "letters in mlist: [\${mn}]") ### $(eval_gettext "letters in tmp: [\${tn}]") ### "
+		CONTENT="$(gettext "Queuing Letters Number WARNING") | $(eval_gettext "\${total} letters >= \${uplimit}") | $(html_red "$(eval_gettext "\${total} letters")") ### ### $(eval_gettext "letters in local: [\${ln}]") ### $(eval_gettext "letters in remote: [\${rn}]") ### $(eval_gettext "letters in bounce: [\${bn}]") ### $(eval_gettext "letters in mlist: [\${mn}]") ### $(eval_gettext "letters in tmp: [\${tn}]") ### "
 	} || {
 		EXIT_STATUS="${STATE_SUCC}"
 		LEVEL="succ"
