@@ -130,10 +130,9 @@ fi
 # check function here
 check(){
 
-### return code: 0|1|2
+### return code: 0|1
 #  0: OK
 #  1: CRIT
-#  2: UNKNOWN:(total is not numberic,maybe port not listening)
 check_single(){
   local s_port=$1  limit=$2  statfile=$3
   local return_code=0
@@ -149,7 +148,7 @@ check_single(){
 
   if [ -z "${total}" -o ! -z "${total//[0-9]}" ]; then
 	local output=" $(html_red "$(eval_gettext "check [\${s_port}:\${limit}]: return: [\${total}] is not numberic")") ### $(eval_gettext "Maybe port: [\${s_port}] not listening") ### "
-	return_code=2
+	return_code=1
   else
 	if [ "$(echo " ${total} >= ${limit} " | bc 2>&-)" == "1" ]; then
 		local output="$(html_red "$(eval_gettext "Total: [\${total}] >= Limit: [\${limit}]")") ### "
