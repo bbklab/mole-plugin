@@ -1,13 +1,13 @@
 Summary: 	esop plugin-group for mail system
 Name: 		esop-plugingroup-mail
 Version: 	0.1
-Release: 	beta1
+Release: 	rhel5
 License: 	GPLv3
 Group:  	Extension
 Packager: 	Zhang Guangzheng <zhang.elinks@gmail.com>
 BuildRoot: 	/var/tmp/%{name}-%{version}-%{release}-root
-Source0: 	esop-plugingroup-mail-0.1-beta1.tgz
-Requires:		esop >= 1.0-beta2 
+Source0: 	esop-plugingroup-mail-0.1-rhel5.tgz
+Requires:		esop >= 1.0.1
 Requires:		bind-utils >= 9.3.3
 Requires:		findutils >= 4.2.27
 Requires:		perl >= 5.8.8
@@ -77,5 +77,9 @@ plugins=( dns_svr http_svr imap_svr pop_svr smtp_svr emp_mailqueue )
 :
 
 %changelog
+* Sat May 24 2014 Zhang Guangzheng<zhangguangzheng@eyou.net>
+- 发布: 0.1 正式版
+- 调整若干插件的输出样式
+- 修复若干bug
 * Tue Apr  8 2014 Zhang Guangzheng<zhangguangzheng@eyou.net>
 - 发布: 0.1-beta1
