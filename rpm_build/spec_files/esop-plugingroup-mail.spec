@@ -1,11 +1,12 @@
 Summary: 	esop plugin-group for mail system
 Name: 		esop-plugingroup-mail
 Version: 	0.1
+Release:	rhel
 License: 	GPLv3
 Group:  	Extension
 Packager: 	Zhang Guangzheng <zhang.elinks@gmail.com>
 BuildRoot: 	/var/tmp/%{name}-%{version}-%{release}-root
-Source0: 	esop-plugingroup-mail-0.1.tgz
+Source0: 	esop-plugingroup-mail-0.1-rhel.tgz
 Requires:		esop >= 1.0.1
 Requires:		bind-utils >= 9.3.3
 Requires:		findutils >= 4.2.27
