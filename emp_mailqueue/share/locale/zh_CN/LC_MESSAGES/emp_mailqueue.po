@@ -34,6 +34,9 @@ msgstr "队列信件数检查告警"
 msgid "${total} letters >= ${uplimit}"
 msgstr "队列中共有 ${total} 封信件, 超过上限 ${uplimit}"
 
+msgid "${total} letters"
+msgstr "队列中共有 ${total} 封信件"
+
 msgid "total: [${total}] not numberic"
 msgstr "队列信件数非数字 ${total}"
 
