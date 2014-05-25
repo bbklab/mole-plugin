@@ -61,7 +61,12 @@ if ($fh) {
 	last;
   }
 }
-our $data_config = JSON->new->allow_nonref->utf8(1)->ascii(1)->decode($data_source);
+our $data_config;
+eval { $data_config = JSON->new->allow_nonref->utf8(1)->ascii(1)->decode($data_source); };
+if ($@) {
+  printf "{unkn}:{str}:{config data_source maybe not invalid json format.}";
+  exit $state_unkn;
+}
 our %data_config = (
   'online_user'		=> $data_config->{'online_user'},
   'systime'		=> $data_config->{'systime'},
