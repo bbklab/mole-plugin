@@ -1,0 +1,13 @@
+SymbolErrors=10
+LinkRecovers=10
+LinkDowned=10
+RcvErrors=10
+RcvRemotePhysErrors=100
+RcvSwRelayErrors=100
+XmtDiscards=100
+XmtConstraintErrors=100
+RcvConstraintErrors=100
+LinkIntegrityErrors=10
+ExcBufOverrunErrors=10
+VL15Dropped=100
+
