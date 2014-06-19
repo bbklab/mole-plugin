@@ -182,7 +182,7 @@ check() {
 	array_dbtb_list=( $( echo -e "${mysql_dump_tables}" | tr -s "." " " )  )
   fi
 
-  local oknum=0 errnum=0 unknum=0 total=0
+  local succnum=0 errnum=0 tbnum=0
   for ((i=0;i<${#array_dbtb_list[*]};i++))
   do
 	if [ "$(( ${i}%2 ))" == "1" ]; then
