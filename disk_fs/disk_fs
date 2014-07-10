@@ -140,7 +140,7 @@ check(){
 		}
 
 		if [ -z "${stat}" ]; then
-			result="${result} $(eval_gettext "(\${t}) \${d} -> unknown") ### ";
+			result="${result} $(html_red "$(eval_gettext "(\${t}) \${d} -> unknown")") ### ";
 			((unknnum++))
 		elif [ "${stat}" == "clean" ]; then
 			result="${result} $(eval_gettext "(\${t}) \${d} -> clean") ###"
