@@ -139,7 +139,7 @@ check(){
 	((total++))
 	# skip device that not exists
 	if [ ! -e "${dev}" ]; then
-		((unknnum++))
+		((warnnum++))
 		result="${result} $(html_red "$(eval_gettext "\${dev} not exist")") ### "
 		continue
 	fi
