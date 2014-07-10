@@ -168,8 +168,8 @@ check(){
 
 		local device="${line[0]}"  fstype="${line[1]}"  size="${line[2]}" used="${line[3]}"
 		local used_pct=$(echo "${line[5]}"|tr -d '%')  mount="${line[6]}"
-		size=$(echo -e "scale=3; ${size}/1024"|bc 2>&-)
-		used=$(echo -e "scale=3; ${used}/1024"|bc 2>&-)
+		size=$(echo -e "scale=3; ${size}/1024"|bc 2>&-|sed -e 's/^\./0\./')
+		used=$(echo -e "scale=3; ${used}/1024"|bc 2>&-|sed -e 's/^\./0\./')
 
 		# output data and exit if MODE=1
 		if [ "${MODE}" == "1" -a "${action}" == "space" ]; then
