@@ -8,7 +8,7 @@
 }
 
 # === LOAD GETTEXT.SH FILE
-if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+if [ -f "/usr/bin/gettext.sh" ] && [ -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
         rc=$?
         [ "$rc" != "0" ] && {
@@ -21,7 +21,7 @@ else
 fi
 
 # === LOAD INCLUDE FILE
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+if [ -f "${BASE_DIR}/bin/include" ] && [ -s "${BASE_DIR}/bin/include" ]; then
         source ${BASE_DIR}/bin/include 2>&- 
 else    
         echo -en "{unkn}:{str}:{include file not exists or empty}"
@@ -29,7 +29,7 @@ else
 fi
 
 # === SET TEXTDOMAINDIR TEXTDOMAIN
-if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+if [ -d "${LOCALE_DIR}" ] && [ -r "${LOCALE_DIR}" ]; then
         export TEXTDOMAINDIR="${LOCALE_DIR}"
         export TEXTDOMAIN="mysql_repl"
 else    
@@ -42,9 +42,9 @@ fi
 glocale=$(get_locale mysql_repl)
 if [ -z "${glocale}" ]; then
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
-elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+elif [ "${glocale}" == "zh_CN" ] || [ "${glocale}" == "zh_CN.UTF-8" ] || [ "${glocale}" == "zh" ]; then
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
-elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+elif [ "${glocale}" == "en_US" ] || [ "${glocale}" == "en_US.UTF-8" ] || [ "${glocale}" == "en" ]; then
         export LANG="en_US.UTF-8"  LC_ALL="en_US.UTF-8"
 else
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
@@ -99,18 +99,22 @@ fi
 # if null or invalid set default.
 [ -z "${mysqlcli_path}" ] && mysqlcli_path="/usr/local/eyou/mail/opt/mysql/bin/mysql"
 [ -z "${mysql_conn_conf}" ] && mysql_conn_conf="127.0.0.1,3306,eyou,eyou"
-[ -z "${mysql_time_out}" -o ! -z "${mysql_time_out//[0-9]}" ] && mysql_time_out=10
+if [ -z "${mysql_time_out}" ] || [ ! -z "${mysql_time_out//[0-9]}" ]; then
+	mysql_time_out=10
+fi
 
 # check function here
 check() {
 
-  [ -f "${mysqlcli_path}" -a -x "${mysqlcli_path}" ] || {
+  if [ -f "${mysqlcli_path}" ] && [ -x "${mysqlcli_path}" ]; then
+	:
+  else
 	EXIT_STATUS=${STATE_UNKN};
         LEVEL="unkn";
         TYPE="str";
         CONTENT="$(eval_gettext "utitile [\${mysqlcli_path}] not prepared.")"
 	return
-  } 
+  fi
 
   local result=
   local oknum=0 errnum=0 unknum=0 total=0
@@ -145,7 +149,7 @@ check() {
 		errstuff=$(echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n')
 		result="${result} $(html_red "$(eval_gettext "show slave status failed: return [\${errstuff}]")") ### "
 	else
-		if [ -f "${tmpfile}" -a -s "${tmpfile}" ]; then
+		if [ -f "${tmpfile}" ] && [ -s "${tmpfile}" ]; then
 			eval $( awk -F":[ \t]*" '\
 				(/^[ \t]*Master_Server_Id:/){print "master_id=\""$2"\";";next} \
 				(/^[ \t]*Master_Host:/){print "master_host=\""$2"\";";next} \
@@ -166,7 +170,7 @@ check() {
 			slave_info="${slave_info} $(eval_gettext "Replication by User: \$master_user") ### "
 			slave_info="${slave_info} $(eval_gettext "Slave IO State: \$slave_iostate") ### "
 			result="${result} ${slave_info} ### "
-			if [ "${io_running}" != "Yes" -o "${sql_running}" != "Yes" ]; then
+			if [ "${io_running}" != "Yes" ] || [ "${sql_running}" != "Yes" ]; then
 				((errnum++))
 				result="${result} $(html_red "$(gettext "IO Thread or SQL Thread Stopped")") ### $(gettext "IO Thread Running"): ${io_running} ### $(gettext "SQL Thread Running"): ${sql_running} ### $(gettext "Last ErrNo"): ${last_errno} ### $(gettext "Last Error"): ${last_error} ### $(gettext "Last IO Errno"): ${last_ioerrno} ### $(gettext "Last IO Error"): ${last_ioerror} ### $(gettext "Last SQL Errno"): ${last_sqlerrno} ### $(gettext "Last SQL Error"): ${last_sqlerror} ### "
 			else
