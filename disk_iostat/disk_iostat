@@ -7,7 +7,7 @@
 }
 
 # === LOAD GETTEXT.SH FILE
-if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+if [ -f "/usr/bin/gettext.sh" ] && [ -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
         rc=$?
         [ "$rc" != "0" ] && {
@@ -20,7 +20,7 @@ else
 fi
 
 # === LOAD INCLUDE FILE
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+if [ -f "${BASE_DIR}/bin/include" ] && [ -s "${BASE_DIR}/bin/include" ]; then
         source ${BASE_DIR}/bin/include 2>&- 
 else    
         echo -en "{unkn}:{str}:{include file not exists or empty}"
@@ -28,7 +28,7 @@ else
 fi
 
 # === SET TEXTDOMAINDIR TEXTDOMAIN
-if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+if [ -d "${LOCALE_DIR}" ] && [ -r "${LOCALE_DIR}" ]; then
         export TEXTDOMAINDIR="${LOCALE_DIR}"
         export TEXTDOMAIN="disk_iostat"
 else    
@@ -41,9 +41,9 @@ fi
 glocale=$(get_locale disk_iostat)
 if [ -z "${glocale}" ]; then
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
-elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+elif [ "${glocale}" == "zh_CN" ] || [ "${glocale}" == "zh_CN.UTF-8" ] || [ "${glocale}" == "zh" ]; then
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
-elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+elif [ "${glocale}" == "en_US" ] || [ "${glocale}" == "en_US.UTF-8" ] || [ "${glocale}" == "en" ]; then
         export LANG="en_US.UTF-8"  LC_ALL="en_US.UTF-8"
 else
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
@@ -117,10 +117,18 @@ check(){
 
 
   local iostat="${UTIL_IOSTAT}"
-  [ -f "${iostat}" -a -x "${iostat}" ] || iostat="/usr/bin/iostat"
-  [ -f "${iostat}" -a -x "${iostat}" ] || iostat="/usr/local/bin/iostat"
+  if [ -f "${iostat}" ] && [ -x "${iostat}" ]; then
+	:
+  else
+	iostat="/usr/bin/iostat"
+  fi
+  if [ -f "${iostat}" ] && [ -x "${iostat}" ]; then
+	:
+  else
+	iostat="/usr/local/bin/iostat"
+  fi
   
-  if [ ! -f "${iostat}" -o ! -x "${iostat}" ]; then
+  if [ ! -f "${iostat}" ] || [ ! -x "${iostat}" ]; then
 	EXIT_STATUS=${STATE_UNKN};
 	LEVEL="unkn";
 	TYPE="str";
@@ -152,7 +160,9 @@ check(){
 	fi
 
 	util=$( echo -e "${iostat_data}" | /bin/awk '($1~/^'${devname}'\>/){x+=$NF} END{print x/5}' 2>&- )
-	[ -z "${util}" -o ! -z "${util//[0-9.]}" ] && util=0
+	if [ -z "${util}" ] || [ ! -z "${util//[0-9.]}" ]; then
+		util=0
+	fi
 
 	mpoint=$( /bin/awk -v d="${dev}" '($1==d){print $2;exit;}' "${mtabfile}" 2>&- )
 	if [ -z "${mpoint}" ]; then
