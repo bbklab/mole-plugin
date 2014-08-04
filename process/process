@@ -8,7 +8,7 @@
 }
 
 # === LOAD GETTEXT.SH FILE
-if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+if [ -f "/usr/bin/gettext.sh" ] && [ -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
         rc=$?
         [ "$rc" != "0" ] && {
@@ -21,7 +21,7 @@ else
 fi
 
 # === LOAD INCLUDE FILE
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+if [ -f "${BASE_DIR}/bin/include" ] && [ -s "${BASE_DIR}/bin/include" ]; then
         source ${BASE_DIR}/bin/include 2>&- 
 else    
         echo -en "{unkn}:{str}:{include file not exists or empty}"
@@ -29,7 +29,7 @@ else
 fi
 
 # === SET TEXTDOMAINDIR TEXTDOMAIN
-if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+if [ -d "${LOCALE_DIR}" ] && [ -r "${LOCALE_DIR}" ]; then
         export TEXTDOMAINDIR="${LOCALE_DIR}"
         export TEXTDOMAIN="process"
 else    
@@ -42,9 +42,9 @@ fi
 glocale=$(get_locale process)
 if [ -z "${glocale}" ]; then
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
-elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+elif [ "${glocale}" == "zh_CN" ] || [ "${glocale}" == "zh_CN.UTF-8" ] || [ "${glocale}" == "zh" ]; then
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
-elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+elif [ "${glocale}" == "en_US" ] || [ "${glocale}" == "en_US.UTF-8" ] || [ "${glocale}" == "en" ]; then
         export LANG="en_US.UTF-8"  LC_ALL="en_US.UTF-8"
 else
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
@@ -101,9 +101,9 @@ if [ -z "${pslist_file}" ]; then
         echo "{"${LEVEL}"}:{"${TYPE}"}:{"${CONTENT}"}"  | tr -d '\015\012'
         exit ${EXIT_STATUS}
 else 
-	if [ -f "/${pslist_file##*file:}" -a -s "/${pslist_file##*file:}" ]; then
+	if [ -f "/${pslist_file##*file:}" ] && [ -s "/${pslist_file##*file:}" ]; then
 		pslist_file="/${pslist_file##*file:}"
-        elif [ -f "${BASE_DIR}/${pslist_file##*file:}" -a -s "${BASE_DIR}/${pslist_file##*file:}" ]; then
+        elif [ -f "${BASE_DIR}/${pslist_file##*file:}" ] && [ -s "${BASE_DIR}/${pslist_file##*file:}" ]; then
                 pslist_file="${BASE_DIR}/${pslist_file##*file:}"
         else
                 EXIT_STATUS=${STATE_UNKN}
@@ -127,8 +127,12 @@ check() {
   do
 	[ "${#line[@]}" != "3" ] && continue				### check filed number
 	local pname="${line[0]}" pnum="${line[1]}" pattern="${line[2]}"
-	[ -z "${pname}" -o -z "${pattern}" ] && continue		### check null
-	[ -z "${pnum}" -o ! -z "${pnum//[0-9]}" ] && local pnum=1	### check null/invalid
+	if [ -z "${pname}" ] || [ -z "${pattern}" ]; then			### check null
+		continue
+	fi
+	if [ -z "${pnum}" ] || [ ! -z "${pnum//[0-9]}" ]; then		### check null/invalid
+		local pnum=1
+	fi
 
 	((total++)) 
 	local psnum=$(echo -e "${ps_output}" | grep -E -o -x -c "${pattern}")
