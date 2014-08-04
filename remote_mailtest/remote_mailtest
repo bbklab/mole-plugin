@@ -8,7 +8,7 @@
 }
 
 # === LOAD GETTEXT.SH FILE
-if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+if [ -f "/usr/bin/gettext.sh" ] && [ -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
         rc=$?
         [ "$rc" != "0" ] && {
@@ -21,7 +21,7 @@ else
 fi
 
 # === LOAD INCLUDE FILE
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+if [ -f "${BASE_DIR}/bin/include" ] && [ -s "${BASE_DIR}/bin/include" ]; then
         source ${BASE_DIR}/bin/include 2>&- 
 else    
         echo -en "{unkn}:{str}:{include file not exists or empty}"
@@ -29,7 +29,7 @@ else
 fi
 
 # === SET TEXTDOMAINDIR TEXTDOMAIN
-if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+if [ -d "${LOCALE_DIR}" ] && [ -r "${LOCALE_DIR}" ]; then
         export TEXTDOMAINDIR="${LOCALE_DIR}"
         export TEXTDOMAIN="remote_mailtest"
 else    
@@ -42,9 +42,9 @@ fi
 glocale=$(get_locale remote_mailtest)
 if [ -z "${glocale}" ]; then
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
-elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+elif [ "${glocale}" == "zh_CN" ] || [ "${glocale}" == "zh_CN.UTF-8" ] || [ "${glocale}" == "zh" ]; then
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
-elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+elif [ "${glocale}" == "en_US" ] || [ "${glocale}" == "en_US.UTF-8" ] || [ "${glocale}" == "en" ]; then
         export LANG="en_US.UTF-8"  LC_ALL="en_US.UTF-8"
 else
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
@@ -80,13 +80,15 @@ helo_greeting_fqdn=$( read_mole_config remote_mailtest helo_greeting_fqdn )
 check() {
   local total=0  errnum=0  result=  base_domain=  ### {object number} {faile number} {return information}
 
-  [ -f "/usr/bin/host" -a -x "/usr/bin/host" ] || {
+  if [ -f "/usr/bin/host" ] && [ -x "/usr/bin/host" ]; then
+	:
+  else
         EXIT_STATUS=${STATE_UNKN};
         LEVEL="unkn";
         TYPE="str";
         CONTENT="$(gettext "Util: [/usr/bin/host] not prepared.")";
         return
-  }
+  fi
 
   if [ -z "${sample_email_file}" ]; then
 	EXIT_STATUS=${STATE_UNKN}
@@ -96,9 +98,9 @@ check() {
 	return
   fi
 
-  if [ -f "/${sample_email_file##*file:}" -a -s "/${sample_email_file##*file:}" ]; then
+  if [ -f "/${sample_email_file##*file:}" ] && [ -s "/${sample_email_file##*file:}" ]; then
 	sample_email_file="/${sample_email_file##*file:}"
-  elif [ -f "${BASE_DIR}/${sample_email_file##*file:}" -a -s "${BASE_DIR}/${sample_email_file##*file:}" ]; then
+  elif [ -f "${BASE_DIR}/${sample_email_file##*file:}" ] && [ -s "${BASE_DIR}/${sample_email_file##*file:}" ]; then
 	sample_email_file="${BASE_DIR}/${sample_email_file##*file:}"
   else
 	EXIT_STATUS=${STATE_UNKN}
@@ -116,9 +118,9 @@ check() {
 	return
   fi
 
-  if [ -f "/${mail_body_file##*file:}" -a -s "/${mail_body_file##*file:}" ]; then
+  if [ -f "/${mail_body_file##*file:}" ] && [ -s "/${mail_body_file##*file:}" ]; then
 	mail_body_file="/${mail_body_file##*file:}"
-  elif [ -f "${BASE_DIR}/${mail_body_file##*file:}" -a -s "${BASE_DIR}/${mail_body_file##*file:}" ]; then
+  elif [ -f "${BASE_DIR}/${mail_body_file##*file:}" ] && [ -s "${BASE_DIR}/${mail_body_file##*file:}" ]; then
 	mail_body_file="${BASE_DIR}/${mail_body_file##*file:}"
   else
 	EXIT_STATUS=${STATE_UNKN}
@@ -131,11 +133,11 @@ check() {
   local v4_config="/var/eyou/etc/eyou_smtpd_config"
   local v5_config="/usr/local/eyou/mail/etc/eyou_mail.ini"
   local gw_config="/var/emdg/etc/domain.conf"
-  if [ -f "${v5_config}" -a -s "${v5_config}" ]; then
+  if [ -f "${v5_config}" ] && [ -s "${v5_config}" ]; then
 	base_domain=$(awk -F"=" '($1~/server_me\>/) {$1="";print;exit;}' "${v5_config}" 2>&- | tr -d '[" \t\n]' | sed -e 's/\x00//g;s/\x0D//g' )
-  elif [ -f "${v4_config}" -a -s "${v4_config}" ]; then
+  elif [ -f "${v4_config}" ] && [ -s "${v4_config}" ]; then
 	base_domain=$(awk '($1~/o_value\>/) {$1="";print;exit;}' "${v4_config}" 2>&- | tr -d '[" \t\n]' | sed -e 's/\x00//g;s/\x0D//g' )
-  elif [ "${gw_config}" -a -s "${gw_config}" ]; then
+  elif [ "${gw_config}" ] && [ -s "${gw_config}" ]; then
 	base_domain=$(awk '{print $1;exit}' "${gw_config}" 2>&- | tr -d '[ \t]' | sed -e 's/\x00//g;s/\x0D//g')
   fi
   [ -z "${base_domain//[ ]}" ] && base_domain="demo.eyou.net"
