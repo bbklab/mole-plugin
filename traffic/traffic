@@ -8,7 +8,7 @@
 }
 
 # === LOAD GETTEXT.SH FILE
-if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+if [ -f "/usr/bin/gettext.sh" ] && [ -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
         rc=$?
         [ "$rc" != "0" ] && {
@@ -21,7 +21,7 @@ else
 fi
 
 # === LOAD INCLUDE FILE
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+if [ -f "${BASE_DIR}/bin/include" ] && [ -s "${BASE_DIR}/bin/include" ]; then
         source ${BASE_DIR}/bin/include 2>&-
 else
         echo -en "{unkn}:{str}:{include file not exists or empty}"
@@ -29,7 +29,7 @@ else
 fi
 
 # === SET TEXTDOMAINDIR TEXTDOMAIN
-if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+if [ -d "${LOCALE_DIR}" ] && [ -r "${LOCALE_DIR}" ]; then
         export TEXTDOMAINDIR="${LOCALE_DIR}"
         export TEXTDOMAIN="traffic"
 else
@@ -42,9 +42,9 @@ fi
 glocale=$(get_locale traffic)
 if [ -z "${glocale}" ]; then
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
-elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+elif [ "${glocale}" == "zh_CN" ] || [ "${glocale}" == "zh_CN.UTF-8" ] || [ "${glocale}" == "zh" ]; then
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
-elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+elif [ "${glocale}" == "en_US" ] || [ "${glocale}" == "en_US.UTF-8" ] || [ "${glocale}" == "en" ]; then
         export LANG="en_US.UTF-8"  LC_ALL="en_US.UTF-8"
 else
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
@@ -120,16 +120,20 @@ check_single(){
   local iblimit_m=$( echo -e "${ibytes_limit}" | awk -F"[Mm]/s" '{print $1}' )
   local oblimit_m=$( echo -e "${obytes_limit}" | awk -F"[Mm]/s" '{print $1}' )
 
-  [ -z "${ipacks_limit}" -o ! -z "${ipacks_limit//[0-9]}" ] && ipacks_limit=0  ### set default, 0 means unlimited
-  [ -z "${opacks_limit}" -o ! -z "${opacks_limit//[0-9]}" ] && opacks_limit=0  ### set default, 0 means unlimited
+  if [ -z "${ipacks_limit}" ] || [ ! -z "${ipacks_limit//[0-9]}" ]; then
+	ipacks_limit=0  ### set default, 0 means unlimited
+  fi
+  if [ -z "${opacks_limit}" ] || [ ! -z "${opacks_limit//[0-9]}" ]; then
+	opacks_limit=0  ### set default, 0 means unlimited
+  fi
 
-  if [ -z "${inet_face}" -o -z "${ibytes_limit}" -o -z "${obytes_limit}" ]; then     ### return UNKNOWN
+  if [ -z "${inet_face}" ] || [ -z "${ibytes_limit}" ] || [ -z "${obytes_limit}" ]; then     ### return UNKNOWN
 	output="$(html_red "$(gettext "inet_face/ibytes_limit/obytes_limit required:") inet_face=[${inet_face}], ibytes_limit=[${ibytes_limit}], obytes_limit=[${obytes_limit}]") ### ### "
 	return_code=2
   elif [ ! -d "/sys/class/net/${inet_face}" ]; then
 	output="$(html_red "$(eval_gettext "[/sys/class/net/\${inet_face}] not an exists direcoty, maybe interface [\${inet_face}] not exists")") ### ### "
 	return_code=2
-  elif [ -z "${iblimit_m}" -o ! -z "${iblimit_m//[0-9.]}" -o -z "${oblimit_m}" -o ! -z "${oblimit_m//[0-9.]}" ]; then
+  elif [ -z "${iblimit_m}" ] || [ ! -z "${iblimit_m//[0-9.]}" ] || [ -z "${oblimit_m}" ] || [ ! -z "${oblimit_m//[0-9.]}" ]; then
 	output="$(html_red "$(eval_gettext "ibytes_limit=[\${ibytes_limit}] or obytes_limit=[\${obytes_limit}] format unrecognised.")") ### ### "
 	return_code=2
   else
@@ -144,11 +148,11 @@ check_single(){
 		obytes=$(cat /sys/class/net/${inet_face}/statistics/tx_bytes 2>&-)
 		ipacks=$(cat /sys/class/net/${inet_face}/statistics/rx_packets 2>&-)
 		opacks=$(cat /sys/class/net/${inet_face}/statistics/tx_packets 2>&-)
-		if [ -z "${ibytes}" -o ! -z "${ibytes//[0-9]}" -o -z "${obytes}" -o ! -z "${obytes//[0-9]}" ]; then
+		if ! is_int "${ibytes}" || ! is_int "${obytes}"; then
 			output="${output} $(html_red "[${inet_face}:${i}] ibytes=[${ibytes}], obytes=[${obytes}] $(gettext "not numberic")") ### ### "
 			echo -e "${output}"
 			return 2
-		elif [ -z "${ipacks}" -o ! -z "${ipacks//[0-9]}" -o -z "${opacks}" -o ! -z "${opacks//[0-9]}" ]; then
+		elif ! is_int "${ipacks}" || ! is_int "${opacks}"; then
 			output="${output} $(html_red "[${inet_face}:${i}] ipacks=[${ipacks}], opacks=[${opacks}] $(gettext "not numberic")") ### ### "
 			echo -e "${output}"
 			return 2
