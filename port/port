@@ -8,7 +8,7 @@
 }
 
 # === LOAD GETTEXT.SH FILE
-if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+if [ -f "/usr/bin/gettext.sh" ] && [ -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
         rc=$?
         [ "$rc" != "0" ] && {
@@ -21,7 +21,7 @@ else
 fi
 
 # === LOAD INCLUDE FILE
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+if [ -f "${BASE_DIR}/bin/include" ] && [ -s "${BASE_DIR}/bin/include" ]; then
         source ${BASE_DIR}/bin/include 2>&- 
 else    
         echo -en "{unkn}:{str}:{include file not exists or empty}"
@@ -29,7 +29,7 @@ else
 fi
 
 # === SET TEXTDOMAINDIR TEXTDOMAIN
-if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+if [ -d "${LOCALE_DIR}" ] && [ -r "${LOCALE_DIR}" ]; then
         export TEXTDOMAINDIR="${LOCALE_DIR}"
         export TEXTDOMAIN="port"
 else    
@@ -42,9 +42,9 @@ fi
 glocale=$(get_locale port)
 if [ -z "${glocale}" ]; then
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
-elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+elif [ "${glocale}" == "zh_CN" ] || [ "${glocale}" == "zh_CN.UTF-8" ] || [ "${glocale}" == "zh" ]; then
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
-elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+elif [ "${glocale}" == "en_US" ] || [ "${glocale}" == "en_US.UTF-8" ] || [ "${glocale}" == "en" ]; then
         export LANG="en_US.UTF-8"  LC_ALL="en_US.UTF-8"
 else
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
@@ -101,7 +101,7 @@ fi
 
 # if null or invalid set default.
 if [ -z "${port_list}" ]; then
-	if [ -f "/etc/ssh/sshd_config" -a -s "/etc/ssh/sshd_config" ]; then
+	if [ -f "/etc/ssh/sshd_config" ] && [ -s "/etc/ssh/sshd_config" ]; then
 		ssh_port=$(awk '($1~/^Port\>/){print $2;exit;}' "/etc/ssh/sshd_config" 2>&- | tr -d '\r\n\t ')
 	fi
 	[ -z "${ssh_port}" ] && ssh_port=22
@@ -123,14 +123,16 @@ check_single(){
   ### set default:   tcp 5 127.0.0.1
   [ -z "${ptype//[ ]}" ] && ptype="tcp" 
   [ -z "${ip//[ ]}" ] && ip="127.0.0.1"
-  [ -z "${tmout//[ ]}" -o "${tmout}" == "0" ] && tmout=5
+  if [ -z "${tmout//[ ]}" ] || [ "${tmout}" == "0" ]; then
+	tmout=5
+  fi
   if [ -z "${port//[ ]}" ]; then    ### port null, return UNKNOWN
 	((unknum++))
 	output="$(html_red "$(gettext "port required")") ### ### "
 	return_code=2
   else
-  	if [ "${ptype}" == "udp" -o "${ptype}" == "tcp" ]; then		### ptype ok, continue
-		if [ -z "${port}" -o ! -z "${port//[0-9]}" -o -z "${tmout}" -o ! -z "${tmout//[0-9]}" ]; then
+  	if [ "${ptype}" == "udp" ] || [ "${ptype}" == "tcp" ]; then		### ptype ok, continue
+		if [ -z "${port}" ] || [ ! -z "${port//[0-9]}" ] || [ -z "${tmout}" ] || [ ! -z "${tmout//[0-9]}" ]; then
 			((unknum++))
 			output="$(html_red "$(eval_gettext "port/tmout must be numberic: port=[\${port}] tmout=[\${tmout}]")") ### ### "
 			return_code=2
@@ -164,13 +166,15 @@ check_single(){
   return ${return_code}
 }
 
-  [ -f "/usr/bin/nc" -a -x "/usr/bin/nc" ] || {
+  if [ -f "/usr/bin/nc" ] && [ -x "/usr/bin/nc" ]; then
+	:
+  else
 	EXIT_STATUS=${STATE_UNKN};
         LEVEL="unkn";
         TYPE="str";
         CONTENT="$(gettext "utilite [/usr/bin/nc] not prepared.")"
         return
-  }
+  fi
 
   local result=" ### $(eval_gettext "Check List: [\${port_list}]") ### ### "
   local oknum=0 errnum=0 unknum=0 total=0
@@ -193,7 +197,7 @@ check_single(){
 		;;
 	"2")
 		f1=$(echo -e "${pairs}" | cut -d: -f1)
-		if [ "${f1}" == "tcp" -o "${f1}" == "udp" ]; then
+		if [ "${f1}" == "tcp" ] || [ "${f1}" == "udp" ]; then
 			ptype=${f1} 
 			ip=$(echo -e "${pairs}" | cut -d: -f2)
 			port=$(echo -e "${pairs}" | cut -d: -f3)
