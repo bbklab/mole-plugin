@@ -7,7 +7,7 @@
 }
 
 # === LOAD GETTEXT.SH FILE
-if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+if [ -f "/usr/bin/gettext.sh" ] && [ -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
         rc=$?
         [ "$rc" != "0" ] && {
@@ -20,7 +20,7 @@ else
 fi
 
 # === LOAD INCLUDE FILE
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+if [ -f "${BASE_DIR}/bin/include" ] && [ -s "${BASE_DIR}/bin/include" ]; then
         source ${BASE_DIR}/bin/include 2>&- 
 else    
         echo -en "{unkn}:{str}:{include file not exists or empty}"
@@ -28,7 +28,7 @@ else
 fi
 
 # === SET TEXTDOMAINDIR TEXTDOMAIN
-if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+if [ -d "${LOCALE_DIR}" ] && [ -r "${LOCALE_DIR}" ]; then
         export TEXTDOMAINDIR="${LOCALE_DIR}"
         export TEXTDOMAIN="disk_space"
 else    
@@ -41,9 +41,9 @@ fi
 glocale=$(get_locale disk_space)
 if [ -z "${glocale}" ]; then
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
-elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+elif [ "${glocale}" == "zh_CN" ] || [ "${glocale}" == "zh_CN.UTF-8" ] || [ "${glocale}" == "zh" ]; then
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
-elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+elif [ "${glocale}" == "en_US" ] || [ "${glocale}" == "en_US.UTF-8" ] || [ "${glocale}" == "en" ]; then
         export LANG="en_US.UTF-8"  LC_ALL="en_US.UTF-8"
 else
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
@@ -103,21 +103,25 @@ fi
 # check function here
 check(){
 
-  [ -f "/bin/df" -a -x "/bin/df" ] || {
+  if [ -f "/bin/df" ] && [ -x "/bin/df" ]; then
+	:
+  else
         EXIT_STATUS=${STATE_UNKN};
         LEVEL="unkn";
         TYPE="str";
         CONTENT="$(gettext "Util: [/bin/df] not prepared.")";
         return
-  }
+  fi
 
-  [ -f "/etc/mtab" -a -s "/etc/mtab" ] || {
+  if [ -f "/etc/mtab" ] && [ -s "/etc/mtab" ]; then
+	:
+  else
 	EXIT_STATUS=${STATE_UNKN};
 	LEVEL="unkn";
 	TYPE="str";
 	CONTENT="$(gettext "File: [/etc/mtab] not prepared.")";
 	return
-  }
+  fi
 
   if is_int "${space_pct}" && is_between "${space_pct}" "0" "100"; then
         :
@@ -172,7 +176,7 @@ check(){
 		used=$(echo -e "scale=3; ${used}/1024"|bc 2>&-|sed -e 's/^\./0\./')
 
 		# output data and exit if MODE=1
-		if [ "${MODE}" == "1" -a "${action}" == "space" ]; then
+		if [ "${MODE}" == "1" ] && [ "${action}" == "space" ]; then
 			echo "Disk_Space: ${device} ${fstype} ${mount} ${size}M ${used}M ${used_pct}%"
 			continue
 		fi
@@ -216,7 +220,7 @@ check(){
                 local used_pct=$(echo "${line[5]}"|tr -d '%')  mount="${line[6]}"
 
         	# output data and exit if MODE=1
-        	if [ "${MODE}" == "1" -a "${action}" == "inode" ]; then
+        	if [ "${MODE}" == "1" ] && [ "${action}" == "inode" ]; then
                 	echo "Inode_Space: ${device} ${fstype} ${mount} ${size} ${used} ${used_pct}%"
                 	continue
          	fi  
