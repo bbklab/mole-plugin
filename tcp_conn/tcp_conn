@@ -8,7 +8,7 @@
 }
 
 # === LOAD GETTEXT.SH FILE
-if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+if [ -f "/usr/bin/gettext.sh" ] && [ -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
         rc=$?
         [ "$rc" != "0" ] && {
@@ -21,7 +21,7 @@ else
 fi
 
 # === LOAD INCLUDE FILE
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+if [ -f "${BASE_DIR}/bin/include" ] && [ -s "${BASE_DIR}/bin/include" ]; then
         source ${BASE_DIR}/bin/include 2>&- 
 else    
         echo -en "{unkn}:{str}:{include file not exists or empty}"
@@ -29,7 +29,7 @@ else
 fi
 
 # === SET TEXTDOMAINDIR TEXTDOMAIN
-if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+if [ -d "${LOCALE_DIR}" ] && [ -r "${LOCALE_DIR}" ]; then
         export TEXTDOMAINDIR="${LOCALE_DIR}"
         export TEXTDOMAIN="tcp_conn"
 else    
@@ -42,9 +42,9 @@ fi
 glocale=$(get_locale tcp_conn)
 if [ -z "${glocale}" ]; then
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
-elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+elif [ "${glocale}" == "zh_CN" ] || [ "${glocale}" == "zh_CN.UTF-8" ] || [ "${glocale}" == "zh" ]; then
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
-elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+elif [ "${glocale}" == "en_US" ] || [ "${glocale}" == "en_US.UTF-8" ] || [ "${glocale}" == "en" ]; then
         export LANG="en_US.UTF-8"  LC_ALL="en_US.UTF-8"
 else
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
@@ -146,7 +146,7 @@ check_single(){
 	return
   }
 
-  if [ -z "${total}" -o ! -z "${total//[0-9]}" ]; then
+  if [ -z "${total}" ] || [ ! -z "${total//[0-9]}" ]; then
 	local output=" $(html_red "$(eval_gettext "check [\${s_port}:\${limit}]: return: [\${total}] is not numberic")") ### $(eval_gettext "Maybe port: [\${s_port}] not listening") ### "
 	return_code=1
   else
@@ -167,13 +167,13 @@ check_single(){
   local oknum=0 errnum=0 unknum=0 total=0
   local statfile="/tmp/.check_tcpconn_num.statfile.mole"
   /bin/netstat -an > "${statfile}" 2>&-
-  [ ! -f "${statfile}" -o ! -s "${statfile}" ] && {
+  if [ ! -f "${statfile}" ] || [ ! -s "${statfile}" ]; then
 	EXIT_STATUS=${STATE_UNKN};
         LEVEL="unkn";
         TYPE="str";
         CONTENT="$(eval_gettext "netstat file: [\${statfile}] not exist or empty.")"
         return
-  }
+  fi
 
   # output data and exit if MODE=1
   [ "${MODE}" == "1" ] && {
@@ -197,7 +197,7 @@ check_single(){
 	else
 		local port="${port_num%%:*}" num="${port_num##*:}"
 		result="${result} ### $(eval_gettext "Check Tcp-Port [\${port}], Uplimit [\${num}]") ### "
-		if [ -z "${port}" -o ! -z "${port//[0-9]}" -o -z "${num}" -o ! -z "${num//[0-9]}" ]; then
+		if [ -z "${port}" ] || [ ! -z "${port//[0-9]}" ] || [ -z "${num}" ] || [ ! -z "${num//[0-9]}" ]; then
 			((unknum++))
 			result="${result} $(html_red "$(eval_gettext "[\${port_num}] is invalid: [\${port}] or [\${num}] not numberic")") ### "
 			continue 1
