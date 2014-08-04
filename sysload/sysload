@@ -8,7 +8,7 @@
 }
 
 # === LOAD GETTEXT.SH FILE
-if [ -f "/usr/bin/gettext.sh"  -a -s "/usr/bin/gettext.sh" ]; then
+if [ -f "/usr/bin/gettext.sh" ] && [ -s "/usr/bin/gettext.sh" ]; then
         source "/usr/bin/gettext.sh" 2>&1
         rc=$?
         [ "$rc" != "0" ] && {
@@ -21,7 +21,7 @@ else
 fi
 
 # === LOAD INCLUDE FILE
-if [ -f "${BASE_DIR}/bin/include" -a -s "${BASE_DIR}/bin/include" ]; then
+if [ -f "${BASE_DIR}/bin/include" ] && [ -s "${BASE_DIR}/bin/include" ]; then
         source ${BASE_DIR}/bin/include 2>&- 
 else    
         echo -en "{unkn}:{str}:{include file not exists or empty}"
@@ -29,7 +29,7 @@ else
 fi
 
 # === SET TEXTDOMAINDIR TEXTDOMAIN
-if [ -d "${LOCALE_DIR}" -a -r "${LOCALE_DIR}" ]; then
+if [ -d "${LOCALE_DIR}" ] && [ -r "${LOCALE_DIR}" ]; then
         export TEXTDOMAINDIR="${LOCALE_DIR}"
         export TEXTDOMAIN="sysload"
 else    
@@ -42,9 +42,9 @@ fi
 glocale=$(get_locale sysload)
 if [ -z "${glocale}" ]; then
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
-elif [ "${glocale}" == "zh_CN" -o "${glocale}" == "zh_CN.UTF-8" -o "${glocale}" == "zh" ]; then
+elif [ "${glocale}" == "zh_CN" ] || [ "${glocale}" == "zh_CN.UTF-8" ] || [ "${glocale}" == "zh" ]; then
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
-elif [ "${glocale}" == "en_US" -o "${glocale}" == "en_US.UTF-8" -o "${glocale}" == "en" ]; then
+elif [ "${glocale}" == "en_US" ] || [ "${glocale}" == "en_US.UTF-8" ] || [ "${glocale}" == "en" ]; then
         export LANG="en_US.UTF-8"  LC_ALL="en_US.UTF-8"
 else
         export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
@@ -92,13 +92,15 @@ load_uplimit=$(read_mole_config sysload load_uplimit)
 
 # check function here
 check(){
-  [ -f "/proc/loadavg" -a -f "/proc/cpuinfo" ] || {
+  if [ -f "/proc/loadavg" ] && [ -f "/proc/cpuinfo" ]; then
+	:
+  else
 	EXIT_STATUS=${STATE_UNKN};
 	LEVEL="unkn";
 	TYPE="str";
 	CONTENT="$(gettext "FILE: [/proc/loadavg] or [/proc/cpuinfo] not prepared.")"
 	return
-  }
+  fi
 
   if is_float "${load_uplimit}" || is_int "${load_uplimit}" ; then
 	:
