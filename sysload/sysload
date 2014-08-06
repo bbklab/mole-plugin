@@ -102,14 +102,37 @@ check(){
 	return
   fi
 
-  if is_float "${load_uplimit}" || is_int "${load_uplimit}" ; then
-	:
+
+  local WARN_LIMIT= CRIT_LIMIT=
+  if is_multi_threshold "${load_uplimit}"; then
+	if check_multi_threshold "${load_uplimit}" 3; then
+		local ARRY_LIMIT=( $(seperate_multi_threshold "${load_uplimit}" 2>&- ) )
+		WARN_LIMIT=${ARRY_LIMIT[0]}
+		CRIT_LIMIT=${ARRY_LIMIT[1]}
+		if [ "$(echo "${WARN_LIMIT} >= ${CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+			EXIT_STATUS=${STATE_UNKN};
+			LEVEL="unkn";
+			TYPE="str";
+			CONTENT="$(eval_gettext "load_uplimit [\${load_uplimit}] warn threshold must lower than crit threshold.")"
+			return
+		fi
+	else
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "load_uplimit [\${load_uplimit}] is invalid multi threshold on int or float check.")"
+		return
+	fi
   else
-	EXIT_STATUS=${STATE_UNKN};
-	LEVEL="unkn";
-	TYPE="str";
-	CONTENT="$(eval_gettext "load_uplimit [\${load_uplimit}] should be int or float.")"
-	return
+  	if is_float "${load_uplimit}" || is_int "${load_uplimit}" ; then
+		CRIT_LIMIT=${load_uplimit}		# set single threshold as crit-threshold
+  	else
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "load_uplimit [\${load_uplimit}] should be int or float.")"
+		return
+  	fi
   fi
 
   # collect data
@@ -133,17 +156,23 @@ check(){
   }
 
   # output plugin format data if MODE=0
-  if [ "$(echo  "${loadave} >= ${load_uplimit}" | bc 2>&-)" == "1" ]; then
+  if [ -n "${CRIT_LIMIT}" ] && [ "$(echo  "${loadave} >= ${CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+	local top_pcpu_ps=$(ps -eo pid,comm,pcpu|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
+	EXIT_STATUS=${STATE_CRIT};
+	LEVEL="crit";
+	TYPE="str";
+	CONTENT="$(gettext "System Load Check CRITICAL") | $(eval_gettext "load [\${loadave} >= \${CRIT_LIMIT}]") | $(html_red "$(eval_gettext "load [\${loadave} >= \${CRIT_LIMIT}]")") ### ### $(gettext "recent load average:") ${details} ### ### $(gettext "cpu usage top10:") ###  ${top_pcpu_ps}"
+  elif [ -n "${WARN_LIMIT}" ] && [ "$(echo  "${loadave} >= ${WARN_LIMIT}" | bc 2>&-)" == "1" ]; then
 	local top_pcpu_ps=$(ps -eo pid,comm,pcpu|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
 	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
-	CONTENT="$(gettext "System Load Check CRITICAL") | $(eval_gettext "load [\${loadave} >= \${load_uplimit}]") | $(html_red "$(eval_gettext "load [\${loadave} >= \${load_uplimit}]")") ### ### $(gettext "recent load average:") ${details} ### ### $(gettext "cpu usage top10:") ###  ${top_pcpu_ps}"
+	CONTENT="$(gettext "System Load Check WARNING") | $(eval_gettext "load [\${loadave} >= \${WARN_LIMIT}]") | $(html_red "$(eval_gettext "load [\${loadave} >= \${WARN_LIMIT}]")") ### ### $(gettext "recent load average:") ${details} ### ### $(gettext "cpu usage top10:") ###  ${top_pcpu_ps}"
   else
 	EXIT_STATUS=${STATE_SUCC};
 	LEVEL="succ";
 	TYPE="str";
-	CONTENT="$(gettext "System Load Check OK") | $(eval_gettext "load [\${loadave} <= \${load_uplimit}]")"
+	CONTENT="$(gettext "System Load Check OK") | $(eval_gettext "load [\${loadave} <= \${WARN_LIMIT}]")"
   fi
 }
 

@@ -22,6 +22,12 @@ msgstr "\n"
 msgid "FILE: [/proc/loadavg] or [/proc/cpuinfo] not prepared."
 msgstr "[/proc/loadavg] 或 [/proc/cpuinfo] 文件不存在."
 
+msgid "load_uplimit [${load_uplimit}] warn threshold must lower than crit threshold."
+msgstr "load_uplimit配置 [${load_uplimit}] 警告阈值必须小于故障阈值. "
+
+msgid "load_uplimit [${load_uplimit}] is invalid multi threshold on int or float check."
+msgstr "load_uplimit配置 [${load_uplimit}] 每个阈值都应该是整数或小数."
+
 msgid "load_uplimit [${load_uplimit}] should be int or float."
 msgstr "load_uplimit配置 [${load_uplimit}] 应该是整数或小数."
 
@@ -29,10 +35,16 @@ msgid "Retuen is not numberic: [${loadave}]"
 msgstr "获取到的系统负载非数字: [${loadave}]"
 
 msgid "System Load Check CRITICAL"
+msgstr "系统负载检查故障"
+
+msgid "System Load Check WARNING"
 msgstr "系统负载检查告警"
 
-msgid "load [${loadave} >= ${load_uplimit}]"
-msgstr "系统负载为${loadave}, 超出上限${load_uplimit}"
+msgid "load [${loadave} >= ${CRIT_LIMIT}]"
+msgstr "系统负载为${loadave}, 超过故障阈值${CRIT_LIMIT}"
+
+msgid "load [${loadave} >= ${WARN_LIMIT}]"
+msgstr "系统负载为${loadave}, 超过告警阈值${WARN_LIMIT}"
 
 msgid "recent load average:"
 msgstr "最近系统负载情况:"
@@ -43,5 +55,5 @@ msgstr "CPU占用最高的10个进程:"
 msgid "System Load Check OK"
 msgstr "系统负载检查正常"
 
-msgid "load [${loadave} <= ${load_uplimit}]"
+msgid "load [${loadave} <= ${WARN_LIMIT}]"
 msgstr "系统负载为${loadave}"
