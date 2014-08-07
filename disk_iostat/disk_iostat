@@ -105,15 +105,47 @@ check(){
 	return
   fi
 
-  if is_int "${util_uplimit}" && is_between "${util_uplimit}" "0" "100"; then
-        :
+  local WARN_LIMIT= CRIT_LIMIT=
+  if is_multi_threshold "${util_uplimit}"; then
+	local ARRY_LIMIT=( $(seperate_multi_threshold "${util_uplimit}" 2>&- ) )
+	WARN_LIMIT=${ARRY_LIMIT[0]}
+	CRIT_LIMIT=${ARRY_LIMIT[1]}
+	if is_int "${WARN_LIMIT}" && is_between "${WARN_LIMIT}" "0" "100"; then
+		:
+	else
+        	EXIT_STATUS=${STATE_UNKN};
+        	LEVEL="unkn";
+        	TYPE="str";
+        	CONTENT="$(eval_gettext "util_uplimit [\${util_uplimit}] warn threshold should be int and between 0-100.")";
+        	return
+	fi
+	if is_int "${CRIT_LIMIT}" && is_between "${CRIT_LIMIT}" "0" "100"; then
+		:
+	else
+        	EXIT_STATUS=${STATE_UNKN};
+        	LEVEL="unkn";
+        	TYPE="str";
+        	CONTENT="$(eval_gettext "util_uplimit [\${util_uplimit}] crit threshold should be int and between 0-100.")";
+        	return
+	fi
+	if [ "$(echo "${WARN_LIMIT} >= ${CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+        	EXIT_STATUS=${STATE_UNKN};
+        	LEVEL="unkn";
+        	TYPE="str";
+        	CONTENT="$(eval_gettext "util_uplimit [\${util_uplimit}] warn threshold must lower than crit threshold.")";
+        	return
+	fi
   else
-        EXIT_STATUS=${STATE_UNKN};
-        LEVEL="unkn";
-        TYPE="str";
-        CONTENT="$(eval_gettext "util_uplimit [\${util_uplimit}] should be int and between 0-100.")";
-        return
-  fi 
+  	if is_int "${util_uplimit}" && is_between "${util_uplimit}" "0" "100"; then
+        	CRIT_LIMIT="${util_uplimit}"		# set single threshold as crit-threshold
+  	else
+        	EXIT_STATUS=${STATE_UNKN};
+        	LEVEL="unkn";
+        	TYPE="str";
+        	CONTENT="$(eval_gettext "util_uplimit [\${util_uplimit}] should be int and between 0-100.")";
+        	return
+  	fi 
+  fi
 
 
   local iostat="${UTIL_IOSTAT}"
@@ -141,7 +173,7 @@ check(){
   # collect data
   local iostat_data=$( ${iostat} -d -x ${dev_list} 1 5 2>&1 )
   
-  oknum=0 warnnum=0 unknnum=0 result=
+  oknum=0 critnum=0 warnnum=0 unknnum=0 result=
   for dev in ${dev_list}
   do
 	((total++))
@@ -177,23 +209,31 @@ check(){
 		continue
   	}
 
-  	if [ "$(echo  "${util} >= ${util_uplimit}" | bc 2>&-)" == "1" ]; then
+	if [ -n "${CRIT_LIMIT}" ] && [ "$(echo  "${util} >= ${CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+		((critnum++))
+		result="${result} $(html_red "$(eval_gettext "\${dev} (\${mpoint}) io busy percent: [\${util}%] >= uplimit: [\${CRIT_LIMIT}%]")" ) ###"
+  	elif [ -n "${WARN_LIMIT}" ] && [ "$(echo  "${util} >= ${WARN_LIMIT}" | bc 2>&-)" == "1" ]; then
 		((warnnum++))
-		result="${result} $(html_red "$(eval_gettext "\${dev} (\${mpoint}) io busy percent: [\${util}%] >= uplimit: [\${util_uplimit}%]")" ) ###"
+		result="${result} $(html_red "$(eval_gettext "\${dev} (\${mpoint}) io busy percent: [\${util}%] >= uplimit: [\${WARN_LIMIT}%]")" ) ###"
   	else
 		((oknum++))
-		result="${result} $(eval_gettext "\${dev} (\${mpoint}) io busy percent: [\${util}%] <= uplimit: [\${util_uplimit}%]") ###"
+		result="${result} $(eval_gettext "\${dev} (\${mpoint}) io busy percent: [\${util}%]") ###"
   	fi
   done
 
   # exit if MODE=1
   [ "${MODE}" == "1" ] && exit
 
-  if [ ${warnnum} -gt 0 ]; then
+  if [ ${critnum} -gt 0 ]; then
+	EXIT_STATUS=${STATE_CRIT};
+	LEVEL="crit";
+	TYPE="str";
+	CONTENT="$(gettext "IOStat Check CRITICAL") | $(eval_gettext "\${critnum}/\${total} check critical.") | ${result}"
+  elif [ ${warnnum} -gt 0 ]; then
 	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
-	CONTENT="$(gettext "IOStat Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check failed.") | ${result}"
+	CONTENT="$(gettext "IOStat Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check warning.") | ${result}"
   elif [ ${unknnum} -gt 0 ]; then
 	EXIT_STATUS=${STATE_UNKN};
 	LEVEL="unkn";

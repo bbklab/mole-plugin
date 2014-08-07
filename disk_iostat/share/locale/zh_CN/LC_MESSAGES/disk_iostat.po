@@ -22,6 +22,15 @@ msgstr "\n"
 msgid "config {dev_list} empty, nothing to do."
 msgstr "插件配置参数 {dev_list} 未设定"
 
+msgid "util_uplimit [${util_uplimit}] warn threshold should be int and between 0-100."
+msgstr "util_uplimit配置 [${util_uplimit}] 警告阈值应该是0-100之间的整数."
+
+msgid "util_uplimit [${util_uplimit}] crit threshold should be int and between 0-100."
+msgstr "util_uplimit配置 [${util_uplimit}] 故障阈值应该是0-100之间的整数."
+
+msgid "util_uplimit [${util_uplimit}] warn threshold must lower than crit threshold."
+msgstr "util_uplimit配置 [${util_uplimit}] 警告阈值必须小于故障阈值."
+
 msgid "util_uplimit [${util_uplimit}] should be int and between 0-100."
 msgstr "util_uplimit配置 [${util_uplimit}] 应该是0-100之间的整数."
 
@@ -34,17 +43,26 @@ msgstr "设备: ${dev} 不存在."
 msgid "${dev} not mounted"
 msgstr "设备: ${dev} 未挂载到系统"
 
-msgid "${dev} (${mpoint}) io busy percent: [${util}%] <= uplimit: [${util_uplimit}%]"
+msgid "${dev} (${mpoint}) io busy percent: [${util}%]"
 msgstr "设备: ${dev} (挂载点${mpoint}) IO繁忙程度为 ${util}%"
 
-msgid "${dev} (${mpoint}) io busy percent: [${util}%] >= uplimit: [${util_uplimit}%]"
-msgstr "设备: ${dev} (挂载点${mpoint}) IO繁忙程度为 ${util}%, 超出上限 ${util_uplimit}%"
+msgid "${dev} (${mpoint}) io busy percent: [${util}%] >= uplimit: [${CRIT_LIMIT}%]"
+msgstr "设备: ${dev} (挂载点${mpoint}) IO繁忙程度为 ${util}%, 超出故障阈值 ${CRIT_LIMIT}%"
+
+msgid "${dev} (${mpoint}) io busy percent: [${util}%] >= uplimit: [${WARN_LIMIT}%]"
+msgstr "设备: ${dev} (挂载点${mpoint}) IO繁忙程度为 ${util}%, 超出告警阈值 ${WARN_LIMIT}%"
+
+msgid "IOStat Check CRITICAL"
+msgstr "磁盘IO繁忙度检查故障"
+
+msgid "${critnum}/${total} check critical."
+msgstr "${critnum}/${total} 项检查故障"
 
 msgid "IOStat Check WARNING"
 msgstr "磁盘IO繁忙度检查告警"
 
-msgid "${warnnum}/${total} check failed."
-msgstr "${warnnum}/${total} 项检查告警."
+msgid "${warnnum}/${total} check warning."
+msgstr "${warnnum}/${total} 项检查告警"
 
 msgid "IOStat Check UNKNOWN"
 msgstr "磁盘IO繁忙度检查未知"
