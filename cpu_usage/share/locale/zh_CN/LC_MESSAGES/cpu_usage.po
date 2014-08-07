@@ -22,49 +22,100 @@ msgstr "\n"
 msgid "Command: [/usr/bin/vmstat] not prepared."
 msgstr "[/usr/bin/vmstat] 不存在或没有执行权限."
 
+msgid "uplimit [${uplimit}] warn threshold should be int and between 0-100."
+msgstr "uplimit配置 [${uplimit}] 警告阈值应该是0-100之间的整数."
+
+msgid "uplimit [${uplimit}] crit threshold should be int and between 0-100."
+msgstr "uplimit配置 [${uplimit}] 故障阈值应该是0-100之间的整数."
+
+msgid "uplimit [${uplimit}] warn threshold must lower than crit threshold."
+msgstr "uplimit配置 [${uplimit}] 警告阈值必须小于故障阈值."
+
 msgid "uplimit [${uplimit}] should be int and between 0-100."
 msgstr "uplimit配置 [${uplimit}] 应该是0-100之间的整数."
+
+msgid "wa_uplimit [${wa_uplimit}] warn threshold should be int and between 0-100."
+msgstr "wa_uplimit配置 [${wa_uplimit}] 警告阈值应该是0-100之间的整数."
+
+msgid "wa_uplimit [${wa_uplimit}] crit threshold should be int and between 0-100."
+msgstr "wa_uplimit配置 [${wa_uplimit}] 故障阈值应该是0-100之间的整数."
+
+msgid "wa_uplimit [${wa_uplimit}] warn threshold must lower than crit threshold."
+msgstr "wa_uplimit配置 [${wa_uplimit}] 警告阈值必须小于故障阈值."
 
 msgid "wa_uplimit [${wa_uplimit}] should be int and between 0-100."
 msgstr "wa_uplimit配置 [${wa_uplimit}] 应该是0-100之间的整数."
 
+msgid "sy_uplimit [${sy_uplimit}] warn threshold should be int and between 0-100."
+msgstr "sy_uplimit配置 [${sy_uplimit}] 警告阈值应该是0-100之间的整数."
+
+msgid "sy_uplimit [${sy_uplimit}] crit threshold should be int and between 0-100."
+msgstr "sy_uplimit配置 [${sy_uplimit}] 故障阈值应该是0-100之间的整数."
+
+msgid "sy_uplimit [${sy_uplimit}] warn threshold must lower than crit threshold."
+msgstr "sy_uplimit配置 [${sy_uplimit}] 警告阈值必须小于故障阈值."
+
 msgid "sy_uplimit [${sy_uplimit}] should be int and between 0-100."
 msgstr "sy_uplimit配置 [${sy_uplimit}] 应该是0-100之间的整数."
+
+msgid "us_uplimit [${us_uplimit}] warn threshold should be int and between 0-100."
+msgstr "us_uplimit配置 [${us_uplimit}] 警告阈值应该是0-100之间的整数."
+
+msgid "us_uplimit [${us_uplimit}] crit threshold should be int and between 0-100."
+msgstr "us_uplimit配置 [${us_uplimit}] 故障阈值应该是0-100之间的整数."
+
+msgid "us_uplimit [${us_uplimit}] warn threshold must lower than crit threshold."
+msgstr "us_uplimit配置 [${us_uplimit}] 警告阈值必须小于故障阈值."
 
 msgid "us_uplimit [${us_uplimit}] should be int and between 0-100."
 msgstr "us_uplimit配置 [${us_uplimit}] 应该是0-100之间的整数."
 
-msgid "cpu usage: [${p_usage}%] >= uplimit: [${uplimit}%]"
-msgstr "CPU整体使用率为 ${p_usage}%, 超出上限 ${uplimit}%"
+msgid "cpu usage: [${p_usage}%] >= cirt uplimit: [${CRIT_LIMIT}%]"
+msgstr "CPU整体使用率为 ${p_usage}%, 超出故障阈值${CRIT_LIMIT}%"
 
-msgid "cpu usage: [${p_usage}%] <= uplimit: [${uplimit}%]" 
+msgid "cpu usage: [${p_usage}%] >= warn uplimit: [${WARN_LIMIT}%]"
+msgstr "CPU整体使用率为 ${p_usage}%, 超出警告阈值${WARN_LIMIT}%"
+
+msgid "cpu usage: [${p_usage}%]"
 msgstr "CPU整体使用率为 ${p_usage}%"
 
-msgid "cpu wait usage: [${wa_usage}%] >= uplimit: [${wa_uplimit}%]"
-msgstr "CPU等待占用率为 ${wa_usage}%, 超出上限 ${wa_uplimit}%"
+msgid "cpu wait usage: [${wa_usage}%] >= crit uplimit: [${WA_CRIT_LIMIT}%]"
+msgstr "CPU等待占用率为 ${wa_usage}%, 超出故障阈值${WA_CRIT_LIMIT}%"
 
-msgid "cpu wait usage: [${wa_usage}%] <= uplimit: [${wa_uplimit}%]"
+msgid "cpu wait usage: [${wa_usage}%] >= warn uplimit: [${WA_WARN_LIMIT}%]"
+msgstr "CPU等待占用率为 ${wa_usage}%, 超出警告阈值${WA_WARN_LIMIT}%"
+
+msgid "cpu wait usage: [${wa_usage}%]"
 msgstr "CPU等待占用率为 ${wa_usage}%"
 
-msgid "cpu sys usage: [${sy_usage}%] >= uplimit: [${sy_uplimit}%]"
-msgstr "CPU系统态使用率为 ${sy_usage}%, 超出上限 ${sy_uplimit}%"
+msgid "cpu sys usage: [${sy_usage}%] >= crit uplimit: [${SY_CRIT_LIMIT}%]"
+msgstr "CPU系统态使用率为 ${sy_usage}%, 超出故障阈值${SY_CRIT_LIMIT}%"
 
-msgid "cpu sys usage: [${sy_usage}%] <= uplimit: [${sy_uplimit}%]"
+msgid "cpu sys usage: [${sy_usage}%] >= warn uplimit: [${SY_WARN_LIMIT}%]"
+msgstr "CPU系统态使用率为 ${sy_usage}%, 超出警告阈值${SY_WARN_LIMIT}%"
+
+msgid "cpu sys usage: [${sy_usage}%]"
 msgstr "CPU系统态使用率为 ${sy_usage}%"
 
-msgid "cpu user usage: [${us_usage}%] >= uplimit: [${us_uplimit}%]"
-msgstr "CPU用户态使用率为 ${us_usage}%, 超出上限 ${us_uplimit}%"
+msgid "cpu user usage: [${us_usage}%] >= crit uplimit: [${US_CRIT_LIMIT}%]"
+msgstr "CPU用户态使用率为 ${us_usage}%, 超出故障阈值${US_CRIT_LIMIT}%"
 
-msgid "cpu user usage: [${us_usage}%] <= uplimit: [${us_uplimit}%]" 
+msgid "cpu user usage: [${us_usage}%] >= warn uplimit: [${US_WARN_LIMIT}%]"
+msgstr "CPU用户态使用率为 ${us_usage}%, 超出警告阈值${US_WARN_LIMIT}%"
+
+msgid "cpu user usage: [${us_usage}%]"
 msgstr "CPU用户态使用率为 ${us_usage}%"
+
+msgid "CPU Usage Check CRITICAL"
+msgstr "CPU使用情况故障"
+
+msgid "${critnum}/${total} check critical."
+msgstr "${critnum}/${total} 项检查故障."
 
 msgid "CPU Usage Check WARNING"
 msgstr "CPU使用情况告警"
 
-msgid "cpu usage top10:"
-msgstr "CPU占用最高的10个进程:"
-
-msgid "${warnnum}/${total} check failed."
+msgid "${warnnum}/${total} check warning."
 msgstr "${warnnum}/${total} 项检查告警."
 
 msgid "CPU Usage Check OK"
@@ -72,3 +123,7 @@ msgstr "CPU使用情况正常"
 
 msgid "${oknum}/${total} check success."
 msgstr "${oknum}/${total} 项检查正常."
+
+msgid "cpu usage top10:"
+msgstr "CPU占用最高的10个进程:"
+

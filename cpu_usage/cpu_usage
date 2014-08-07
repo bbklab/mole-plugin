@@ -100,44 +100,172 @@ check(){
 	return
   fi
 
-  if is_int "${uplimit}" && is_between "${uplimit}" "0" "100"; then
-	:
+  local WARN_LIMIT= CRIT_LIMIT=
+  if is_multi_threshold "${uplimit}"; then
+	local ARRY_LIMIT=( $(seperate_multi_threshold "${uplimit}" 2>&- ) )
+	WARN_LIMIT=${ARRY_LIMIT[0]}
+	CRIT_LIMIT=${ARRY_LIMIT[1]}
+	if is_int "${WARN_LIMIT}" && is_between "${WARN_LIMIT}" "0" "100"; then
+		:
+	else
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "uplimit [\${uplimit}] warn threshold should be int and between 0-100.")";
+		return
+	fi
+	if is_int "${CRIT_LIMIT}" && is_between "${CRIT_LIMIT}" "0" "100"; then
+		:
+	else
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "uplimit [\${uplimit}] crit threshold should be int and between 0-100.")";
+		return
+	fi
+	if [ "$(echo "${WARN_LIMIT} >= ${CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "uplimit [\${uplimit}] warn threshold must lower than crit threshold.")";
+		return
+	fi
   else
-	EXIT_STATUS=${STATE_UNKN};
-	LEVEL="unkn";
-	TYPE="str";
-	CONTENT="$(eval_gettext "uplimit [\${uplimit}] should be int and between 0-100.")";
-	return
+  	if is_int "${uplimit}" && is_between "${uplimit}" "0" "100"; then
+		CRIT_LIMIT="${uplimit}"
+  	else
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "uplimit [\${uplimit}] should be int and between 0-100.")";
+		return
+  	fi
   fi
 
-  if is_int "${wa_uplimit}" && is_between "${wa_uplimit}" "0" "100"; then
-  	:
+  local WA_WARN_LIMIT= WA_CRIT_LIMIT=
+  if is_multi_threshold "${wa_uplimit}"; then
+	local ARRY_LIMIT=( $(seperate_multi_threshold "${wa_uplimit}" 2>&- ) )
+	WA_WARN_LIMIT=${ARRY_LIMIT[0]}
+	WA_CRIT_LIMIT=${ARRY_LIMIT[1]}
+	if is_int "${WA_WARN_LIMIT}" && is_between "${WA_WARN_LIMIT}" "0" "100"; then
+		:
+	else
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "wa_uplimit [\${wa_uplimit}] warn threshold should be int and between 0-100.")";
+		return
+	fi
+	if is_int "${WA_CRIT_LIMIT}" && is_between "${WA_CRIT_LIMIT}" "0" "100"; then
+		:
+	else
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "wa_uplimit [\${wa_uplimit}] crit threshold should be int and between 0-100.")";
+		return
+	fi
+	if [ "$(echo "${WA_WARN_LIMIT} >= ${WA_CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "wa_uplimit [\${wa_uplimit}] warn threshold must lower than crit threshold.")";
+		return
+	fi
   else
-	EXIT_STATUS=${STATE_UNKN};
-	LEVEL="unkn";
-	TYPE="str";
-	CONTENT="$(eval_gettext "wa_uplimit [\${wa_uplimit}] should be int and between 0-100.")";
-	return
+  	if is_int "${wa_uplimit}" && is_between "${wa_uplimit}" "0" "100"; then
+  		WA_CRIT_LIMIT="${wa_uplimit}"
+  	else
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "wa_uplimit [\${wa_uplimit}] should be int and between 0-100.")";
+		return
+  	fi
   fi
 
-  if is_int "${sy_uplimit}" && is_between "${sy_uplimit}" "0" "100"; then
-	:
+  local SY_WARN_LIMIT= SY_CRIT_LIMIT=
+  if is_multi_threshold "${sy_uplimit}"; then
+	local ARRY_LIMIT=( $(seperate_multi_threshold "${sy_uplimit}" 2>&- ) )
+	SY_WARN_LIMIT=${ARRY_LIMIT[0]}
+	SY_CRIT_LIMIT=${ARRY_LIMIT[1]}
+	if is_int "${SY_WARN_LIMIT}" && is_between "${SY_WARN_LIMIT}" "0" "100"; then
+		:
+	else
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "sy_uplimit [\${sy_uplimit}] warn threshold should be int and between 0-100.")";
+		return
+	fi
+	if is_int "${SY_CRIT_LIMIT}" && is_between "${SY_CRIT_LIMIT}" "0" "100"; then
+		:
+	else
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "sy_uplimit [\${sy_uplimit}] crit threshold should be int and between 0-100.")";
+		return
+	fi
+	if [ "$(echo "${SY_WARN_LIMIT} >= ${SY_CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "sy_uplimit [\${sy_uplimit}] warn threshold must lower than crit threshold.")";
+		return
+	fi
   else
-	EXIT_STATUS=${STATE_UNKN};
-	LEVEL="unkn";
-	TYPE="str";
-	CONTENT="$(eval_gettext "sy_uplimit [\${sy_uplimit}] should be int and between 0-100.")";
-	return
+  	if is_int "${sy_uplimit}" && is_between "${sy_uplimit}" "0" "100"; then
+		SY_CRIT_LIMIT="${sy_uplimit}"
+  	else
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "sy_uplimit [\${sy_uplimit}] should be int and between 0-100.")";
+		return
+  	fi
   fi
 
-  if is_int "${us_uplimit}" && is_between "${us_uplimit}" "0" "100"; then
-	:
+  local US_WARN_LIMIT= US_CRIT_LIMIT=
+  if is_multi_threshold "${us_uplimit}"; then
+	local ARRY_LIMIT=( $(seperate_multi_threshold "${us_uplimit}" 2>&- ) )
+	US_WARN_LIMIT=${ARRY_LIMIT[0]}
+	US_CRIT_LIMIT=${ARRY_LIMIT[1]}
+	if is_int "${US_WARN_LIMIT}" && is_between "${US_WARN_LIMIT}" "0" "100"; then
+		:
+	else
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "us_uplimit [\${us_uplimit}] warn threshold should be int and between 0-100.")";
+		return
+	fi
+	if is_int "${US_CRIT_LIMIT}" && is_between "${US_CRIT_LIMIT}" "0" "100"; then
+		:
+	else
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "us_uplimit [\${us_uplimit}] crit threshold should be int and between 0-100.")";
+		return
+	fi
+	if [ "$(echo "${US_WARN_LIMIT} >= ${US_CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "us_uplimit [\${us_uplimit}] warn threshold must lower than crit threshold.")";
+		return
+	fi
   else
-	EXIT_STATUS=${STATE_UNKN};
-	LEVEL="unkn";
-	TYPE="str";
-	CONTENT="$(eval_gettext "us_uplimit [\${us_uplimit}] should be int and between 0-100.")";
-	return
+  	if is_int "${us_uplimit}" && is_between "${us_uplimit}" "0" "100"; then
+		US_CRIT_LIMIT="${us_uplimit}"
+  	else
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "us_uplimit [\${us_uplimit}] should be int and between 0-100.")";
+		return
+  	fi
   fi
 
   # collect data
@@ -156,46 +284,64 @@ check(){
   sy_usage="${cpu_usage[2]}";
   us_usage="${cpu_usage[3]}"
 
-  oknum=0 warnnum=0 result=
-  if [ "$(echo  "${p_usage} >= ${uplimit}" | bc 2>&-)" == "1" ]; then
+  oknum=0 critnum=0 warnnum=0 result=
+  if [ -n "${CRIT_LIMIT}" ] && [ "$(echo  "${p_usage} >= ${CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+	((critnum++))
+	result="${result} $(html_red "$(eval_gettext "cpu usage: [\${p_usage}%] >= cirt uplimit: [\${CRIT_LIMIT}%]")") ###"
+  elif [ -n "${WARN_LIMIT}" ] && [ "$(echo  "${p_usage} >= ${WARN_LIMIT}" | bc 2>&-)" == "1" ]; then
 	((warnnum++))
-	result="${result} $(html_red "$(eval_gettext "cpu usage: [\${p_usage}%] >= uplimit: [\${uplimit}%]")") ###"
+	result="${result} $(html_red "$(eval_gettext "cpu usage: [\${p_usage}%] >= warn uplimit: [\${WARN_LIMIT}%]")") ###"
   else
 	((oknum++))
-	result="${result} $(eval_gettext "cpu usage: [\${p_usage}%] <= uplimit: [\${uplimit}%]") ###"
+	result="${result} $(eval_gettext "cpu usage: [\${p_usage}%]") ###"
   fi
 
-  if [ "$(echo  "${wa_usage} >= ${wa_uplimit}" | bc 2>&-)" == "1" ]; then
+  if [ -n "${WA_CRIT_LIMIT}" ] && [ "$(echo  "${wa_usage} >= ${WA_CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+	((critnum++))
+	result="${result} $(html_red "$(eval_gettext "cpu wait usage: [\${wa_usage}%] >= crit uplimit: [\${WA_CRIT_LIMIT}%]")") ###"
+  elif [ -n "${WA_WARN_LIMIT}" ] && [ "$(echo  "${wa_usage} >= ${WA_WARN_LIMIT}" | bc 2>&-)" == "1" ]; then
 	((warnnum++))
-	result="${result} $(html_red "$(eval_gettext "cpu wait usage: [\${wa_usage}%] >= uplimit: [\${wa_uplimit}%]")") ###"
+	result="${result} $(html_red "$(eval_gettext "cpu wait usage: [\${wa_usage}%] >= warn uplimit: [\${WA_WARN_LIMIT}%]")") ###"
   else
 	((oknum++))
-	result="${result} $(eval_gettext "cpu wait usage: [\${wa_usage}%] <= uplimit: [\${wa_uplimit}%]") ###"
+	result="${result} $(eval_gettext "cpu wait usage: [\${wa_usage}%]") ###"
   fi
 
-  if [ "$(echo  "${sy_usage} >= ${sy_uplimit}" | bc 2>&-)" == "1" ]; then
+  if [ -n "${SY_CRIT_LIMIT}" ] && [ "$(echo  "${sy_usage} >= ${SY_CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+	((critnum++))
+	result="${result} $(html_red "$(eval_gettext "cpu sys usage: [\${sy_usage}%] >= crit uplimit: [\${SY_CRIT_LIMIT}%]")") ###"
+  elif [ -n "${SY_WARN_LIMIT}" ] && [ "$(echo  "${sy_usage} >= ${SY_WARN_LIMIT}" | bc 2>&-)" == "1" ]; then
 	((warnnum++))
-	result="${result} $(html_red "$(eval_gettext "cpu sys usage: [\${sy_usage}%] >= uplimit: [\${sy_uplimit}%]")") ###"
+	result="${result} $(html_red "$(eval_gettext "cpu sys usage: [\${sy_usage}%] >= warn uplimit: [\${SY_WARN_LIMIT}%]")") ###"
   else
 	((oknum++))
-	result="${result} $(eval_gettext "cpu sys usage: [\${sy_usage}%] <= uplimit: [\${sy_uplimit}%]") ###"
+	result="${result} $(eval_gettext "cpu sys usage: [\${sy_usage}%]") ###"
   fi
 
-  if [ "$(echo  "${us_usage} >= ${us_uplimit}" | bc 2>&-)" == "1" ]; then
+  if [ -n "${US_CRIT_LIMIT}" ] && [ "$(echo  "${us_usage} >= ${US_CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+	((critnum++))
+	result="${result} $(html_red "$(eval_gettext "cpu user usage: [\${us_usage}%] >= crit uplimit: [\${US_CRIT_LIMIT}%]")") ###"
+  elif [ -n "${US_WARN_LIMIT}" ] && [ "$(echo  "${us_usage} >= ${US_WARN_LIMIT}" | bc 2>&-)" == "1" ]; then
 	((warnnum++))
-	result="${result} $(html_red "$(eval_gettext "cpu user usage: [\${us_usage}%] >= uplimit: [\${us_uplimit}%]")") ###"
+	result="${result} $(html_red "$(eval_gettext "cpu user usage: [\${us_usage}%] >= warn uplimit: [\${US_WARN_LIMIT}%]")") ###"
   else
 	((oknum++))
-	result="${result} $(eval_gettext "cpu user usage: [\${us_usage}%] <= uplimit: [\${us_uplimit}%]") ###"
+	result="${result} $(eval_gettext "cpu user usage: [\${us_usage}%]") ###"
   fi
 
-  total=$((${warnnum}+${oknum}))
-  if [ ${warnnum} -gt 0 ]; then
+  total=$((${critnum}+${warnnum}+${oknum}))
+  if [ ${critnum} -gt 0 ]; then
+	local top_pcpu_ps=$(ps -eo pid,comm,pcpu|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
+	EXIT_STATUS=${STATE_CRIT};
+	LEVEL="crit";
+	TYPE="str";
+	CONTENT="$(gettext "CPU Usage Check CRITICAL") | $(eval_gettext "\${critnum}/\${total} check critical.") | ${result} ### ### $(gettext "cpu usage top10:") ### ${top_pcpu_ps}"
+  elif [ ${warnnum} -gt 0 ]; then
 	local top_pcpu_ps=$(ps -eo pid,comm,pcpu|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
 	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
-	CONTENT="$(gettext "CPU Usage Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check failed.") | ${result} ### ### $(gettext "cpu usage top10:") ### ${top_pcpu_ps}"
+	CONTENT="$(gettext "CPU Usage Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check warning.") | ${result} ### ### $(gettext "cpu usage top10:") ### ${top_pcpu_ps}"
   else
 	EXIT_STATUS=${STATE_SUCC};
 	LEVEL="succ";
