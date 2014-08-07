@@ -172,7 +172,7 @@ check(){
 	EXIT_STATUS=${STATE_SUCC};
 	LEVEL="succ";
 	TYPE="str";
-	CONTENT="$(gettext "System Load Check OK") | $(eval_gettext "load [\${loadave} <= \${WARN_LIMIT}]")"
+	CONTENT="$(gettext "System Load Check OK") | $(eval_gettext "load [\${loadave}]")"
   fi
 }
 

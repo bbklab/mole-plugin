@@ -55,5 +55,5 @@ msgstr "CPU占用最高的10个进程:"
 msgid "System Load Check OK"
 msgstr "系统负载检查正常"
 
-msgid "load [${loadave} <= ${WARN_LIMIT}]"
+msgid "load [${loadave}]"
 msgstr "系统负载为${loadave}"
