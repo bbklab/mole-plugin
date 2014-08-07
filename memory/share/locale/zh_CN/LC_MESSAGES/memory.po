@@ -22,11 +22,23 @@ msgstr "\n"
 msgid "File: [/proc/meminfo] not prepared."
 msgstr "[/proc/meminfo] 文件不存在或不可读."
 
+msgid "mem_uplimit [${mem_uplimit}] warn threshold must lower than crit threshold."
+msgstr "配置mem_uplimit [${mem_uplimit}] 警告阈值必须小于故障阈值."
+
+msgid "mem_uplimit [${mem_uplimit}] is invalid multi threshold on int or float check."
+msgstr "配置mem_uplimit [${mem_uplimit}] 每个阈值都应该是整数或小数."
+
 msgid "mem_uplimit [${mem_uplimit}] should be int or float."
 msgstr "配置mem_uplimit [${mem_uplimit}] 应该是整数或小数."
 
+msgid "swp_uplimit [${swp_uplimit}] warn threshold must lower than crit threshold."
+msgstr "配置swp_uplimit [${swp_uplimit}] 警告阈值必须小于故障阈值."
+
+msgid "swp_uplimit [${swp_uplimit}] is invalid multi threshold on int or float check."
+msgstr "置swp_uplimit [${swp_uplimit}] 每个阈值都应该是整数或小数."
+
 msgid "swp_uplimit [${swp_uplimit}] should be int or float."
-msgstr "配置swp_uplimit [${swp_uplimit}]应该是整数或小数."
+msgstr "配置swp_uplimit [${swp_uplimit}] 应该是整数或小数."
 
 msgid "memory total=[${mem_total}] or memory free=[${mem_free}] is not numberic."
 msgstr "内存总大小${total} 或内存使用大小${free} 非数字"
@@ -52,22 +64,34 @@ msgstr "内存总大小${mem_total}M  空闲大小${mem_free}M"
 msgid "total=${swp_total}M  free=${swp_free}M"
 msgstr "交换总大小${swp_total}M  空闲大小${swp_free}M"
 
-msgid "Memory Usage: [${mem_percent}]% >= Uplimit: [${mem_uplimit}%]"
-msgstr "内存使用率为${mem_percent}%,  超出上限${mem_uplimit}%"
+msgid "Memory Usage: [${mem_percent}]% >= Crit Uplimit: [${MEM_CRIT_LIMIT}%]"
+msgstr "内存使用率为${mem_percent}%,  超出故障上限${MEM_CRIT_LIMIT}%"
 
-msgid "Memory Usage: [${mem_percent}]% <= Uplimit: [${mem_uplimit}%]"
+msgid "Memory Usage: [${mem_percent}]% >= Warn Uplimit: [${MEM_WARN_LIMIT}%]"
+msgstr "内存使用率为${mem_percent}%,  超出警告上限${MEM_WARN_LIMIT}%"
+
+msgid "Memory Usage: [${mem_percent}]%"
 msgstr "内存使用率为${mem_percent}%"
 
-msgid "Swap Usage: [${swp_percent}]% >= Uplimit: [${swp_uplimit}%]"
-msgstr "交换使用率为${swp_percent}%, 超出上限${swp_uplimit}%"
+msgid "Swap Usage: [${swp_percent}]% >= Crit Uplimit: [${SWP_CRIT_LIMIT}%]"
+msgstr "交换使用率为${swp_percent}%, 超出故障上限${SWP_CRIT_LIMIT}%"
 
-msgid "Swap Usage: [${swp_percent}]% <= Uplimit: [${swp_uplimit}%]"
+msgid "Swap Usage: [${swp_percent}]% >= Warn Uplimit: [${SWP_WARN_LIMIT}%]"
+msgstr "交换使用率为${swp_percent}%, 超出警告上限${SWP_WARN_LIMIT}%"
+
+msgid "Swap Usage: [${swp_percent}]%"
 msgstr "交换使用率为${swp_percent}%"
+
+msgid "Memory/Swap Usage Check CRITICAL"
+msgstr "内存/交换使用率检查故障"
+
+msgid "${critnum}/${total} check critical."
+msgstr "${critnum}/${total} 项检查故障."
 
 msgid "Memory/Swap Usage Check WARNING"
 msgstr "内存/交换使用率检查告警"
 
-msgid "${warnnum}/${total} check failed."
+msgid "${warnnum}/${total} check warning."
 msgstr "${warnnum}/${total} 项检查告警."
 
 msgid "RSZ_TOP:"

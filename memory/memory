@@ -100,24 +100,68 @@ check(){
 	return
   fi
 
-  if is_float "${mem_uplimit}" || is_int "${mem_uplimit}" ; then
-	:
+  local MEM_WARN_LIMIT= MEM_CRIT_LIMIT=
+  if is_multi_threshold "${mem_uplimit}"; then
+	if check_multi_threshold "${mem_uplimit}" 3; then
+		local ARRY_LIMIT=( $(seperate_multi_threshold "${mem_uplimit}" 2>&- ) )
+		MEM_WARN_LIMIT=${ARRY_LIMIT[0]}
+		MEM_CRIT_LIMIT=${ARRY_LIMIT[1]}
+		if [ "$(echo "${MEM_WARN_LIMIT} >= ${MEM_CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+			EXIT_STATUS=${STATE_UNKN};
+			LEVEL="unkn";
+			TYPE="str";
+			CONTENT="$(eval_gettext "mem_uplimit [\${mem_uplimit}] warn threshold must lower than crit threshold.")";
+			return
+		fi
+	else
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "mem_uplimit [\${mem_uplimit}] is invalid multi threshold on int or float check.")";
+		return
+	fi
   else
-	EXIT_STATUS=${STATE_UNKN};
-	LEVEL="unkn";
-	TYPE="str";
-	CONTENT="$(eval_gettext "mem_uplimit [\${mem_uplimit}] should be int or float.")";
-	return
+  	if is_float "${mem_uplimit}" || is_int "${mem_uplimit}" ; then
+		MEM_CRIT_LIMIT="${mem_uplimit}"
+  	else
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "mem_uplimit [\${mem_uplimit}] should be int or float.")";
+		return
+  	fi
   fi
 
-  if is_float "${swp_uplimit}" || is_int "${swp_uplimit}" ; then
-	:
+  local SWP_WARN_LIMIT= SWP_CRIT_LIMIT=
+  if is_multi_threshold "${swp_uplimit}"; then
+	if check_multi_threshold "${swp_uplimit}" 3; then
+		local ARRY_LIMIT=( $(seperate_multi_threshold "${swp_uplimit}" 2>&- ) )
+		SWP_WARN_LIMIT=${ARRY_LIMIT[0]}
+		SWP_CRIT_LIMIT=${ARRY_LIMIT[1]}
+		if [ "$(echo "${SWP_WARN_LIMIT} >= ${SWP_CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+			EXIT_STATUS=${STATE_UNKN};
+			LEVEL="unkn";
+			TYPE="str";
+			CONTENT="$(eval_gettext "swp_uplimit [\${swp_uplimit}] warn threshold must lower than crit threshold.")";
+			return
+		fi
+	else
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "swp_uplimit [\${swp_uplimit}] is invalid multi threshold on int or float check.")";
+		return
+	fi
   else
-	EXIT_STATUS=${STATE_UNKN};
-	LEVEL="unkn";
-	TYPE="str";
-	CONTENT="$(eval_gettext "swp_uplimit [\${swp_uplimit}] should be int or float.")";
-	return
+  	if is_float "${swp_uplimit}" || is_int "${swp_uplimit}" ; then
+		SWP_CRIT_LIMIT="${swp_uplimit}"
+  	else
+		EXIT_STATUS=${STATE_UNKN};
+		LEVEL="unkn";
+		TYPE="str";
+		CONTENT="$(eval_gettext "swp_uplimit [\${swp_uplimit}] should be int or float.")";
+		return
+  	fi
   fi
 
   # collect data
@@ -200,36 +244,48 @@ check(){
 	exit
   }
 
-  oknum=0 warnnum=0 total=0 result=
+  oknum=0 critnum=0 warnnum=0 total=0 result=
   mem_total=$((${mem_total}/1024))  mem_free=$((${mem_free}/1024))
   mem_detail="$(eval_gettext "total=\${mem_total}M  free=\${mem_free}M")"
-  if [ "$(echo  "${mem_percent} >= ${mem_uplimit}" | bc 2>&-)" == "1" ]; then
+  if [ -n "${MEM_CRIT_LIMIT}" ] && [ "$(echo  "${mem_percent} >= ${MEM_CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+	((critnum++))
+	result="${result} ### $(html_red "$(eval_gettext "Memory Usage: [\${mem_percent}]% >= Crit Uplimit: [\${MEM_CRIT_LIMIT}%]")") ### ${mem_detail} ###"
+  elif [ -n "${MEM_WARN_LIMIT}" ] && [ "$(echo  "${mem_percent} >= ${MEM_WARN_LIMIT}" | bc 2>&-)" == "1" ]; then
 	((warnnum++))
-	result="${result} ### $(html_red "$(eval_gettext "Memory Usage: [\${mem_percent}]% >= Uplimit: [\${mem_uplimit}%]")") ### ${mem_detail} ###"
+	result="${result} ### $(html_red "$(eval_gettext "Memory Usage: [\${mem_percent}]% >= Warn Uplimit: [\${MEM_WARN_LIMIT}%]")") ### ${mem_detail} ###"
   else
 	((oknum++))
-	result="${result} ### $(eval_gettext "Memory Usage: [\${mem_percent}]% <= Uplimit: [\${mem_uplimit}%]") ### ${mem_detail} ###"
+	result="${result} ### $(eval_gettext "Memory Usage: [\${mem_percent}]%") ### ${mem_detail} ###"
   fi
 
   swp_total=$((${swp_total}/1024)) swp_free=$((${swp_free}/1024))
   swp_detail="$(eval_gettext "total=\${swp_total}M  free=\${swp_free}M")"
-  if [ "$(echo  "${swp_percent} >= ${swp_uplimit}" | bc 2>&-)" == "1" ]; then
+  if [ -n "${SWP_CRIT_LIMIT}" ] && [ "$(echo  "${swp_percent} >= ${SWP_CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+	((critnum++))
+	result="${result} ### $(html_red "$(eval_gettext "Swap Usage: [\${swp_percent}]% >= Crit Uplimit: [\${SWP_CRIT_LIMIT}%]")") ### ${swp_detail} ###"
+  elif [ -n "${SWP_WARN_LIMIT}" ] && [ "$(echo  "${swp_percent} >= ${SWP_WARN_LIMIT}" | bc 2>&-)" == "1" ]; then
 	((warnnum++))
-	result="${result} ### $(html_red "$(eval_gettext "Swap Usage: [\${swp_percent}]% >= Uplimit: [\${swp_uplimit}%]")") ### ${swp_detail} ###"
+	result="${result} ### $(html_red "$(eval_gettext "Swap Usage: [\${swp_percent}]% >= Warn Uplimit: [\${SWP_WARN_LIMIT}%]")") ### ${swp_detail} ###"
   else
 	((oknum++))
-	result="${result} ### $(eval_gettext "Swap Usage: [\${swp_percent}]% <= Uplimit: [\${swp_uplimit}%]") ### ${swp_detail} ###"
+	result="${result} ### $(eval_gettext "Swap Usage: [\${swp_percent}]%") ### ${swp_detail} ###"
   fi
 
-  total=$((${warnnum}+${oknum}))
-  if [ ${warnnum} -gt 0 ]; then
+  total=$((${critnum}+${warnnum}+${oknum}))
+  if [ ${critnum} -gt 0 ]; then
+	local rsz_top_ps=$(ps -eo pid,comm,rsz|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
+	local vsz_top_ps=$(ps -eo pid,comm,vsz|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
+	EXIT_STATUS=${STATE_CRIT};
+	LEVEL="crit";
+	TYPE="str";
+	CONTENT="$(gettext "Memory/Swap Usage Check CRITICAL") | $(eval_gettext "\${critnum}/\${total} check critical.") | ${result} ### $(gettext "RSZ_TOP:") ### ${rsz_top_ps} ### ###  $(gettext "VSZ_TOP:") ### ${vsz_top_ps}"
+  elif [ ${warnnum} -gt 0 ]; then
 	local rsz_top_ps=$(ps -eo pid,comm,rsz|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
 	local vsz_top_ps=$(ps -eo pid,comm,vsz|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
 	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
-	CONTENT="$(gettext "Memory/Swap Usage Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check failed.") | ${result} ### $(gettext "RSZ_TOP:") ### ${rsz_top_ps} ### ###  $(gettext "VSZ_TOP:") ### ${vsz_top_ps}"
-	((oknum++))
+	CONTENT="$(gettext "Memory/Swap Usage Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check warning.") | ${result} ### $(gettext "RSZ_TOP:") ### ${rsz_top_ps} ### ###  $(gettext "VSZ_TOP:") ### ${vsz_top_ps}"
   else
 	EXIT_STATUS=${STATE_SUCC};
 	LEVEL="succ";
