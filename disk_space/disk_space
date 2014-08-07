@@ -123,27 +123,91 @@ check(){
 	return
   fi
 
-  if is_int "${space_pct}" && is_between "${space_pct}" "0" "100"; then
-        :
+  local SPACE_WARN_LIMIT= SPACE_CRIT_LIMIT=
+  if is_multi_threshold "${space_pct}"; then
+	local ARRY_LIMIT=( $(seperate_multi_threshold "${space_pct}" 2>&- ) )
+	SPACE_WARN_LIMIT=${ARRY_LIMIT[0]}
+	SPACE_CRIT_LIMIT=${ARRY_LIMIT[1]}
+	if is_int "${SPACE_WARN_LIMIT}" && is_between "${SPACE_WARN_LIMIT}" "0" "100"; then
+		:
+	else
+        	EXIT_STATUS=${STATE_UNKN};
+        	LEVEL="unkn";
+        	TYPE="str";
+        	CONTENT="$(eval_gettext "space_pct [\${space_pct}] warn threshold should be int and between 0-100.")";
+        	return
+	fi
+	if is_int "${SPACE_CRIT_LIMIT}" && is_between "${SPACE_CRIT_LIMIT}" "0" "100"; then
+		:
+	else
+        	EXIT_STATUS=${STATE_UNKN};
+        	LEVEL="unkn";
+        	TYPE="str";
+        	CONTENT="$(eval_gettext "space_pct [\${space_pct}] crit threshold should be int and between 0-100.")";
+        	return
+	fi
+	if [ "$(echo "${SPACE_WARN_LIMIT} >= ${SPACE_CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+        	EXIT_STATUS=${STATE_UNKN};
+        	LEVEL="unkn";
+        	TYPE="str";
+        	CONTENT="$(eval_gettext "space_pct [\${space_pct}] warn threshold must lower than crit threshold.")";
+		return
+	fi
   else
-        EXIT_STATUS=${STATE_UNKN};
-        LEVEL="unkn";
-        TYPE="str";
-        CONTENT="$(eval_gettext "space_pct [\${space_pct}] should be int and between 0-100.")";
-        return
+  	if is_int "${space_pct}" && is_between "${space_pct}" "0" "100"; then
+        	SPACE_CRIT_LIMIT="${space_pct}"		# set single threshold as crit-threshold
+  	else
+        	EXIT_STATUS=${STATE_UNKN};
+        	LEVEL="unkn";
+        	TYPE="str";
+        	CONTENT="$(eval_gettext "space_pct [\${space_pct}] should be int and between 0-100.")";
+        	return
+  	fi
   fi
 
-  if is_int "${inode_pct}" && is_between "${inode_pct}" "0" "100"; then
-        :
+  local INODE_WARN_LIMIT= INODE_CRIT_LIMIT=
+  if is_multi_threshold "${inode_pct}"; then
+	local ARRY_LIMIT=( $(seperate_multi_threshold "${inode_pct}" 2>&- ) )
+	INODE_WARN_LIMIT=${ARRY_LIMIT[0]}
+	INODE_CRIT_LIMIT=${ARRY_LIMIT[1]}
+	if is_int "${INODE_WARN_LIMIT}" && is_between "${INODE_WARN_LIMIT}" "0" "100"; then
+		:
+	else
+        	EXIT_STATUS=${STATE_UNKN};
+        	LEVEL="unkn";
+        	TYPE="str";
+        	CONTENT="$(eval_gettext "inode_pct [\$inode_pct}] warn threshold should be int and between 0-100.")";
+        	return
+	fi
+	if is_int "${INODE_CRIT_LIMIT}" && is_between "${INODE_CRIT_LIMIT}" "0" "100"; then
+		:
+	else
+        	EXIT_STATUS=${STATE_UNKN};
+        	LEVEL="unkn";
+        	TYPE="str";
+        	CONTENT="$(eval_gettext "inode_pct [\${inode_pct}] crit threshold should be int and between 0-100.")";
+        	return
+	fi
+	if [ "$(echo "${INODE_WARN_LIMIT} >= ${INODE_CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+        	EXIT_STATUS=${STATE_UNKN};
+        	LEVEL="unkn";
+        	TYPE="str";
+        	CONTENT="$(eval_gettext "inode_pct [\${inode_pct}] warn threshold must lower than crit threshold.")";
+		return
+	fi
   else
-        EXIT_STATUS=${STATE_UNKN};
-        LEVEL="unkn";
-        TYPE="str";
-        CONTENT="$(eval_gettext "inode_pct [\${inode_pct}] should be int and between 0-100.")";
-        return
+  	if is_int "${inode_pct}" && is_between "${inode_pct}" "0" "100"; then
+        	INODE_CRIT_LIMIT="${inode_pct}"		# set single threshold as crit-threshold
+  	else
+        	EXIT_STATUS=${STATE_UNKN};
+        	LEVEL="unkn";
+        	TYPE="str";
+        	CONTENT="$(eval_gettext "inode_pct [\${inode_pct}] should be int and between 0-100.")";
+        	return
+  	fi
   fi
 
-  local result= mpoint= warnnum=0
+  local result= mpoint= warnnum=0 critnum=0
 
   result="### $(gettext "Space Check") ### "
   for t in `echo "${fstype}"`
@@ -182,9 +246,12 @@ check(){
 		fi
 
 		# check spare space percent
-		if [ "$( echo "${used_pct}>${space_pct}" | bc 2>&- )" == "1" ]; then
+		if [ -n "${SPACE_CRIT_LIMIT}" ] && [ "$(echo  "${used_pct}>${SPACE_CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+			((critnum++))
+			result="${result} $(html_red "$(eval_gettext "\${device} -> \${mount} (\${fstype}), size: \${size}G,  used: \${used}G, used percent: \${used_pct}% > \${SPACE_CRIT_LIMIT}%")") ### "
+		elif [ -n "${SPACE_WARN_LIMIT}" ] && [ "$( echo "${used_pct}>${SPACE_WARN_LIMIT}" | bc 2>&- )" == "1" ]; then
 			((warnnum++))
-			result="${result} $(html_red "$(eval_gettext "\${device} -> \${mount} (\${fstype}), size: \${size}G,  used: \${used}G, used percent: \${used_pct}% > \${space_pct}%")") ### "
+			result="${result} $(html_red "$(eval_gettext "\${device} -> \${mount} (\${fstype}), size: \${size}G,  used: \${used}G, used percent: \${used_pct}% > \${SPACE_WARN_LIMIT}%")") ### "
 		else
 			result="${result} $(eval_gettext "\${device} -> \${mount} (\${fstype}), size: \${size}G, used: \${used}G, used percent: \${used_pct}%") ###"
 		fi
@@ -226,9 +293,12 @@ check(){
          	fi  
 
 		# check inode spare percent
-		if [ "$(echo "${used_pct}>${inode_pct}" | bc 2>&-)" == "1" ]; then
+		if [ -n "${INODE_CRIT_LIMIT}" ] && [ "$(echo  "${used_pct}>${INODE_CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+			((critnum++))
+			result="${result} $(html_red "$(eval_gettext "\${device} -> \${mount} (\${fstype}), size: \${size}, used: \${used}, used percent: \${used_pct}% > \${INODE_CRIT_LIMIT}%")") ###"
+		elif [ -n "${INODE_WARN_LIMIT}" ] && [ "$(echo "${used_pct}>${INODE_WARN_LIMIT}" | bc 2>&-)" == "1" ]; then
 			((warnnum++))
-			result="${result} $(html_red "$(eval_gettext "\${device} -> \${mount} (\${fstype}), size: \${size}, used: \${used}, used percent: \${used_pct}% > \${inode_pct}%")") ###"
+			result="${result} $(html_red "$(eval_gettext "\${device} -> \${mount} (\${fstype}), size: \${size}, used: \${used}, used percent: \${used_pct}% > \${INODE_WARN_LIMIT}%")") ###"
 		else
 			result="${result} $(eval_gettext "\${device} -> \${mount} (\${fstype}), size: \${size}, used: \${used}, used percent: \${used_pct}%") ###"
 		fi
@@ -238,17 +308,22 @@ check(){
   # exit if MODE=1
   [ "${MODE}" == "1" ] && exit;
 
-  [ "${warnnum}" -gt "0" ] && {
+  if [ "${critnum}" -gt "0" ]; then
+	EXIT_STATUS=${STATE_CRIT};
+	LEVEL="crit";
+	TYPE="str";
+	CONTENT="$(gettext "Disk Space Check CRITICAL") | $(eval_gettext "\${critnum} check failed.") | ${result} "
+  elif [ "${warnnum}" -gt "0" ]; then
 	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
 	CONTENT="$(gettext "Disk Space Check WARNING") | $(eval_gettext "\${warnnum} check failed.") | ${result} "
-  } || {
+  else
 	EXIT_STATUS="${STATE_SUCC}"
 	LEVEL="succ"
 	TYPE="str"
 	CONTENT="$(gettext "Disk Space Check OK") | $(gettext "disk-space, disk-inode check success.") | ${result} "
-  }
+  fi
 }
 
 check

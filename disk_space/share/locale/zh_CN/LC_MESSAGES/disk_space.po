@@ -25,6 +25,24 @@ msgstr "[/bin/df] 不存在或没有执行权限."
 msgid "File: [/etc/mtab] not prepared."
 msgstr "[/etc/mtab] 文件不存在或为空文件."
 
+msgid "space_pct [${space_pct}] warn threshold should be int and between 0-100."
+msgstr "space_pct配置 [${space_pct}] 告警阈值应该是0-100之间的整数."
+
+msgid "space_pct [${space_pct}] crit threshold should be int and between 0-100."
+msgstr "space_pct配置 [${space_pct}] 故障阈值应该是0-100之间的整数."
+
+msgid "space_pct [${space_pct}] warn threshold must lower than crit threshold."
+msgstr "space_pct配置 [${space_pct}] 告警阈值必须小于故障阈值."
+
+msgid "inode_pct [$inode_pct}] warn threshold should be int and between 0-100."
+msgstr "inode_pct配置 [${inode_pct}] 告警阈值应该是0-100之间的整数."
+
+msgid "inode_pct [${inode_pct}] crit threshold should be int and between 0-100."
+msgstr "inode_pct配置 [${inode_pct}] 故障阈值应该是0-100之间的整数."
+
+msgid "inode_pct [${inode_pct}] warn threshold must lower than crit threshold."
+msgstr "inode_pct配置 [${inode_pct}] 告警阈值必须小于故障阈值."
+
 msgid "space_pct [${space_pct}] should be int and between 0-100."
 msgstr "space_pct配置 [${space_pct}] 应该是0-100之间的整数."
 
@@ -43,8 +61,11 @@ msgstr "挂载点{m}, 使用率字段格式无法识别: ${fpercent}"
 msgid "mount point ${fmount} SKIP"
 msgstr "跳过挂载点 ${fmount} 的检查"
 
-msgid "${device} -> ${mount} (${fstype}), size: ${size}G,  used: ${used}G, used percent: ${used_pct}% > ${space_pct}%"
-msgstr "设备: ${device}, 挂载点:${mount}(${fstype}), 空间已用${used}G/${size}G(${used_pct}%) > ${space_pct}%"
+msgid "${device} -> ${mount} (${fstype}), size: ${size}G,  used: ${used}G, used percent: ${used_pct}% > ${SPACE_CRIT_LIMIT}%"
+msgstr "设备: ${device}, 挂载点:${mount}(${fstype}), 空间已用${used}G/${size}G(${used_pct}%) > ${SPACE_CRIT_LIMIT}%"
+
+msgid "${device} -> ${mount} (${fstype}), size: ${size}G,  used: ${used}G, used percent: ${used_pct}% > ${SPACE_WARN_LIMIT}%"
+msgstr "设备: ${device}, 挂载点:${mount}(${fstype}), 空间已用${used}G/${size}G(${used_pct}%) > ${SPACE_WARN_LIMIT}%"
 
 msgid "${device} -> ${mount} (${fstype}), size: ${size}G, used: ${used}G, used percent: ${used_pct}%"
 msgstr "设备: ${device}, 挂载点:${mount}(${fstype}), 空间已用${used}G/${size}G(${used_pct}%)"
@@ -52,11 +73,20 @@ msgstr "设备: ${device}, 挂载点:${mount}(${fstype}), 空间已用${used}G/$
 msgid "Inode Check"
 msgstr "磁盘节点使用率检查"
 
-msgid "${device} -> ${mount} (${fstype}), size: ${size}, used: ${used}, used percent: ${used_pct}% > ${inode_pct}%"
-msgstr "设备: ${device}, 挂载点:${mount}(${fstype}), 节点已用${used}/${size}(${used_pct}%) > ${inode_pct}%"
+msgid "${device} -> ${mount} (${fstype}), size: ${size}, used: ${used}, used percent: ${used_pct}% > ${INODE_CRIT_LIMIT}%"
+msgstr "设备: ${device}, 挂载点:${mount}(${fstype}), 节点已用${used}/${size}(${used_pct}%) > ${INODE_CRIT_LIMIT}%"
+
+msgid "${device} -> ${mount} (${fstype}), size: ${size}, used: ${used}, used percent: ${used_pct}% > ${INODE_WARN_LIMIT}%"
+msgstr "设备: ${device}, 挂载点:${mount}(${fstype}), 节点已用${used}/${size}(${used_pct}%) > ${INODE_WARN_LIMIT}%"
 
 msgid "${device} -> ${mount} (${fstype}), size: ${size}, used: ${used}, used percent: ${used_pct}%"
 msgstr "设备: ${device}, 挂载点:${mount}(${fstype}), 节点已用${used}/${size}(${used_pct}%)"
+
+msgid "Disk Space Check CRITICAL"
+msgstr "磁盘使用率检查故障"
+
+msgid "${critnum} check failed."
+msgstr "${critnum} 项检查故障"
 
 msgid "Disk Space Check WARNING"
 msgstr "磁盘使用率检查告警"
