@@ -26,22 +26,22 @@ msgid "File: [/etc/mtab] not prepared."
 msgstr "[/etc/mtab] 文件不存在或为空文件."
 
 msgid "space_pct [${space_pct}] warn threshold should be int and between 0-100."
-msgstr "space_pct配置 [${space_pct}] 告警阈值应该是0-100之间的整数."
+msgstr "space_pct配置 [${space_pct}] 警告阈值应该是0-100之间的整数."
 
 msgid "space_pct [${space_pct}] crit threshold should be int and between 0-100."
 msgstr "space_pct配置 [${space_pct}] 故障阈值应该是0-100之间的整数."
 
 msgid "space_pct [${space_pct}] warn threshold must lower than crit threshold."
-msgstr "space_pct配置 [${space_pct}] 告警阈值必须小于故障阈值."
+msgstr "space_pct配置 [${space_pct}] 警告阈值必须小于故障阈值."
 
 msgid "inode_pct [$inode_pct}] warn threshold should be int and between 0-100."
-msgstr "inode_pct配置 [${inode_pct}] 告警阈值应该是0-100之间的整数."
+msgstr "inode_pct配置 [${inode_pct}] 警告阈值应该是0-100之间的整数."
 
 msgid "inode_pct [${inode_pct}] crit threshold should be int and between 0-100."
 msgstr "inode_pct配置 [${inode_pct}] 故障阈值应该是0-100之间的整数."
 
 msgid "inode_pct [${inode_pct}] warn threshold must lower than crit threshold."
-msgstr "inode_pct配置 [${inode_pct}] 告警阈值必须小于故障阈值."
+msgstr "inode_pct配置 [${inode_pct}] 警告阈值必须小于故障阈值."
 
 msgid "space_pct [${space_pct}] should be int and between 0-100."
 msgstr "space_pct配置 [${space_pct}] 应该是0-100之间的整数."
