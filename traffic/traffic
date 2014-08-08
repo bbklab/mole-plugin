@@ -158,7 +158,7 @@ check_single(){
 		if is_float "${ibytes_limit}" || is_int "${ibytes_limit}"; then
 			IB_CRIT_LIMIT="${ibytes_limit}"
 		else
-			output="$(html_red "$(eval_gettext "ibytes_limit [\${orig_ibytes_limit}] not recognized")") ### ### "
+			output="$(html_red "$(eval_gettext "ibytes_limit [\${orig_ibytes_limit}] should be int or float")") ### ### "
 			echo "${output}"
 			return 2
 		fi
@@ -196,7 +196,7 @@ check_single(){
 		if is_float "${obytes_limit}" || is_int "${obytes_limit}"; then
 			OB_CRIT_LIMIT="${obytes_limit}"
 		else
-			output="$(html_red "$(gettext "obytes_limit [\${orig_obytes_limit}] not recognized")") ### ### "
+			output="$(html_red "$(eval_gettext "obytes_limit [\${orig_obytes_limit}] should be int or float")") ### ### "
 			echo "${output}"
 			return 2
 		fi
@@ -227,7 +227,7 @@ check_single(){
 		if is_int "${ipacks_limit}"; then
 			IP_CRIT_LIMIT="${ipacks_limit}"
 		else
-			output="$(html_red "$(gettext "ipacks_limit [\${ipacks_limit}] must be int")") ### ### "
+			output="$(html_red "$(eval_gettext "ipacks_limit [\${ipacks_limit}] must be int")") ### ### "
 			echo "${output}"
 			return 2
 		fi
@@ -258,7 +258,7 @@ check_single(){
 		if is_int "${opacks_limit}"; then
 			OP_CRIT_LIMIT="${opacks_limit}"
 		else
-			output="$(html_red "$(gettext "opacks_limit [\${opacks_limit}] must be int")") ### ### "
+			output="$(html_red "$(eval_gettext "opacks_limit [\${opacks_limit}] must be int")") ### ### "
 			echo "${output}"
 			return 2
 		fi
@@ -416,12 +416,12 @@ check_single(){
 	EXIT_STATUS=${STATE_CRIT};
 	LEVEL="crit";
 	TYPE="str";
-	CONTENT="$(gettext  "Traffic Flow Check CRITCAL") | $(eval_gettext "\${critnum}/\${total} interface check critical.") | "${result}" "
+	CONTENT="$(gettext "Traffic Flow Check CRITCAL") | $(eval_gettext "\${critnum}/\${total} interface check critical.") | "${result}" "
   elif [ ${warnnum} -gt 0 ]; then
 	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
-	CONTENT="$(gettext  "Traffic Flow Check WARNING") | $(eval_gettext "\${warnnum}/\${total} interface check warning.") | "${result}" "
+	CONTENT="$(gettext "Traffic Flow Check WARNING") | $(eval_gettext "\${warnnum}/\${total} interface check warning.") | "${result}" "
   elif [ ${oknum} -eq ${total} ]; then
 	EXIT_STATUS=${STATE_SUCC};
 	LEVEL="succ";
