@@ -91,136 +91,286 @@ else
 	interval=3; count=10;	### set capture count and sleep interval.
 fi
 
-
-# if null or invalid set default.
-netdev_default="eth0"
-limit_default="30M/s:50M/s:0:0"
-netdev=
-if [ -z "${ifdev_lst}" ]; then
-	netdev=$( get_inetorder 2>&- | awk '{print $1;exit;}' )
-	if [ -z "${netdev}" ]; then
-		netdev="${netdev_default}"
-	fi
-	ifdev_lst=" ${netdev}:${limit_default} "
-fi
-
 # check function here
 check(){
+  if [ -z "${ifdev_lst}" ]; then
+	EXIT_STATUS=${STATE_UNKN};
+	LEVEL="unkn";
+	TYPE="str";
+	CONTENT="$(gettext "config ifdev_lst not defined.")"
+	return
+  fi
 
-### return code: 0|1|2
+### return code: 0|1|2|3
 #  0: OK
 #  1: WARN
 #  2: UNKNOWN
+#  3: CRITICAL
 check_single(){
 
   local inet_face=$1 ibytes_limit=$2 obytes_limit=$3 ipacks_limit=$4 opacks_limit=$5
-  local return_code=0
+  local crit=0  warn=0
   local output=
 
-  local iblimit_m=$( echo -e "${ibytes_limit}" | awk -F"[Mm]/s" '{print $1}' )
-  local oblimit_m=$( echo -e "${obytes_limit}" | awk -F"[Mm]/s" '{print $1}' )
+  #
+  # --*-- < if unkn directly return > --*--
+  #
 
-  if [ -z "${ipacks_limit}" ] || [ ! -z "${ipacks_limit//[0-9]}" ]; then
-	ipacks_limit=0  ### set default, 0 means unlimited
-  fi
-  if [ -z "${opacks_limit}" ] || [ ! -z "${opacks_limit//[0-9]}" ]; then
-	opacks_limit=0  ### set default, 0 means unlimited
-  fi
-
-  if [ -z "${inet_face}" ] || [ -z "${ibytes_limit}" ] || [ -z "${obytes_limit}" ]; then     ### return UNKNOWN
-	output="$(html_red "$(gettext "inet_face/ibytes_limit/obytes_limit required:") inet_face=[${inet_face}], ibytes_limit=[${ibytes_limit}], obytes_limit=[${obytes_limit}]") ### ### "
-	return_code=2
+  # 1. check inet_face
+  if [ -z "${inet_face}" ]; then
+	output="$(html_red "$(gettext "inet_face required")") ### ### "
+	echo "${output}"
+	return 2
   elif [ ! -d "/sys/class/net/${inet_face}" ]; then
-	output="$(html_red "$(eval_gettext "[/sys/class/net/\${inet_face}] not an exists direcoty, maybe interface [\${inet_face}] not exists")") ### ### "
-	return_code=2
-  elif [ -z "${iblimit_m}" ] || [ ! -z "${iblimit_m//[0-9.]}" ] || [ -z "${oblimit_m}" ] || [ ! -z "${oblimit_m//[0-9.]}" ]; then
-	output="$(html_red "$(eval_gettext "ibytes_limit=[\${ibytes_limit}] or obytes_limit=[\${obytes_limit}] format unrecognised.")") ### ### "
-	return_code=2
-  else
-	local ibytes=0 obytes=0 ipacks=0 opacks=0
-	local l_ibytes=0 l_obytes=0 l_ipacks=0 l_opacks=0
-	local ib=0 ob=0 ip=0 op=0
-
- 	for ((i=0;i<=${count};i++))
-	do 
-		### another way is reading file: /proc/net/dev
-		ibytes=$(cat /sys/class/net/${inet_face}/statistics/rx_bytes 2>&-)
-		obytes=$(cat /sys/class/net/${inet_face}/statistics/tx_bytes 2>&-)
-		ipacks=$(cat /sys/class/net/${inet_face}/statistics/rx_packets 2>&-)
-		opacks=$(cat /sys/class/net/${inet_face}/statistics/tx_packets 2>&-)
-		if ! is_int "${ibytes}" || ! is_int "${obytes}"; then
-			output="${output} $(html_red "[${inet_face}:${i}] ibytes=[${ibytes}], obytes=[${obytes}] $(gettext "not numberic")") ### ### "
-			echo -e "${output}"
-			return 2
-		elif ! is_int "${ipacks}" || ! is_int "${opacks}"; then
-			output="${output} $(html_red "[${inet_face}:${i}] ipacks=[${ipacks}], opacks=[${opacks}] $(gettext "not numberic")") ### ### "
-			echo -e "${output}"
-			return 2
-		else
-			[ "${l_ibytes}" == "0" ] && l_ibytes=${ibytes}
-			[ "${l_obytes}" == "0" ] && l_obytes=${obytes}
-			[ "${l_ipacks}" == "0" ] && l_ipacks=${ipacks}
-			[ "${l_opacks}" == "0" ] && l_opacks=${opacks}
-			ib=$(( ${ibytes} - ${l_ibytes} )); ((ib+=${ib}))
-			ob=$(( ${obytes} - ${l_obytes} )); ((ob+=${ob}))
-			ip=$(( ${ipacks} - ${l_ipacks} )); ((ip+=${ip}))
-			op=$(( ${opacks} - ${l_opacks} )); ((op+=${op}))
-			sleep ${interval}
-		fi
-	done
-	
-	ib_rate_b=$(( ${ib} / (${count} * ${interval}) ))
-	ib_rate_m=$( echo -e "scale=3; ${ib_rate_b}/1024/1024" | bc 2>&- )
-	ob_rate_b=$(( ${ob} / (${count} * ${interval}) ))
-	ob_rate_m=$( echo -e "scale=3; ${ob_rate_b}/1024/1024" | bc 2>&- )
-	ip_rate=$(( ${ip} / (${count} * ${interval}) ))
-	op_rate=$(( ${op} / (${count} * ${interval}) ))
-
-	# human readable
-  	if (echo -e "${ib_rate_m}" | grep -E -o "^\.") >/dev/null 2>&1; then
-        	ib_rate_m="0${ib_rate_m}"
-  	fi  
-  	if (echo -e "${ob_rate_m}" | grep -E -o "^\.") >/dev/null 2>&1; then
-        	ob_rate_m="0${ob_rate_m}"
-  	fi  
-
-	if [ "$( echo "${ib_rate_m} >= ${iblimit_m}" | bc 2>&- )" == "1" ]; then
-		return_code=1
-		output="${output} $(html_red "$(gettext "bytes flowin rate:") ${ib_rate_m}M/s") ### "
-	else
-		output="${output} $(gettext "bytes flowin rate:") ${ib_rate_m}M/s ### "
-	fi
-	if [ "$( echo "${ob_rate_m} >= ${oblimit_m}" | bc 2>&- )" == "1" ]; then
-		return_code=1
-		output="${output} $(html_red "$(gettext "bytes flowout rate:") ${ob_rate_m}M/s") ### "
-	else
-		output="${output} $(gettext "bytes flowout rate:") ${ob_rate_m}M/s ### "
-	fi
-	if [ "${ipacks_limit}" == "0" ]; then
-		output="${output} $(gettext "packs flowin rate:") ${ip_rate}/s (unlimited) ### "
-	elif [ "$( echo "${ip_rate} >= ${ipacks_limit}" | bc 2>&- )" == "1" ]; then
-		return_code=1
-		output="${output} $(html_red "$(gettext "packs flowin rate:") ${ip_rate}/s") ### "
-	else
-		output="${output} $(gettext "packs flowin rate:") ${ip_rate}/s ### "
-	fi
-	if [ "${opacks_limit}" == "0" ]; then
-		output="${output} $(gettext "packs flowout rate:") ${op_rate}/s (unlimited) ### "
-	elif [ "$( echo "${op_rate} >= ${opacks_limit}" | bc 2>&- )" == "1" ]; then
-		return_code=1
-		output="${output} $(html_red "$(gettext "packs flowout rate:") ${op_rate}/s") ### "
-	else
-		output="${output} $(gettext "packs flowout rate:") ${op_rate}/s ### "
-	fi
-	output="${output} ### "
+	output="$(html_red "$(eval_gettext "inet interface [\${inet_face}] not exists")") ### ### "
+	echo "${output}"
+	return 2
   fi
+
+  # 2. check ibytes_limit
+  if [ -z "${ibytes_limit}" ]; then
+	output="$(html_red "$(gettext "ibytes_limit required")") ### ### "
+	echo "${output}"
+	return 2
+  else
+	# save original ibytes_limit
+	local orig_ibytes_limit="${ibytes_limit}"	
+	# reset ibytes_limit
+	ibytes_limit=$( echo -e "${ibytes_limit}" | sed -e 's#[Mm]/s##g' 2>&- )
+
+	local IB_WARN_LIMIT= IB_CRIT_LIMIT=
+	if is_multi_threshold "${ibytes_limit}"; then
+		if check_multi_threshold "${ibytes_limit}" 3; then
+			local ARRY_LIMIT=( $(seperate_multi_threshold "${ibytes_limit}" 2>&- ) )
+			IB_WARN_LIMIT=${ARRY_LIMIT[0]}
+			IB_CRIT_LIMIT=${ARRY_LIMIT[1]}
+			if [ "$(echo "${IB_WARN_LIMIT} >= ${IB_CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+				output="$(html_red "$(eval_gettext "ibytes_limit [\${orig_ibytes_limit}] warn threshold must lower than crit threshold.")") ### ### "
+				echo "${output}"
+				return 2
+			fi
+		else
+			output="$(html_red "$(eval_gettext "ibytes_limit [\${orig_ibytes_limit}] is invalid multi threshold on int or float check.")") ### ### "
+			echo "${output}"
+			return 2
+		fi
+	else
+		if is_float "${ibytes_limit}" || is_int "${ibytes_limit}"; then
+			IB_CRIT_LIMIT="${ibytes_limit}"
+		else
+			output="$(html_red "$(eval_gettext "ibytes_limit [\${orig_ibytes_limit}] not recognized")") ### ### "
+			echo "${output}"
+			return 2
+		fi
+	fi
+  fi
+
+  # 3. check obytes_limit
+  if [ -z "${obytes_limit}" ]; then
+	output="$(html_red "$(gettext "obytes_limit required")") ### ### "
+	echo "${output}"
+	return 2
+  else
+        # save original obytes_limit
+        local orig_obytes_limit="${obytes_limit}"
+        # reset obytes_limit
+        obytes_limit=$( echo -e "${obytes_limit}" | sed -e 's#[Mm]/s##g' 2>&- )
+
+	local OB_WARN_LIMIT= OB_CRIT_LIMIT=
+	if is_multi_threshold "${obytes_limit}"; then
+		if check_multi_threshold "${obytes_limit}" 3; then
+			local ARRY_LIMIT=( $(seperate_multi_threshold "${obytes_limit}" 2>&- ) )
+			OB_WARN_LIMIT=${ARRY_LIMIT[0]}
+			OB_CRIT_LIMIT=${ARRY_LIMIT[1]}
+			if [ "$(echo "${OB_WARN_LIMIT} >= ${OB_CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+				output="$(html_red "$(eval_gettext "obytes_limit [\${orig_obytes_limit}] warn threshold must lower than crit threshold.")") ### ### "
+				echo "${output}"
+				return 2
+			fi
+		else
+			output="$(html_red "$(eval_gettext "obytes_limit [\${orig_obytes_limit}] is invalid multi threshold on int or float check.")") ### ### "
+			echo "${output}"
+			return 2
+		fi
+	else
+		if is_float "${obytes_limit}" || is_int "${obytes_limit}"; then
+			OB_CRIT_LIMIT="${obytes_limit}"
+		else
+			output="$(html_red "$(gettext "obytes_limit [\${orig_obytes_limit}] not recognized")") ### ### "
+			echo "${output}"
+			return 2
+		fi
+	fi
+  fi
+
+  # 4. check ipacks_limit
+  if [ -z "${ipacks_limit}" ] || [ "${ipacks_limit}" == "0" ]; then
+	local IP_UNLIMITED=1            # 0 means unlimited
+  else
+	local IP_WARN_LIMIT= IP_CRIT_LIMIT=
+	if is_multi_threshold "${ipacks_limit}"; then
+		if check_multi_threshold "${ipacks_limit}" 1; then
+			local ARRY_LIMIT=( $(seperate_multi_threshold "${ipacks_limit}" 2>&- ) )
+			IP_WARN_LIMIT=${ARRY_LIMIT[0]}
+			IP_CRIT_LIMIT=${ARRY_LIMIT[1]}
+			if [ "$(echo "${IP_WARN_LIMIT} >= ${IP_CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+				output="$(html_red "$(eval_gettext "ipacks_limit [\${ipacks_limit}] warn threshold must lower than crit threshold.")") ### ### "
+				echo "${output}"
+				return 2
+			fi
+		else
+			output="$(html_red "$(eval_gettext "ipacks_limit [\${ipacks_limit}] is invalid multi threshold on int check.")") ### ### "
+			echo "${output}"
+			return 2
+		fi
+	else
+		if is_int "${ipacks_limit}"; then
+			IP_CRIT_LIMIT="${ipacks_limit}"
+		else
+			output="$(html_red "$(gettext "ipacks_limit [\${ipacks_limit}] must be int")") ### ### "
+			echo "${output}"
+			return 2
+		fi
+	fi
+  fi
+
+  # 5. check opacks_limit
+  if [ -z "${opacks_limit}" ] || [ "${opacks_limit}" == "0" ] ; then
+	local OP_UNLIMITED=1		# 0 means unlimited
+  else
+	local OP_WARN_LIMIT= OP_CRIT_LIMIT=
+	if is_multi_threshold "${opacks_limit}"; then
+		if check_multi_threshold "${opacks_limit}" 1; then
+			local ARRY_LIMIT=( $(seperate_multi_threshold "${opacks_limit}" 2>&- ) )
+			OP_WARN_LIMIT=${ARRY_LIMIT[0]}
+			OP_CRIT_LIMIT=${ARRY_LIMIT[1]}
+			if [ "$(echo "${OP_WARN_LIMIT} >= ${OP_CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+				output="$(html_red "$(eval_gettext "opacks_limit [\${opacks_limit}] warn threshold must lower than crit threshold.")") ### ### "
+				echo "${output}"
+				return 2
+			fi
+		else
+			output="$(html_red "$(eval_gettext "opacks_limit [\${opacks_limit}] is invalid multi threshold on int check.")") ### ### "
+			echo "${output}"
+			return 2
+		fi
+	else
+		if is_int "${opacks_limit}"; then
+			OP_CRIT_LIMIT="${opacks_limit}"
+		else
+			output="$(html_red "$(gettext "opacks_limit [\${opacks_limit}] must be int")") ### ### "
+			echo "${output}"
+			return 2
+		fi
+	fi
+  fi
+
+  # begin to collect netflow data
+  local ibytes=0 obytes=0 ipacks=0 opacks=0
+  local l_ibytes=0 l_obytes=0 l_ipacks=0 l_opacks=0
+  local ib=0 ob=0 ip=0 op=0
+
+  for ((i=0;i<=${count};i++))
+  do 
+	### another way is reading file: /proc/net/dev
+	ibytes=$(cat /sys/class/net/${inet_face}/statistics/rx_bytes 2>&-)
+	obytes=$(cat /sys/class/net/${inet_face}/statistics/tx_bytes 2>&-)
+	ipacks=$(cat /sys/class/net/${inet_face}/statistics/rx_packets 2>&-)
+	opacks=$(cat /sys/class/net/${inet_face}/statistics/tx_packets 2>&-)
+	if ! is_int "${ibytes}" || ! is_int "${obytes}"; then
+		output="${output} $(html_red "[${inet_face}:${i}] ibytes=[${ibytes}], obytes=[${obytes}] $(gettext "not numberic")") ### ### "
+		echo -e "${output}"
+		return 2
+	elif ! is_int "${ipacks}" || ! is_int "${opacks}"; then
+		output="${output} $(html_red "[${inet_face}:${i}] ipacks=[${ipacks}], opacks=[${opacks}] $(gettext "not numberic")") ### ### "
+		echo -e "${output}"
+		return 2
+	else
+		[ "${l_ibytes}" == "0" ] && l_ibytes=${ibytes}
+		[ "${l_obytes}" == "0" ] && l_obytes=${obytes}
+		[ "${l_ipacks}" == "0" ] && l_ipacks=${ipacks}
+		[ "${l_opacks}" == "0" ] && l_opacks=${opacks}
+		ib=$(( ${ibytes} - ${l_ibytes} )); ((ib+=${ib}))
+		ob=$(( ${obytes} - ${l_obytes} )); ((ob+=${ob}))
+		ip=$(( ${ipacks} - ${l_ipacks} )); ((ip+=${ip}))
+		op=$(( ${opacks} - ${l_opacks} )); ((op+=${op}))
+		sleep ${interval}
+	fi
+  done
+	
+  ib_rate_b=$(( ${ib} / (${count} * ${interval}) ))
+  ib_rate_m=$( echo -e "scale=3; ${ib_rate_b}/1024/1024" | bc 2>&- )
+  ob_rate_b=$(( ${ob} / (${count} * ${interval}) ))
+  ob_rate_m=$( echo -e "scale=3; ${ob_rate_b}/1024/1024" | bc 2>&- )
+  ip_rate=$(( ${ip} / (${count} * ${interval}) ))
+  op_rate=$(( ${op} / (${count} * ${interval}) ))
+
+  # human readable
+  if (echo -e "${ib_rate_m}" | grep -E -o "^\.") >/dev/null 2>&1; then
+       	ib_rate_m="0${ib_rate_m}"
+  fi  
+  if (echo -e "${ob_rate_m}" | grep -E -o "^\.") >/dev/null 2>&1; then
+       	ob_rate_m="0${ob_rate_m}"
+  fi  
+
+  if [ -n "${IB_CRIT_LIMIT}" ] && [ "$( echo "${ib_rate_m} >= ${IB_CRIT_LIMIT}" | bc 2>&- )" == "1" ]; then
+	((crit++))
+	output="${output} $(html_red "$(gettext "bytes flowin rate:") ${ib_rate_m}M/s") ### "
+  elif [ -n "${IB_WARN_LIMIT}" ] && [ "$( echo "${ib_rate_m} >= ${IB_WARN_LIMIT}" | bc 2>&- )" == "1" ]; then
+	((warn++))
+	output="${output} $(html_red "$(gettext "bytes flowin rate:") ${ib_rate_m}M/s") ### "
+  else
+	output="${output} $(gettext "bytes flowin rate:") ${ib_rate_m}M/s ### "
+  fi
+
+  if [ -n "${OB_CRIT_LIMIT}" ] && [ "$( echo "${ob_rate_m} >= ${OB_CRIT_LIMIT}" | bc 2>&- )" == "1" ]; then
+	((crit++))
+	output="${output} $(html_red "$(gettext "bytes flowout rate:") ${ob_rate_m}M/s") ### "
+  elif [ -n "${OB_WARN_LIMIT}" ] && [ "$( echo "${ob_rate_m} >= ${OB_WARN_LIMIT}" | bc 2>&- )" == "1" ]; then
+	((warn++))
+	output="${output} $(html_red "$(gettext "bytes flowout rate:") ${ob_rate_m}M/s") ### "
+  else
+	output="${output} $(gettext "bytes flowout rate:") ${ob_rate_m}M/s ### "
+  fi
+
+  if [ "${IP_UNLIMITED}" == "1" ]; then
+	output="${output} $(gettext "packs flowin rate:") ${ip_rate}/s (unlimited) ### "
+  elif [ -n "${IP_CRIT_LIMIT}" ] && [ "$( echo "${ip_rate} >= ${IP_CRIT_LIMIT}" | bc 2>&- )" == "1" ]; then
+	((crit++))
+	output="${output} $(html_red "$(gettext "packs flowin rate:") ${ip_rate}/s") ### "
+  elif [ -n "${IP_WARN_LIMIT}" ] && [ "$( echo "${ip_rate} >= ${IP_WARN_LIMIT}" | bc 2>&- )" == "1" ]; then
+	((warn++))
+	output="${output} $(html_red "$(gettext "packs flowin rate:") ${ip_rate}/s") ### "
+  else
+	output="${output} $(gettext "packs flowin rate:") ${ip_rate}/s ### "
+  fi
+
+  if [ "${OP_UNLIMITED}" == "1" ]; then
+	output="${output} $(gettext "packs flowout rate:") ${op_rate}/s (unlimited) ### "
+  elif [ -n "${OP_CRIT_LIMIT}" ] && [ "$( echo "${op_rate} >= ${OP_CRIT_LIMIT}" | bc 2>&- )" == "1" ]; then
+	((crit++))
+	output="${output} $(html_red "$(gettext "packs flowout rate:") ${op_rate}/s") ### "
+  elif [ -n "${OP_WARN_LIMIT}" ] && [ "$( echo "${op_rate} >= ${OP_WARN_LIMIT}" | bc 2>&- )" == "1" ]; then
+	((warn++))
+	output="${output} $(html_red "$(gettext "packs flowout rate:") ${op_rate}/s") ### "
+  else
+	output="${output} $(gettext "packs flowout rate:") ${op_rate}/s ### "
+  fi
+
+  output="${output} ### "
 
   echo -e "${output}"
-  return ${return_code}
+  if [ ${crit} -gt 0 ]; then
+	return 3
+  elif [ ${warn} -gt 0 ]; then
+	return 1
+  else
+	return 0
+  fi
 }
 
   local result=" ### $(gettext "Check List:") [${ifdev_lst}] ### ### "
-  local oknum=0 warnnum=0 unknum=0 total=0
+  local oknum=0 critnum=0 warnnum=0 unknum=0 total=0
 
   for pairs in `echo "${ifdev_lst}"`
   do
@@ -256,29 +406,32 @@ check_single(){
 		((warnnum++))	;;
 	"2")
 		((unknum++))	;;
+	"3")
+		((critnum++))	;;
 	esac
 	result="${result} "${tmpstr}" "
   done
 
-  if [ "${warnnum}" != "0" ]; then
+  if [ ${critnum} -gt 0 ]; then
+	EXIT_STATUS=${STATE_CRIT};
+	LEVEL="crit";
+	TYPE="str";
+	CONTENT="$(gettext  "Traffic Flow Check CRITCAL") | $(eval_gettext "\${critnum}/\${total} interface check critical.") | "${result}" "
+  elif [ ${warnnum} -gt 0 ]; then
 	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
-	CONTENT="$(gettext  "Traffic Flow Check WARNING") | $(eval_gettext "total: \${warnnum}/\${total} check failed.") | "${result}" "
-  else
-	if [ "${oknum}" == "${total}" ]; then
-		EXIT_STATUS=${STATE_SUCC};
-		LEVEL="succ";
-		TYPE="str";
-		CONTENT="$(gettext "Traffic Flow Check OK") | $(eval_gettext "total: \${oknum}/\${total} check success.") | "${result}" "
-	else
-		if [ "${unknum}" != "0" ]; then
-			EXIT_STATUS=${STATE_UNKN};
-			LEVEL="unkn";
-			TYPE="str";
-			CONTENT="$(gettext "Traffic Flow Check UNKNOWN") | $(eval_gettext "total: \${unknum}/\${total} check unknown.") | "${result}" "
-		fi
-	fi
+	CONTENT="$(gettext  "Traffic Flow Check WARNING") | $(eval_gettext "\${warnnum}/\${total} interface check warning.") | "${result}" "
+  elif [ ${oknum} -eq ${total} ]; then
+	EXIT_STATUS=${STATE_SUCC};
+	LEVEL="succ";
+	TYPE="str";
+	CONTENT="$(gettext "Traffic Flow Check OK") | $(eval_gettext "\${oknum}/\${total} interface check success.") | "${result}" "
+  elif [ ${unknum} -gt 0 ]; then
+	EXIT_STATUS=${STATE_UNKN};
+	LEVEL="unkn";
+	TYPE="str";
+	CONTENT="$(gettext "Traffic Flow Check UNKNOWN") | $(eval_gettext "\${unknum}/\${total} interface check unknown.") | "${result}" "
   fi
 }
 
