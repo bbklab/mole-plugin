@@ -44,10 +44,10 @@ msgid "[${pairs}] is invalid"
 msgstr "配置项不识别: [${pairs}]"
 
 msgid "Check Port CRITICAL"
-msgstr "端口连通性检查告警"
+msgstr "端口连通性检查故障"
 
-msgid "${errnum}/${total} check failed."
-msgstr "${errnum}/${total} 项检查告警."
+msgid "${errnum}/${total} check critical."
+msgstr "${errnum}/${total} 项检查故障."
 
 msgid "Check Port OK"
 msgstr "端口连通性检查正常"
