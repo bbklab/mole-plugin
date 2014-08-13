@@ -157,7 +157,7 @@ check() {
         EXIT_STATUS=${STATE_CRIT};
         LEVEL="crit";
         TYPE="str";
-        CONTENT="$(gettext "Check Process CRITICAL") | $(eval_gettext "\${errnum}/\${total} Process Alert") | ${result}"
+        CONTENT="$(gettext "Check Process CRITICAL") | $(eval_gettext "\${errnum}/\${total} Process Critical") | ${result}"
   } || {
         EXIT_STATUS="${STATE_SUCC}"
         LEVEL="succ"

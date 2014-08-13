@@ -32,10 +32,10 @@ msgid "OK:  [${pname}] (${psnum}) >= (${pnum})."
 msgstr "正常: 进程${pname} 当前运行数${psnum}, 不低于最小运行数${pnum}"
 
 msgid "Check Process CRITICAL"
-msgstr "进程运行数检查告警"
+msgstr "进程运行数检查故障"
 
-msgid "${errnum}/${total} Process Alert"
-msgstr "${errnum}/${total} 进程告警."
+msgid "${errnum}/${total} Process Critical"
+msgstr "${errnum}/${total} 进程故障."
 
 msgid "Check Process OK"
 msgstr "进程运行数检查正常"
