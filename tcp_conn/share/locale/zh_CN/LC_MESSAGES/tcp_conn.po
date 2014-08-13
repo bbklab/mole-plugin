@@ -19,16 +19,37 @@ msgstr "\t%+#D"
 msgid "\n"
 msgstr "\n"
 
-msgid "check [${s_port}:${limit}]: return: [${total}] is not numberic"
-msgstr "检查 ${s_port}:${limit} 返回结果非数字: [${total}]"
+msgid "config port_list not defined."
+msgstr "配置项 port_list 未定义."
+
+msgid "port ${s_port} must be int."
+msgstr "端口 ${s_port} 必须是正整数."
+
+msgid "limit [${limit}] warn threshold must lower than crit threshold."
+msgstr "阈值限制 [${limit}] 警告阈值必须小于故障阈值."
+
+msgid "limit [${limit}] is invalid multi threshold on int check."
+msgstr "阈值限制 [${limit}] 每个阈值都应该是正整数."
+
+msgid "limit [${limit}] must be int."
+msgstr "阈值限制 [${limit}] 必须是正整数."
+
+msgid "return: [${total}] is not numberic"
+msgstr "返回结果非数字: [${total}]"
 
 msgid "Maybe port: [${s_port}] not listening"
 msgstr "或许端口 ${s_port} 并不在监听状态"
 
-msgid "Total: [${total}] >= Limit: [${limit}]"
-msgstr "当前连接数为 ${total}, 超出上限${limit}"
+msgid "check port:${s_port}, limit:${limit}"
+msgstr "检查${s_port}端口连接数，阈值:${limit}"
 
-msgid "Total: [${total}] < Limit: [${limit}]"
+msgid "Total: [${total}] >= Crit Limit: [${CRIT_LIMIT}]"
+msgstr "当前连接数为 ${total}, 超出故障上限 ${CRIT_LIMIT}"
+
+msgid "Total: [${total}] >= Warn Limit: [${WARN_LIMIT}]"
+msgstr "当前连接数为 ${total}, 超出告警上限 ${WARN_LIMIT}"
+
+msgid "Total: [${total}]"
 msgstr "当前连接数为 ${total}"
 
 msgid "IP Connect Stat:"
@@ -44,16 +65,19 @@ msgid "Check Tcp-Port [${port}], Uplimit [${num}]"
 msgstr "检查端口: ${port}, 连接数上限: ${num}"
 
 msgid "[${port_num}] is invalid"
-msgstr "配置项 ${port_num} 不识别"
-
-msgid "[${port_num}] is invalid: [${port}] or [${num}] not numberic"
-msgstr "配置项 ${port_num} 不识别, [${port}] 或 [${num}] 不是数字"
+msgstr "配置项 ${port_num} 不是可识别的配置."
 
 msgid "TCP-Connection Number Check CRITICAL"
+msgstr "TCP连接数检查故障"
+
+msgid "${critnum}/${total} check critical."
+msgstr "${critnum}/${total} 项检查故障."
+
+msgid "TCP-Connection Number Check WARNING"
 msgstr "TCP连接数检查告警"
 
-msgid "${errnum}/${total} check failed."
-msgstr "${errnum}/${total} 项检查告警."
+msgid "${warnnum}/${total} check warning."
+msgstr "${warnnum}/${total} 项检查告警."
 
 msgid "TCP-Connection Number Check OK"
 msgstr "TCP连接数检查正常"

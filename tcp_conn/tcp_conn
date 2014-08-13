@@ -125,19 +125,70 @@ fi
 # if null return STATE_UNKN.
 
 # if null or invalid set default.
-[ -z "${port_list//[ ]}" ] && port_list=" 80:500 "
 
 # check function here
 check(){
 
-### return code: 0|1
+  if [ -z "${port_list}" ]; then
+	EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
+        TYPE="str";
+        CONTENT="$(gettext "config port_list not defined.")"
+        return
+  fi
+
+### return code: 0|1|2|3
 #  0: OK
-#  1: CRIT
+#  1: WARN
+#  2: UNKN
+#  3: CRIT
 check_single(){
   local s_port=$1  limit=$2  statfile=$3
-  local return_code=0
-  local conn_stat=$( awk '($4~/:'${s_port}'\>/){num[$NF]++;total++} END{print "Total:",total; for(c in num) printf("%s:%s\n",c,num[c]) }' "${statfile}" 2>&- )
-  local ip_stat=$( awk '$4~/:'${s_port}'\>/ {print $5}' "${statfile}" 2>&- | awk -F: '($(NF-1)!=""){Num[$(NF-1)]++} END{for (c in Num) {printf("%s  %s\n"),Num[c],c}}' | sort -rn | head)  ## only print top 10 ipaddress
+  local output=
+
+  if ! is_int "${s_port}"; then
+	output="$(html_red "$(eval_gettext "port \${s_port} must be int.")") ### "
+	echo -e "${output}"
+	return 2
+  fi
+
+  local WARN_LIMIT= CRIT_LIMIT=
+  if is_multi_threshold "${limit}"; then
+	if check_multi_threshold "${limit}" 1; then
+		local ARRY_LIMIT=( $(seperate_multi_threshold "${limit}" 2>&- ) )
+		WARN_LIMIT=${ARRY_LIMIT[0]}
+		CRIT_LIMIT=${ARRY_LIMIT[1]}
+		if [ "$(echo "${WARN_LIMIT} >= ${CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+			output="$(html_red "$(eval_gettext "limit [\${limit}] warn threshold must lower than crit threshold.")") ### "
+			echo -e "${output}"
+			return 2
+		fi
+	else
+		output="$(html_red "$(eval_gettext "limit [\${limit}] is invalid multi threshold on int check.")") ### "
+		echo -e "${output}"
+		return 2
+	fi
+  else
+	if is_int "${limit}"; then
+		CRIT_LIMIT="${limit}"
+	else
+		output="$(html_red "$(eval_gettext "limit [\${limit}] must be int.")") ### "
+		echo -e "${output}"
+		return 2
+	fi
+  fi
+
+  local conn_stat=$( awk '($4~/:'${s_port}'\>/){num[$NF]++;total++} \
+				END{print "Total:",total; \
+					for(c in num) \
+						printf("%s:%s\n",c,num[c]) }'\
+		 	"${statfile}" 2>&- )
+  local ip_stat=$( awk '$4~/:'${s_port}'\>/ {print $5}' \
+			"${statfile}" 2>&- |\
+		   awk -F: '($(NF-1)!=""){Num[$(NF-1)]++} \
+				END{for (c in Num) \
+						{printf("%s  %s\n"),Num[c],c}}' |\
+		   sort -rn | head)  ## only print top 10 ipaddress
   local total=$(echo -e "${conn_stat}" | awk -F: '/^Total\>/{print $2;exit}' | tr -d ' ')
 
   # output data and exit if MODE=1
@@ -146,25 +197,37 @@ check_single(){
 	return
   }
 
-  if [ -z "${total}" ] || [ ! -z "${total//[0-9]}" ]; then
-	local output=" $(html_red "$(eval_gettext "check [\${s_port}:\${limit}]: return: [\${total}] is not numberic")") ### $(eval_gettext "Maybe port: [\${s_port}] not listening") ### "
-	return_code=1
+  output=" ### $(eval_gettext "check port:\${s_port}, limit:\${limit}") ###"
+  if ! is_int "${total}"; then
+	output="$(html_red "$(eval_gettext "return: [\${total}] is not numberic")") ###"
+	output="${output} $(eval_gettext "Maybe port: [\${s_port}] not listening") ### "
+	echo -e "${output}"
+	return 1
   else
-	if [ "$(echo " ${total} >= ${limit} " | bc 2>&-)" == "1" ]; then
-		local output="$(html_red "$(eval_gettext "Total: [\${total}] >= Limit: [\${limit}]")") ### "
-		return_code=1
+	local details="$(echo -e "${conn_stat} ### $(gettext "IP Connect Stat:") ### ${ip_stat} ### " | sed -e 's/$/ ### /g' | tr -d '\n' )"
+
+	if [ -n "${CRIT_LIMIT}" ] && [ "$(echo " ${total} >= ${CRIT_LIMIT} " | bc 2>&-)" == "1" ]; then
+		output="${output} $(html_red "$(eval_gettext "Total: [\${total}] >= Crit Limit: [\${CRIT_LIMIT}]")") ### "
+		output="${output} ${details}"
+		echo -e "${output}"
+		return 3
+	elif [ -n "${WARN_LIMIT}" ] && [ "$(echo " ${total} >= ${WARN_LIMIT} " | bc 2>&-)" == "1" ]; then
+		output="${output} $(html_red "$(eval_gettext "Total: [\${total}] >= Warn Limit: [\${WARN_LIMIT}]")") ### "
+		output="${output} ${details}"
+		echo -e "${output}"
+		return 1
 	else
-		local output="$(eval_gettext "Total: [\${total}] < Limit: [\${limit}]") ### "
-		return_code=0
+		output="${output} $(eval_gettext "Total: [\${total}]") ### "
+		output="${output} ${details}"
+		echo -e "${output}"
+		return 0
 	fi
-  	local output="${output} $(echo -e "${conn_stat} ### $(gettext "IP Connect Stat:") ### ${ip_stat} ### " | sed -e 's/$/ ### /g' | tr -d '\n' )"
   fi
-  echo -e "${output}"
-  return ${return_code}
 }
 
   local result=" ### $(eval_gettext "Check List: [\${port_list}]") ### ### "
-  local oknum=0 errnum=0 unknum=0 total=0
+  local oknum=0 warnnum=0 critnum=0 unknum=0 total=0
+
   local statfile="/tmp/.check_tcpconn_num.statfile.mole"
   /bin/netstat -an > "${statfile}" 2>&-
   if [ ! -f "${statfile}" ] || [ ! -s "${statfile}" ]; then
@@ -189,54 +252,50 @@ check_single(){
   do
 	((total++))
 
-	sepnum=$(echo -e "${port_num}" | awk -F":" 'END{print --NF}')
-	if [ "${sepnum}" != "1" ]; then
+	port=$(echo -e "${port_num}" | awk -F":" '{print $1}')
+	tnum=$(echo -e "${port_num}" | awk -F":" '{print $2}')
+	if [ -z "${port}" ] || [ -z "${tnum}" ]; then
 		((unknum++))
 		result="${result} $(html_red "$(eval_gettext "[\${port_num}] is invalid")") ### "
 		continue 1
-	else
-		local port="${port_num%%:*}" num="${port_num##*:}"
-		result="${result} ### $(eval_gettext "Check Tcp-Port [\${port}], Uplimit [\${num}]") ### "
-		if [ -z "${port}" ] || [ ! -z "${port//[0-9]}" ] || [ -z "${num}" ] || [ ! -z "${num//[0-9]}" ]; then
-			((unknum++))
-			result="${result} $(html_red "$(eval_gettext "[\${port_num}] is invalid: [\${port}] or [\${num}] not numberic")") ### "
-			continue 1
-		fi
 	fi
 
-   	tmpstr=$(check_single "${port}" "${num}" "${statfile}")
+   	tmpstr=$(check_single "${port}" "${tnum}" "${statfile}")
 	rc=$?
 	case "${rc}" in
 	"0")
 		((oknum++))	;;
 	"1")
-		((errnum++))	;;
+		((warnnum++))	;;
 	"2")
 		((unknum++))	;;
+	"3")
+		((critnum++))	;;
 	esac
 	result="${result} "${tmpstr}" "
   done
 
-  [ "${errnum}" != "0" ] && {
+  if [ ${critnum} -gt 0 ]; then
 	EXIT_STATUS=${STATE_CRIT};
 	LEVEL="crit";
 	TYPE="str";
-	CONTENT="$(gettext "TCP-Connection Number Check CRITICAL") | $(eval_gettext "\${errnum}/\${total} check failed.") | "${result}" "
-  } || {
-	[ "${oknum}" == "${total}" ] && {
-		EXIT_STATUS=${STATE_SUCC};
-		LEVEL="succ";
-		TYPE="str";
-		CONTENT="$(gettext "TCP-Connection Number Check OK") | $(eval_gettext "\${oknum}/\${total} check success.") | "${result}" "
-	} || {
-		[ "${unknum}" != "0" ] && {
-			EXIT_STATUS=${STATE_UNKN};
-			LEVEL="unkn";
-			TYPE="str";
-			CONTENT="$(eval_gettext "TCP-Connection Number Check UNKNOWN") | $(eval_gettext "\${unknum}/\${total} check unknown.") | "${result}" "
-		}
-	}
-  } 
+	CONTENT="$(gettext "TCP-Connection Number Check CRITICAL") | $(eval_gettext "\${critnum}/\${total} check critical.") | "${result}" "
+  elif [ ${warnnum} -gt 0 ]; then
+	EXIT_STATUS=${STATE_CRIT};
+	LEVEL="crit";
+	TYPE="str";
+	CONTENT="$(gettext "TCP-Connection Number Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check warning.") | "${result}" "
+  elif [ ${unknum} -gt 0 ]; then
+	EXIT_STATUS=${STATE_UNKN};
+	LEVEL="unkn";
+	TYPE="str";
+	CONTENT="$(eval_gettext "TCP-Connection Number Check UNKNOWN") | $(eval_gettext "\${unknum}/\${total} check unknown.") | "${result}" "
+  elif [ "${oknum}" == "${total}" ]; then
+	EXIT_STATUS=${STATE_SUCC};
+	LEVEL="succ";
+	TYPE="str";
+	CONTENT="$(gettext "TCP-Connection Number Check OK") | $(eval_gettext "\${oknum}/\${total} check success.") | "${result}" "
+  fi
 }
 
 check
