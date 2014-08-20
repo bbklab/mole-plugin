@@ -23,10 +23,10 @@ msgid "Mail Queue Directories Missing"
 msgstr "未找到邮件队列目录"
 
 msgid "uplimit [${uplimit}] warn threshold must lower than crit threshold."
-msgstr "配置项uplimit 警告阈值必须小于故障阈值."
+msgstr "配置项uplimit [${uplimit}] 警告阈值必须小于故障阈值."
 
 msgid "uplimit [${uplimit}] is invalid multi threshold on int check."
-msgstr "配置项uplimit 每个阈值都应该是正整数."
+msgstr "配置项uplimit [${uplimit}] 每个阈值都应该是正整数."
 
 msgid "uplimit [${uplimit}] should be int."
 msgstr "配置项uplimit [${uplimit}] 应该是正整数."
