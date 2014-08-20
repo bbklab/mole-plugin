@@ -22,17 +22,29 @@ msgstr "\n"
 msgid "Mail Queue Directories Missing"
 msgstr "未找到邮件队列目录"
 
+msgid "uplimit [${uplimit}] warn threshold must lower than crit threshold."
+msgstr "配置项uplimit 警告阈值必须小于故障阈值."
+
+msgid "uplimit [${uplimit}] is invalid multi threshold on int check."
+msgstr "配置项uplimit 每个阈值都应该是正整数."
+
 msgid "uplimit [${uplimit}] should be int."
 msgstr "配置项uplimit [${uplimit}] 应该是正整数."
 
 msgid "{Local/Remote/Bounce}/Info not directory"
 msgstr "{Local/Remte/Bounce}/Info 目录不存在"
 
+msgid "Queuing Letters Number CRITICAL"
+msgstr "队列信件数检查故障"
+
 msgid "Queuing Letters Number WARNING"
 msgstr "队列信件数检查告警"
 
-msgid "${total} letters >= ${uplimit}"
-msgstr "队列中共有 ${total} 封信件, 超过上限 ${uplimit}"
+msgid "${total} letters >= ${CRIT_LIMIT}"
+msgstr "队列中共有 ${total} 封信件, 超过故障上限 ${CRIT_LIMIT}"
+
+msgid "${total} letters >= ${WARN_LIMIT}"
+msgstr "队列中共有 ${total} 封信件, 超过告警上限 ${WARN_LIMIT}"
 
 msgid "${total} letters"
 msgstr "队列中共有 ${total} 封信件"
