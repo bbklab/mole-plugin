@@ -97,9 +97,6 @@ fi
 
 # if null return STATE_UNKN.
 
-# if null or invalid set default.
-[ -z "${addr_port}" ] && addr_port="http:127.0.0.1:80"
-
 # check function here
 check(){
   if [ -f "/usr/bin/curl" ] && [ -x "/usr/bin/curl" ]; then
@@ -122,48 +119,85 @@ check(){
         return
   fi  
 
-  local total=  err_num=0  result=
+  local total=0  critnum=0  unknnum=0  result=
   for x in `echo "${addr_port}"`;
   do
+	((total++))
 	local addr=  port=  str1=  str2=
 	prot=$(echo "${x}" | awk -F: '{print $1}')
 	addr=$(echo "${x}" | awk -F: '{print $2}')
-	port=$(echo "${x}" | awk -F: '{print $NF}')
-	[ "${prot}" == "https" ] && {
-	arr=($(/usr/bin/curl --max-time ${time_out} -s -k -o /dev/null -w "%{http_code} %{time_total}s %{size_download}Bytes" "${prot}://${addr}:${port}" 2>&1))
-	}
-	[ "${prot}" == "http" ] && {
-	arr=($(/usr/bin/curl --max-time ${time_out} -s -o /dev/null -w "%{http_code} %{time_total}s %{size_download}Bytes" "${prot}://${addr}:${port}" 2>&1))
-	}
+	port=$(echo "${x}" | awk -F: '{print $3}')
+
+	if [ -z "${addr}" ]; then
+		((unknnum++))
+		result=" ${result} $(html_red "$(eval_gettext "check [\${x}]: addr [\${addr}] required")") ### ### "
+		continue
+	fi
+
+	if ! is_int "${port}"; then
+		((unknnum++))
+		result=" ${result} $(html_red "$(eval_gettext "check [\${x}]: port [\${port}] should be int")") ### ### "
+		continue
+	fi
+
+	if [ "${prot}" == "https" ]; then
+		arr=(  $(/usr/bin/curl -k \
+				--max-time ${time_out} -s -o /dev/null \
+				-w "%{http_code} %{time_total} %{size_download}Bytes %{time_namelookup} %{time_connect} %{time_starttransfer}" \
+				"${prot}://${addr}:${port}" 2>&1)
+		)
+	elif [ "${prot}" == "http" ]; then
+		arr=(  $(/usr/bin/curl \
+				--max-time ${time_out} -s -o /dev/null \
+				-w "%{http_code} %{time_total} %{size_download}Bytes %{time_namelookup} %{time_connect} %{time_starttransfer}" \
+				"${prot}://${addr}:${port}" 2>&1)
+		)
+	else
+		((unknnum++))
+		result=" ${result} $(html_red "$(eval_gettext "check [\${x}]: protocol [\${prot}] should be https or http")") ### ### "
+		continue
+	fi
+
 	# output data and exit if MODE=1
 	[ "${MODE}" == "1" ] && {
 		echo "${addr}:${port} ${arr[*]}"
 		continue
 	}
-	code=${arr[0]}; time=${arr[1]}; pagesize=${arr[2]}
-  	if [ "${arr[0]}" == "200" ]; then
-		result=" ${result} $(eval_gettext "check [\${x}] return [code=\${code}, time=\${time}, pagesize=\${pagesize}]") ### "
+
+	code=${arr[0]}; time=${arr[1]}; pagesize=${arr[2]};
+	namelookup=${arr[3]}; connect=${arr[4]}; transfer=${arr[5]};
+	connect=$(echo "${connect}-${namelookup}" |bc 2>&-|sed -e 's/^\./0\./')
+	process=$(echo "${transfer}-${connect}" |bc 2>&-|sed -e 's/^\./0\./')
+	download=$(echo "${time}-${transfer}" |bc 2>&-|sed -e 's/^\./0\./')
+  	if [ "${code}" == "200" ]; then
+		result=" ${result} $(eval_gettext "check [\${x}] return [code=\${code}, time=\${time}s, pagesize=\${pagesize}]") ### "
+		result=" ${result} $(eval_gettext "time details: [namelookup=\${namelookup}s, connect=\${connect}s, process=\${process}s, download=\${download}s]") ### ### "
   	else
-		((err_num++))
-		result=" ${result} $(html_red "$(eval_gettext "check [\${x}] return [code=\${code}, time=\${time}, pagesize=\${pagesize}]")") ### "
+		((critnum++))
+		result=" ${result} $(html_red "$(eval_gettext "check [\${x}] return [code=\${code}, time=\${time}s, pagesize=\${pagesize}]")") ### "
+		result=" ${result} $(eval_gettext "time details: [namelookup=\${namelookup}s, connect=\${connect}s, process=\${process}s, download=\${download}s]") ### ### "
   	fi
-	((total++))
   done
 
   # exit if MODE=1
   [ "${MODE}" == "1" ] && exit
 
-  [ "${err_num}" == "0" ] && {
+  if [ ${critnum} -gt 0 ]; then
+	EXIT_STATUS=${STATE_CRIT};
+	LEVEL="crit";
+	TYPE="str";
+	CONTENT="$(gettext "HTTP SVR CRITICAL") | $(eval_gettext "\${critnum}/\${total} http check critical.") | "${result}" "
+  elif [ ${unknnum} -gt 0 ]; then
+	EXIT_STATUS=${STATE_UNKN};
+	LEVEL="unkn";
+	TYPE="str";
+	CONTENT="$(gettext "HTTP SVR UNKNOWN") | $(eval_gettext "\${unknnum}/\${total} http check unknown.") | "${result}" "
+  else
 	EXIT_STATUS=${STATE_SUCC};
 	LEVEL="succ";
 	TYPE="str";
 	CONTENT="$(gettext "HTTP SVR OK") | $(eval_gettext "\${total}/\${total} http check success.") | "${result}" "
-  } || {
-	EXIT_STATUS=${STATE_CRIT};
-	LEVEL="crit";
-	TYPE="str";
-	CONTENT="$(gettext "HTTP SVR CRITICAL") | $(eval_gettext "\${err_num}/\${total} http check failed.") | "${result}" "
-  }
+  fi
 }
 
 check

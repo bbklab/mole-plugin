@@ -25,8 +25,20 @@ msgstr "[/usr/bin/curl] 不存在或没有执行权限."
 msgid "time_out [${time_out}] should be int."
 msgstr "配置time_out [${time_out}] 应该是整数."
 
-msgid "check [${x}] return [code=${code}, time=${time}, pagesize=${pagesize}]"
-msgstr "检查 ${x} 的HTTP(s)服务返回:  响应码${code}, 耗时${time}, 页面大小${pagesize}"
+msgid "check [${x}]: addr [${addr}] required"
+msgstr "检查 ${x} 配置缺少主机地址."
+
+msgid "check [${x}]: port [${port}] should be int"
+msgstr "检查 ${x} 配置的端口 [${port}] 应该是正整数."
+
+msgid "check [${x}]: protocol [${prot}] should be https or http"
+msgstr "检查 ${x} 协议 [${prot}] 应该是 http 或 https"
+
+msgid "check [${x}] return [code=${code}, time=${time}s, pagesize=${pagesize}]"
+msgstr "检查 ${x} 的HTTP(s)服务返回:  响应码${code}, 耗时${time}s, 页面大小${pagesize}"
+
+msgid "time details: [namelookup=${namelookup}s, connect=${connect}s, process=${process}s, download=${download}s]"
+msgstr "耗时详细: 域名解析${namelookup}s, 建立连接${connect}s, 服务器处理${process}s, 下载传输${download}s"
 
 msgid "HTTP SVR OK"
 msgstr "HTTP服务正常"
@@ -35,7 +47,13 @@ msgid "${total}/${total} http check success."
 msgstr "${total}/${total} 项检查正常."
 
 msgid "HTTP SVR CRITICAL"
-msgstr "HTTP服务异常"
+msgstr "HTTP服务故障"
 
-msgid "${err_num}/${total} http check failed."
-msgstr "${err_num}/${total} 项检查异常."
+msgid "${critnum}/${total} http check critical."
+msgstr "${critnum}/${total} 项检查故障."
+
+msgid "HTTP SVR UNKNOWN"
+msgstr "HTTP服务未知"
+
+msgid "${unknnum}/${total} http check unknown."
+msgstr "${unknnum}/${total} 项检查未知."
