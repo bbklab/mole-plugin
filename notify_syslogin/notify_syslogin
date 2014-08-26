@@ -192,8 +192,8 @@ close FH;
 # 6. prepare last output
 my $number = @record;
 if ($number == 0) {
-  printf _"{noop}:{str}:{no login event found}";
-  exit $state_noop;
+  printf _"{succ}:{str}:{no login event found}";
+  exit $state_succ;
 } else {
   while (@record) {
   	$result .= shift @record;
