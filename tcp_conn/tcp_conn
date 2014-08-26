@@ -199,7 +199,7 @@ check_single(){
 
   output=" ### $(eval_gettext "check port:\${s_port}, limit:\${limit}") ###"
   if ! is_int "${total}"; then
-	output="$(html_red "$(eval_gettext "return: [\${total}] is not numberic")") ###"
+	output="${output} $(html_red "$(eval_gettext "return: [\${total}] is not numberic")") ### "
 	output="${output} $(eval_gettext "Maybe port: [\${s_port}] not listening") ### "
 	echo -e "${output}"
 	return 1
@@ -282,7 +282,7 @@ check_single(){
 	CONTENT="$(gettext "TCP-Connection Number Check CRITICAL") | $(eval_gettext "\${critnum}/\${total} check critical.") | "${result}" "
   elif [ ${warnnum} -gt 0 ]; then
 	EXIT_STATUS=${STATE_CRIT};
-	LEVEL="crit";
+	LEVEL="warn";
 	TYPE="str";
 	CONTENT="$(gettext "TCP-Connection Number Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check warning.") | "${result}" "
   elif [ ${unknum} -gt 0 ]; then
