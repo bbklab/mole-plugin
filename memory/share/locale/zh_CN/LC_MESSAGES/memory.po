@@ -35,7 +35,7 @@ msgid "swp_uplimit [${swp_uplimit}] warn threshold must lower than crit threshol
 msgstr "配置swp_uplimit [${swp_uplimit}] 警告阈值必须小于故障阈值."
 
 msgid "swp_uplimit [${swp_uplimit}] is invalid multi threshold on int or float check."
-msgstr "置swp_uplimit [${swp_uplimit}] 每个阈值都应该是整数或小数."
+msgstr "配置swp_uplimit [${swp_uplimit}] 每个阈值都应该是整数或小数."
 
 msgid "swp_uplimit [${swp_uplimit}] should be int or float."
 msgstr "配置swp_uplimit [${swp_uplimit}] 应该是整数或小数."
