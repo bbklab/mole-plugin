@@ -281,7 +281,7 @@ check_single(){
 	TYPE="str";
 	CONTENT="$(gettext "TCP-Connection Number Check CRITICAL") | $(eval_gettext "\${critnum}/\${total} check critical.") | "${result}" "
   elif [ ${warnnum} -gt 0 ]; then
-	EXIT_STATUS=${STATE_CRIT};
+	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
 	CONTENT="$(gettext "TCP-Connection Number Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check warning.") | "${result}" "
