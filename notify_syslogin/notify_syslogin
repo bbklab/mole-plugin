@@ -156,8 +156,8 @@ sub loadpos {
 
 # Main body begin
 unless (-f $authfile) {
-  printf _"{noop}:{str}:{ authpriv file [%s] not exists. }",$authfile;
-  exit $state_noop;
+  printf _"{warn}:{str}:{ authpriv file [%s] not exists. }",$authfile;
+  exit $state_warn;
 }
 # 1. load position from tracefile
 loadpos ($tracefile);
@@ -173,8 +173,8 @@ if ($dev ne $nowdev || $inode ne $nowinode) {	# maybe authfile logrotated
 }
 # 3. open authpri file and goto last position directly
 unless (open FH, "<$authfile") {
-  printf _"{noop}:{str}:{ open authpriv file [%s] failed. }",$authfile;
-  exit $state_noop;
+  printf _"{warn}:{str}:{ open authpriv file [%s] failed. }",$authfile;
+  exit $state_warn;
 }
 seek (FH,$position,0);		# directly goto last position
 # 4. scan authpri file record
