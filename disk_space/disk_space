@@ -207,7 +207,7 @@ check(){
   	fi
   fi
 
-  local result= mpoint= warnnum=0 critnum=0
+  local result= mpoint= warnnum=0 critnum=0 total=0
 
   result="### $(gettext "Space Check") ### "
   for t in `echo "${fstype}"`
@@ -215,6 +215,7 @@ check(){
 	mpoint=$(awk '($3~/\<'${t}'\>/){print $2}' "/etc/mtab" 2>&-|tr '\n' ' ')
 	for m in `echo "${mpoint}"`
 	do
+		((total++))
 		line=( $(/bin/df -P -T -m "${m}" 2>&- | tail -n +2) )
 		if [ "${#line[@]}" != "7" ]; then
 			((warnnum++))
@@ -264,6 +265,7 @@ check(){
 	mpoint=$(awk '($3~/\<'${t}'\>/){print $2}' "/etc/mtab" 2>&-|tr '\n' ' ')
 	for m in `echo "${mpoint}"`
 	do
+		((total++))
 		line=( $(/bin/df -P -T -i "${m}" 2>&- | tail -n +2) )
 		if [ "${#line[@]}" != "7" ]; then
 			((warnnum++))
@@ -312,12 +314,12 @@ check(){
 	EXIT_STATUS=${STATE_CRIT};
 	LEVEL="crit";
 	TYPE="str";
-	CONTENT="$(gettext "Disk Space Check CRITICAL") | $(eval_gettext "\${critnum} check failed.") | ${result} "
+	CONTENT="$(gettext "Disk Space Check CRITICAL") | $(eval_gettext "\${critnum}/\${total} check failed.") | ${result} "
   elif [ "${warnnum}" -gt "0" ]; then
 	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
-	CONTENT="$(gettext "Disk Space Check WARNING") | $(eval_gettext "\${warnnum} check failed.") | ${result} "
+	CONTENT="$(gettext "Disk Space Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check failed.") | ${result} "
   else
 	EXIT_STATUS="${STATE_SUCC}"
 	LEVEL="succ"

@@ -85,14 +85,14 @@ msgstr "设备: ${device}, 挂载点:${mount}(${fstype}), 节点已用${used}/${
 msgid "Disk Space Check CRITICAL"
 msgstr "磁盘使用率检查故障"
 
-msgid "${critnum} check failed."
-msgstr "${critnum} 项检查故障"
+msgid "${critnum}/${total} check failed."
+msgstr "${critnum}/${total} 项检查故障"
 
 msgid "Disk Space Check WARNING"
 msgstr "磁盘使用率检查告警"
 
-msgid "${warnnum} check failed."
-msgstr "${warnnum} 项检查告警."
+msgid "${warnnum}/${total} check failed."
+msgstr "${warnnum}/${total} 项检查告警."
 
 msgid "Disk Space Check OK"
 msgstr "磁盘使用率检查正常"
