@@ -107,7 +107,7 @@ msgid "Traffic Flow Check CRITCAL"
 msgstr "网卡流量速度检查故障"
 
 msgid "${critnum}/${total} interface check critical."
-msgstr "${warnnum}/${total} 网卡流量检查故障."
+msgstr "${critnum}/${total} 网卡流量检查故障."
 
 msgid "Traffic Flow Check WARNING"
 msgstr "网卡流量速度检查告警"
