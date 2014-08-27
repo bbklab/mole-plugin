@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+# Return Codes
+STATE_SUCC=0
+STATE_WARN=1
+STATE_CRIT=2
+STATE_UNKN=3
+STATE_NOOP=4
+STATE_NOTIFY=5
+
+# Set Default
+EXIT_STATUS=0
+LEVEL=    	### { succ | warn | crit | unkn | noop | notify }
+TYPE=   	### { str| file }
+CONTENT=        ### { strings | /path/to/result.file }
+
+
+# 测试 misform:  返回级别非法
+LEVEL="123";TYPE="str";CONTENT="a|b|c";EXIT_STATUS=0;echo -en "{"${LEVEL}"}:{"${TYPE}"}:{"${CONTENT}"}";exit ${EXIT_STATUS}
+
+# 测试 misform:  返回类型非法
+LEVEL="succ";TYPE="123";CONTENT="a|b|c";EXIT_STATUS=0;echo -en "{"${LEVEL}"}:{"${TYPE}"}:{"${CONTENT}"}";exit ${EXIT_STATUS}
+
+# 测试 misform:  返回值非法
+LEVEL="succ";TYPE="123";CONTENT="a|b|c";EXIT_STATUS=100;echo -en "{"${LEVEL}"}:{"${TYPE}"}:{"${CONTENT}"}";exit ${EXIT_STATUS}
+
+# 测试 misfrom:  返回格式非法
+LEVEL="succ";TYPE="123";CONTENT="a|b|c";EXIT_STATUS=0;echo -en "{"${LEVEL}"}:{"${TYPE}"}:${CONTENT}";exit ${EXIT_STATUS}
+
+# 测试 misfrom:  返回值和返回级别不匹配
+LEVEl="succ";TYPE="str";CONTENT="a|b|c";EXIT_STATUS=2;echo -en "{"${LEVEL}"}:{"${TYPE}"}:{"${CONTENT}"}";exit ${EXIT_STATUS}
+
+# 测试 misfrom:  返回行数不为1
+LEVEl="123";TYPE="str";CONTENT="a|b|c";EXIT_STATUS=0;echo -en "{"${LEVEL}"}:{"${TYPE}"}:{"${CONTENT}"}\nline2\n";exit ${EXIT_STATUS}
