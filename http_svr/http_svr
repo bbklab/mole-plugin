@@ -142,12 +142,14 @@ check(){
 
 	if [ "${prot}" == "https" ]; then
 		arr=(  $(/usr/bin/curl -k \
+				--location --max-redirs 3 \
 				--max-time ${time_out} -s -o /dev/null \
 				-w "%{http_code} %{time_total} %{size_download}Bytes %{time_namelookup} %{time_connect} %{time_starttransfer}" \
 				"${prot}://${addr}:${port}" 2>&1)
 		)
 	elif [ "${prot}" == "http" ]; then
 		arr=(  $(/usr/bin/curl \
+				--location --max-redirs 3 \
 				--max-time ${time_out} -s -o /dev/null \
 				-w "%{http_code} %{time_total} %{size_download}Bytes %{time_namelookup} %{time_connect} %{time_starttransfer}" \
 				"${prot}://${addr}:${port}" 2>&1)
