@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+VERSION="0.2"
+if [ "$1" == "version" ]; then
+	echo -en "${VERSION}"
+	exit 0
+fi
 
 # BASE_DIR DEF
 [ -z ${BASE_DIR} ] && { 
