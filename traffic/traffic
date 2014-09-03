@@ -315,20 +315,20 @@ check_single(){
 
   if [ -n "${IB_CRIT_LIMIT}" ] && [ "$( echo "${ib_rate_m} >= ${IB_CRIT_LIMIT}" | bc 2>&- )" == "1" ]; then
 	((crit++))
-	output="${output} $(html_red "$(gettext "bytes flowin rate:") ${ib_rate_m}M/s") ### "
+	output="${output} $(html_red "$(eval_gettext "bytes flowin rate: \${ib_rate_m}M/s >= \${IB_CRIT_LIMIT}M/s")") ### "
   elif [ -n "${IB_WARN_LIMIT}" ] && [ "$( echo "${ib_rate_m} >= ${IB_WARN_LIMIT}" | bc 2>&- )" == "1" ]; then
 	((warn++))
-	output="${output} $(html_red "$(gettext "bytes flowin rate:") ${ib_rate_m}M/s") ### "
+	output="${output} $(html_red "$(eval_gettext "bytes flowin rate: \${ib_rate_m}M/s >= \${IB_WARN_LIMIT}M/s")") ### "
   else
 	output="${output} $(gettext "bytes flowin rate:") ${ib_rate_m}M/s ### "
   fi
 
   if [ -n "${OB_CRIT_LIMIT}" ] && [ "$( echo "${ob_rate_m} >= ${OB_CRIT_LIMIT}" | bc 2>&- )" == "1" ]; then
 	((crit++))
-	output="${output} $(html_red "$(gettext "bytes flowout rate:") ${ob_rate_m}M/s") ### "
+	output="${output} $(html_red "$(eval_gettext "bytes flowout rate: \${ob_rate_m}M/s >= \${OB_CRIT_LIMIT}M/s")") ### "
   elif [ -n "${OB_WARN_LIMIT}" ] && [ "$( echo "${ob_rate_m} >= ${OB_WARN_LIMIT}" | bc 2>&- )" == "1" ]; then
 	((warn++))
-	output="${output} $(html_red "$(gettext "bytes flowout rate:") ${ob_rate_m}M/s") ### "
+	output="${output} $(html_red "$(eval_gettext "bytes flowout rate: \${ob_rate_m}M/s >= \${OB_WARN_LIMIT}M/s")") ### "
   else
 	output="${output} $(gettext "bytes flowout rate:") ${ob_rate_m}M/s ### "
   fi
@@ -337,10 +337,10 @@ check_single(){
 	output="${output} $(gettext "packs flowin rate:") ${ip_rate}/s (unlimited) ### "
   elif [ -n "${IP_CRIT_LIMIT}" ] && [ "$( echo "${ip_rate} >= ${IP_CRIT_LIMIT}" | bc 2>&- )" == "1" ]; then
 	((crit++))
-	output="${output} $(html_red "$(gettext "packs flowin rate:") ${ip_rate}/s") ### "
+	output="${output} $(html_red "$(eval_gettext "packs flowin rate: \${ip_rate}/s >= \${IP_CRIT_LIMIT}/s")") ### "
   elif [ -n "${IP_WARN_LIMIT}" ] && [ "$( echo "${ip_rate} >= ${IP_WARN_LIMIT}" | bc 2>&- )" == "1" ]; then
 	((warn++))
-	output="${output} $(html_red "$(gettext "packs flowin rate:") ${ip_rate}/s") ### "
+	output="${output} $(html_red "$(eval_gettext "packs flowin rate: \${ip_rate}/s >= \${IP_WARN_LIMIT}/s")") ### "
   else
 	output="${output} $(gettext "packs flowin rate:") ${ip_rate}/s ### "
   fi
@@ -349,10 +349,10 @@ check_single(){
 	output="${output} $(gettext "packs flowout rate:") ${op_rate}/s (unlimited) ### "
   elif [ -n "${OP_CRIT_LIMIT}" ] && [ "$( echo "${op_rate} >= ${OP_CRIT_LIMIT}" | bc 2>&- )" == "1" ]; then
 	((crit++))
-	output="${output} $(html_red "$(gettext "packs flowout rate:") ${op_rate}/s") ### "
+	output="${output} $(html_red "$(eval_gettext "packs flowout rate: \${op_rate}/s >= \${OP_CRIT_LIMIT}/s")") ### "
   elif [ -n "${OP_WARN_LIMIT}" ] && [ "$( echo "${op_rate} >= ${OP_WARN_LIMIT}" | bc 2>&- )" == "1" ]; then
 	((warn++))
-	output="${output} $(html_red "$(gettext "packs flowout rate:") ${op_rate}/s") ### "
+	output="${output} $(html_red "$(eval_gettext "packs flowout rate: \${op_rate}/s >= \${OP_WARN_LIMIT}/s")") ### "
   else
 	output="${output} $(gettext "packs flowout rate:") ${op_rate}/s ### "
   fi
