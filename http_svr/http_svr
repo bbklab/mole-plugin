@@ -119,6 +119,14 @@ check(){
         return
   fi  
 
+  if [ -z "${addr_port}" ]; then
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
+        TYPE="str";
+        CONTENT="$(gettext "config addr_port required.")";
+        return
+  fi
+
   local total=0  critnum=0  unknnum=0  result=
   for x in `echo "${addr_port}"`;
   do

@@ -25,6 +25,9 @@ msgstr "[/usr/bin/curl] 不存在或没有执行权限."
 msgid "time_out [${time_out}] should be int."
 msgstr "配置time_out [${time_out}] 应该是整数."
 
+msgid "config addr_port required."
+msgstr "配置 addr_port 未定义."
+
 msgid "check [${x}]: addr [${addr}] required"
 msgstr "检查 ${x} 配置缺少主机地址."
 
