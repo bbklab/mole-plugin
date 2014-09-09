@@ -270,8 +270,8 @@ check(){
 
   # collect data
   local cpu_usage=
-  cpu_usage=( $( /usr/bin/vmstat 1 5 | tail -n +3 |\
-	awk '{id+=$15;wa+=$16;sy+=$14;us+=$13} END{print 100-id/5,wa/5,sy/5,us/5}' 2>&1 ) )
+  cpu_usage=( $( /usr/bin/vmstat 1 10 | tail -n +3 |\
+	awk '{id+=$15;wa+=$16;sy+=$14;us+=$13} END{print 100-id/10,wa/10,sy/10,us/10}' 2>&1 ) )
 
   # output data and exit if MODE=1
   [ "${MODE}" == "1" ] && {
