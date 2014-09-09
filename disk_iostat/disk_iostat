@@ -171,7 +171,7 @@ check(){
   local mtabfile="/etc/mtab"
 
   # collect data
-  local iostat_data=$( ${iostat} -d -x ${dev_list} 1 5 2>&1 )
+  local iostat_data=$( ${iostat} -d -x ${dev_list} 1 11 2>&1 )
   
   oknum=0 critnum=0 warnnum=0 unknnum=0 result=
   for dev in ${dev_list}
@@ -191,7 +191,7 @@ check(){
 		devname="${dev##*/}"
 	fi
 
-	util=$( echo -e "${iostat_data}" | /bin/awk '($1~/^'${devname}'\>/){x+=$NF} END{print x/5}' 2>&- )
+	util=$( echo -e "${iostat_data}" | /bin/awk 'BEGIN{i=0;x=0} ($1~/^'${devname}'\>/){i++} {if(i>1 && $1~/^'${devname}'\>/){x+=$NF}} END{print x/10}' 2>&- )
 	if [ -z "${util}" ] || [ ! -z "${util//[0-9.]}" ]; then
 		util=0
 	fi
