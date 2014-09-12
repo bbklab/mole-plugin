@@ -85,9 +85,9 @@ CONTENT=        ### { strings | /path/to/result.file }
 # Read plugin config value here
 if [ "${MODE}" == "1" ]; then
 	action="$2"
-	fstype="$3"
+	FSTYPE="$3"
 else
-	fstype=$( read_mole_config disk_space fstype)
+	FSTYPE=$( read_mole_config disk_space fstype)
 	exclude_mpoint=$( read_mole_config disk_space exclude_mpoint )
 	space_pct=$( read_mole_config disk_space space_pct)
 	inode_pct=$( read_mole_config disk_space inode_pct)
@@ -96,7 +96,7 @@ fi
 # if null return STATE_UNKN.
 
 # if null or invalid set default.
-[ -z "${fstype}" ] && fstype="ext2 ext3 ext4"
+[ -z "${FSTYPE}" ] && FSTYPE="ext2 ext3 ext4"
 [ -z "${exclude_mpoint}" ] && exclude_mpoint="/boot"
 
 
@@ -210,7 +210,7 @@ check(){
   local result= mpoint= warnnum=0 critnum=0 total=0
 
   result="### $(gettext "Space Check") ### "
-  for t in `echo "${fstype}"`
+  for t in `echo "${FSTYPE}"`
   do
 	mpoint=$(awk '($3~/\<'${t}'\>/){print $2}' "/etc/mtab" 2>&-|tr '\n' ' ')
 	for m in `echo "${mpoint}"`
@@ -260,7 +260,7 @@ check(){
   done
 
   result="${result} ### $(gettext "Inode Check") ### "
-  for t in `echo "${fstype}"`
+  for t in `echo "${FSTYPE}"`
   do
 	mpoint=$(awk '($3~/\<'${t}'\>/){print $2}' "/etc/mtab" 2>&-|tr '\n' ' ')
 	for m in `echo "${mpoint}"`
