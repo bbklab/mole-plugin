@@ -56,7 +56,7 @@ msgid "mount point ${m}, filed number ${fdnum} <> 7"
 msgstr "挂载点{m}, 字段个数为${fdnum}, 不等于7"
 
 msgid "mount point ${m}, percent filed ${fpercent} unrecognized"
-msgstr "挂载点{m}, 使用率字段格式无法识别: ${fpercent}"
+msgstr "挂载点${m}, 使用率字段格式无法识别: ${fpercent}"
 
 msgid "mount point ${fmount} SKIP"
 msgstr "跳过挂载点 ${fmount} 的检查"
