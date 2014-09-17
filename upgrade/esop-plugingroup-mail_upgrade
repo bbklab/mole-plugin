@@ -38,11 +38,11 @@ OLD_ESOP_VERFILE="${OLD_ESOP_SAVEDIR}/.version_upgrade-esop-plugingroup-mail"
 # Check Previous Version
 OLD_ESOP_VERSION="$(cat ${OLD_ESOP_VERFILE} 2>&- | tr -d '\012\015')"
 if [ -z "${OLD_ESOP_VERSION}" ]; then
-	write_log -f "${UPGRADE_LOG}" "[ERROR] previous esop version unknown, maybe already has been upgraded or new install!"
+	write_log -f "${UPGRADE_LOG}" "[ERROR] previous esop-plugingroup-mail version unknown, maybe already has been upgraded or new install!"
 	exit 1
 fi
 if [ "${OLD_ESOP_VERSION}" != "0.1" ]; then
-	write_log -f "${UPGRADE_LOG}" "[ERROR] previous esop version [${OLD_ESOP_VERSION}] not supported!"
+	write_log -f "${UPGRADE_LOG}" "[ERROR] previous esop-plugingroup-mail version [${OLD_ESOP_VERSION}] not supported!"
 	exit 1
 fi
 
@@ -65,8 +65,8 @@ ARRAY_OLDMOLE_BASECONF=(
   debug
 )
 
-# Set Restore Mole Configs (1.0.1 configs)
-# List all 1.0.1 configs here.
+# Set Restore ESOP-PluginGroup-Mail Configs (0.1 configs)
+# List all 0.1 configs here.
 ARRAY_MOLECONF_RESTORE=(
 	# plugins' config
 	"dns_svr"		"${ARRAY_OLDMOLE_BASECONF[*]} dns_check_lst max_wait_time"
@@ -157,65 +157,26 @@ restore_mole_single_config() {
 }
 
 restore_plugingroup_config() {
-	OLD_MOLE_CONF="${OLD_ESOP_SAVEDIR}/conf/.mole.ini"
-	if [ -f "${OLD_MOLE_CONF}" ] && [ -s "${OLD_MOLE_CONF}" ]; then
-		local i=  x=
-		for ((i=0;i<${#ARRAY_MOLECONF_RESTORE[*]};i++))
-		do
-			if (( $i%2 == 0)); then
-				section=${ARRAY_MOLECONF_RESTORE[$i]}
-			else
-				keyarry=( ${ARRAY_MOLECONF_RESTORE[$i]} )
-				for ((x=0;x<${#keyarry[*]};x++))
-				do
-					key="${keyarry[$x]}"
-					if is_sub "${section}" "${ARRAY_GLOBAL_SECTION[*]}"; then
-						restore_mole_single_config "${OLD_MOLE_CONF}" "${section}" "${key}"
-					elif [[ "${section}" =~ ${INNER_BEGIN} ]]; then
-						restore_mole_single_config "${OLD_MOLE_CONF}" "${section}" "${key}"
-					else
-						plugin_config_file="${OLD_ESOP_SAVEDIR}/conf/${section}.ini"
-						if [ -f "${plugin_config_file}" ] && [ -s "${plugin_config_file}" ]; then
-							restore_mole_single_config "${plugin_config_file}" "${section}" "${key}"
-						else
-							((upgrade_note++))
-							write_log -f "${UPGRADE_LOG}" "[NOTICE] previous rpmsave plugin config ${section}.ini not prepared!"
-						fi
-					fi
-				done
-			fi
-		done
-
-		i=  x=
-		for ((i=0;i<${#ARRAY_MOLEFORCECONF_RESTORE[*]};i++))
-		do
-			if (( $i%2 == 0)); then
-				section=${ARRAY_MOLEFORCECONF_RESTORE[$i]}
-			else
-				keyarry=( ${ARRAY_MOLEFORCECONF_RESTORE[$i]} )
-				for ((x=0;x<${#keyarry[*]};x++))
-				do
-					key="${keyarry[$x]}"
-					if is_sub "${section}" "${ARRAY_GLOBAL_SECTION[*]}"; then
-						restore_mole_single_config "${OLD_MOLE_CONF}" "${section}" "${key}" "1"
-					elif [[ "${section}" =~ ${INNER_BEGIN} ]]; then
-						restore_mole_single_config "${OLD_MOLE_CONF}" "${section}" "${key}" "1"
-					else
-						plugin_config_file="${OLD_ESOP_SAVEDIR}/conf/${section}.ini"
-						if [ -f "${plugin_config_file}" ] && [ -s "${plugin_config_file}" ]; then
-							restore_mole_single_config "${plugin_config_file}" "${section}" "${key}" "1"
-						else
-							((upgrade_note++))
-							write_log -f "${UPGRADE_LOG}" "[NOTICE] previous rpmsave plugin config ${section}.ini not prepared!"
-						fi
-					fi
-				done
-			fi
-		done
-	else
-		write_log -f "${UPGRADE_LOG}" "[ERROR] previous esop rpmsave mole config file not prepared!"
-		return 1
-	fi
+	local i=  x=
+	for ((i=0;i<${#ARRAY_MOLECONF_RESTORE[*]};i++))
+	do
+		if (( $i%2 == 0)); then
+			section=${ARRAY_MOLECONF_RESTORE[$i]}
+		else
+			keyarry=( ${ARRAY_MOLECONF_RESTORE[$i]} )
+			for ((x=0;x<${#keyarry[*]};x++))
+			do
+				key="${keyarry[$x]}"
+				plugin_config_file="${OLD_ESOP_SAVEDIR}/conf/${section}.ini"
+				if [ -f "${plugin_config_file}" ] && [ -s "${plugin_config_file}" ]; then
+					restore_mole_single_config "${plugin_config_file}" "${section}" "${key}"
+				else
+					((upgrade_note++))
+					write_log -f "${UPGRADE_LOG}" "[NOTICE] previous rpmsave plugin config ${section}.ini not prepared!"
+				fi
+			done
+		fi
+	done
 }
 
 
