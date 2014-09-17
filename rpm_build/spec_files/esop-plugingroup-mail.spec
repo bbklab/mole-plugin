@@ -1,13 +1,13 @@
 Summary: 	esop plugin-group for mail system
 Name: 		esop-plugingroup-mail
-Version: 	0.1
+Version: 	0.2
 Release:	rhel
 License: 	GPLv3
 Group:  	Extension
 Packager: 	Zhang Guangzheng <zhang.elinks@gmail.com>
 BuildRoot: 	/var/tmp/%{name}-%{version}-%{release}-root
-Source0: 	esop-plugingroup-mail-0.1-rhel.tgz
-Requires:		esop >= 1.0.1
+Source0: 	esop-plugingroup-mail-0.2-rhel.tgz
+Requires:		esop >= 1.1.0
 Requires:		bind-utils >= 9.3.3
 Requires:		findutils >= 4.2.27
 Requires:		perl >= 5.8.8
@@ -77,9 +77,16 @@ plugins=( dns_svr http_svr imap_svr pop_svr smtp_svr emp_mailqueue )
 :
 
 %changelog
+* Wed Sep 17 2014 Zhang Guangzheng<zhangguangzheng@eyou.net>
+- 发布: 0.2 正式版
+- 新增: 插件emp_mailqueue支持多阈值配置
+- 新增: 插件http_svr详细输出中增加各步骤耗时信息
+- 新增: 插件http_svr自动跟踪3XX的HTTP响应
+- 新增: RPM升级过程中自动进行旧版保留数据的升级和校验
+- 修正: 若干bug修复
 * Mon May 26 2014 Zhang Guangzheng<zhangguangzheng@eyou.net>
 - 发布: 0.1 正式版
-- 调整若干插件的输出样式
-- 修复若干bug
+- 调整: 若干插件的输出样式
+- 修正: 若干bug
 * Tue Apr  8 2014 Zhang Guangzheng<zhangguangzheng@eyou.net>
 - 发布: 0.1-beta1
