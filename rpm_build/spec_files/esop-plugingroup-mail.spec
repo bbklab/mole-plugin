@@ -52,6 +52,7 @@ do
   cp -a ${p}/opt/          $RPM_BUILD_ROOT/usr/local/esop/agent/mole/
   cp -a ${p}/share/	   $RPM_BUILD_ROOT/usr/local/esop/agent/mole/
 done
+cp -a esop-plugingroup-mail_upgrade $RPM_BUILD_ROOT/usr/local/esop/agent/mole/upgrade/
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && [ -d $RPM_BUILD_ROOT ] && rm -rf $RPM_BUILD_ROOT
