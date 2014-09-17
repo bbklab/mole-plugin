@@ -42,7 +42,7 @@ mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/handler/
 mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/opt/
 mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/share/
 mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/upgrade/
-for p in `ls`
+for p in dns_svr http_svr imap_svr pop_svr smtp_svr emp_mailqueue
 do
   cp -a ${p}/${p}	   $RPM_BUILD_ROOT/usr/local/esop/agent/mole/plugin/
   cp -a ${p}/conf/${p}.ini $RPM_BUILD_ROOT/usr/local/esop/agent/mole/conf/
