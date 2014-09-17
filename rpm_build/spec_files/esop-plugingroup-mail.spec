@@ -41,6 +41,7 @@ mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/docs/{cn,en}/
 mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/handler/
 mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/opt/
 mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/share/
+mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/upgrade/
 for p in `ls`
 do
   cp -a ${p}/${p}	   $RPM_BUILD_ROOT/usr/local/esop/agent/mole/plugin/
@@ -63,11 +64,37 @@ done
 /usr/local/esop/agent/mole/handler/
 /usr/local/esop/agent/mole/opt/
 /usr/local/esop/agent/mole/share/
+/usr/local/esop/agent/mole/upgrade/
+
+%pre
+# backup old version config files / save old version
+if /bin/rpm -qi "esop-plugingroup-mail" >/dev/null 2>&1; then
+	# following abandoned: as %{version} will be replaced by fix string {VERSION} on rpm executing
+	# OLD_ESOP_VERSION=$( /bin/rpm -q --queryformat "%{version}" "esop-plugingroup-mail" 2>&- )
+	OLD_ESOP_VERSION=$( /usr/local/esop/agent/mole/plugin/emp_mailqueue version 2>&- )
+	if [ ! -z "${OLD_ESOP_VERSION//[0-9.]}" ]; then
+		OLD_ESOP_VERSION="0.1"		# 0.1 do NOT support version
+	fi
+	if [ -n "${OLD_ESOP_VERSION}" ]; then
+		OLD_ESOP_SAVEDIR="/var/tmp/oldesop-plugingroup-mail-rpmsavedir"
+		OLD_ESOP_VERFILE="${OLD_ESOP_SAVEDIR}/.version_upgrade-esop-plugingroup-mail"
+		if /bin/mkdir -p "${OLD_ESOP_SAVEDIR}/" >/dev/null 2>&1; then
+			if echo -en "${OLD_ESOP_VERSION}" > "${OLD_ESOP_VERFILE}" 2>/dev/null; then
+				MOLE_CONF_PATH="/usr/local/esop/agent/mole/conf"
+				/bin/cp -arf "${MOLE_CONF_PATH}" "${OLD_ESOP_SAVEDIR}" >/dev/null 2>&1
+			fi
+		fi
+	fi
+fi
+:
 
 %post
 # init plugin configs
 plugins=( dns_svr http_svr imap_svr pop_svr smtp_svr emp_mailqueue )
 /bin/bash /usr/local/esop/agent/mole/bin/autoconf rpminit ${plugins[*]}
+
+# upgrade old version
+ESOP_UPGRADE_MODE=1 ESOP_RPM_UPGRADE=1 /bin/bash /usr/local/esop/agent/mole/upgrade/esop-plugingroup-mail_upgrade
 :
 
 %preun
