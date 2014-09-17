@@ -1,0 +1,243 @@
+#!/bin/bash
+#
+#
+# This Script Responsible for Upgrade Mole Plugin GROUP: esop-plugingroup-mail
+# 
+# Return Code:  0|1   OK|FAIL
+#
+
+
+# BASE_DIR DEF
+[ -z ${BASE_DIR} ] && { 
+        path=$( cd $(dirname $0) && pwd)
+        BASE_DIR=${path%/*}
+}
+if [ -f ${BASE_DIR}/bin/include ] && [ -s ${BASE_DIR}/bin/include ]; then
+        source ${BASE_DIR}/bin/include 2>&1
+        rc=$?
+        [ "$rc" != "0" ] && {
+                echo "load include file failed with status $rc"
+                exit 1
+        }
+else
+        echo "${BASE_DIR}/bin/include not exist or empty. exit" 
+        exit 1
+fi
+
+# Check Running ENV
+if [ "${ESOP_UPGRADE_MODE}" != "1" ] || [ "${ESOP_RPM_UPGRADE}" != "1" ];  then
+	echo_red "only running on esop rpm upgrade!";echo;
+	write_log -f "${UPGRADE_LOG}" "[ERROR] only running on esop-plugingroup-mail rpm upgrade!"
+	exit 1
+fi
+
+# RPM (%pre) Previous Action Result
+OLD_ESOP_SAVEDIR="/var/tmp/oldesop-plugingroup-mail-rpmsavedir"
+OLD_ESOP_VERFILE="${OLD_ESOP_SAVEDIR}/.version_upgrade-esop-plugingroup-mail"
+
+# Check Previous Version
+OLD_ESOP_VERSION="$(cat ${OLD_ESOP_VERFILE} 2>&- | tr -d '\012\015')"
+if [ -z "${OLD_ESOP_VERSION}" ]; then
+	write_log -f "${UPGRADE_LOG}" "[ERROR] previous esop version unknown, maybe already has been upgraded or new install!"
+	exit 1
+fi
+if [ "${OLD_ESOP_VERSION}" != "0.1" ]; then
+	write_log -f "${UPGRADE_LOG}" "[ERROR] previous esop version [${OLD_ESOP_VERSION}] not supported!"
+	exit 1
+fi
+
+ARRAY_OLDMOLE_BASECONF=(
+  enable
+  comment
+  frequency
+  exec_tmout
+  maxerr_times
+  take_snapshot
+  mail_notify
+  sms_notify
+  post_notify
+  mail_receviers
+  sms_receviers
+  attsnap_mail
+  auto_handle
+  auto_handler
+  locale
+  debug
+)
+
+# Set Restore Mole Configs (1.0.1 configs)
+# List all 1.0.1 configs here.
+ARRAY_MOLECONF_RESTORE=(
+	# plugins' config
+	"dns_svr"		"${ARRAY_OLDMOLE_BASECONF[*]} dns_check_lst max_wait_time"
+	"pop_svr"		"${ARRAY_OLDMOLE_BASECONF[*]} addr_port time_out pop_user pop_pass"
+	"http_svr"		"${ARRAY_OLDMOLE_BASECONF[*]} addr_port time_out"
+	"imap_svr"		"${ARRAY_OLDMOLE_BASECONF[*]} addr_port time_out imap_user imap_pass"
+	"smtp_svr"		"${ARRAY_OLDMOLE_BASECONF[*]} addr_port time_out smtp_user smtp_pass"
+	"emp_mailqueue"		"${ARRAY_OLDMOLE_BASECONF[*]} uplimit"
+)
+# Skip restore configs, which will use new value instead restoring old values, 
+# Only skip the [section]-[key] if the old value equals {old-value}, as bin/autoconf
+# runs before upgrade/upgrade, so skipped [section]-[key] here use new value.
+# Note: {old-value} empty means skip forcely, without old-value checking.
+ARRAY_SKIP_RESTORE_CONF=(
+	#section		#key		#old-value
+	"emp_mailqueue"		"uplimit"	"1000"
+)
+
+# Initialize Counter
+upgrade_skip=0
+upgrade_succ=0
+upgrade_fail=0
+upgrade_note=0
+
+
+#
+# Func Def
+#
+
+is_should_skip() {
+	local section=$1  key=$2  value=$3
+
+	local i=
+	for((i=0;i<${#ARRAY_SKIP_RESTORE_CONF[*]};i++))
+	do
+		if [ "${ARRAY_SKIP_RESTORE_CONF[$i]}" == "${section}" ]; then
+			if [ "${ARRAY_SKIP_RESTORE_CONF[$i+1]}" == "${key}" ]; then
+				if [ -z "${ARRAY_SKIP_RESTORE_CONF[$i+2]}" ]; then
+					return 0
+				elif [ "${ARRAY_SKIP_RESTORE_CONF[$i+2]}" == "${value}" ]; then
+					return 0
+				else
+					continue
+				fi
+			fi
+		fi
+	done
+	
+	return 1
+}
+
+restore_mole_single_config() {
+	local configfile=$1 section=$2  key=$3  is_force=$4
+	local old=$(read_mole_config -f "${configfile}" "${section}" "${key}")
+	local new=$(read_mole_config "${section}" "${key}")
+	local rc=
+
+	if is_should_skip "${section}" "${key}" "${old}" >/dev/null 2>&1; then
+		((upgrade_skip++))	
+		write_log -f "${UPGRADE_LOG}"  "[SKIP] restore config [${section}-${key}], as old valud = [${old}]"
+	elif [ "${old}" != "${new}" ]; then
+		if [ "${is_force}" == "1" ]; then
+			if [ -z "${old}" ]; then
+				clear_mole_config "force" "${section}" "${key}"
+			else
+				update_mole_config "force" "${section}" "${key}" "${old}"
+			fi
+		else
+			if [ -z "${old}" ]; then
+				clear_mole_config "${section}" "${key}"
+			else
+				update_mole_config "${section}" "${key}" "${old}"
+			fi
+		fi
+		rc=$?
+		if [ $rc -ne 0 ]; then
+			((upgrade_fail++))
+			write_log -f "${UPGRADE_LOG}"  "[FAIL] restore config [${section}-${key}] => [${old}] (${rc})"
+		else
+			((upgrade_succ++))
+			write_log -f "${UPGRADE_LOG}"  "[SUCC] restore config [${section}-${key}] => [${old}] (${rc})"
+		fi
+		return $rc
+	else
+		((upgrade_skip++))	
+		write_log -f "${UPGRADE_LOG}"  "[SKIP] restore config [${section}-${key}] unchanged!"
+	fi
+}
+
+restore_plugingroup_config() {
+	OLD_MOLE_CONF="${OLD_ESOP_SAVEDIR}/conf/.mole.ini"
+	if [ -f "${OLD_MOLE_CONF}" ] && [ -s "${OLD_MOLE_CONF}" ]; then
+		local i=  x=
+		for ((i=0;i<${#ARRAY_MOLECONF_RESTORE[*]};i++))
+		do
+			if (( $i%2 == 0)); then
+				section=${ARRAY_MOLECONF_RESTORE[$i]}
+			else
+				keyarry=( ${ARRAY_MOLECONF_RESTORE[$i]} )
+				for ((x=0;x<${#keyarry[*]};x++))
+				do
+					key="${keyarry[$x]}"
+					if is_sub "${section}" "${ARRAY_GLOBAL_SECTION[*]}"; then
+						restore_mole_single_config "${OLD_MOLE_CONF}" "${section}" "${key}"
+					elif [[ "${section}" =~ ${INNER_BEGIN} ]]; then
+						restore_mole_single_config "${OLD_MOLE_CONF}" "${section}" "${key}"
+					else
+						plugin_config_file="${OLD_ESOP_SAVEDIR}/conf/${section}.ini"
+						if [ -f "${plugin_config_file}" ] && [ -s "${plugin_config_file}" ]; then
+							restore_mole_single_config "${plugin_config_file}" "${section}" "${key}"
+						else
+							((upgrade_note++))
+							write_log -f "${UPGRADE_LOG}" "[NOTICE] previous rpmsave plugin config ${section}.ini not prepared!"
+						fi
+					fi
+				done
+			fi
+		done
+
+		i=  x=
+		for ((i=0;i<${#ARRAY_MOLEFORCECONF_RESTORE[*]};i++))
+		do
+			if (( $i%2 == 0)); then
+				section=${ARRAY_MOLEFORCECONF_RESTORE[$i]}
+			else
+				keyarry=( ${ARRAY_MOLEFORCECONF_RESTORE[$i]} )
+				for ((x=0;x<${#keyarry[*]};x++))
+				do
+					key="${keyarry[$x]}"
+					if is_sub "${section}" "${ARRAY_GLOBAL_SECTION[*]}"; then
+						restore_mole_single_config "${OLD_MOLE_CONF}" "${section}" "${key}" "1"
+					elif [[ "${section}" =~ ${INNER_BEGIN} ]]; then
+						restore_mole_single_config "${OLD_MOLE_CONF}" "${section}" "${key}" "1"
+					else
+						plugin_config_file="${OLD_ESOP_SAVEDIR}/conf/${section}.ini"
+						if [ -f "${plugin_config_file}" ] && [ -s "${plugin_config_file}" ]; then
+							restore_mole_single_config "${plugin_config_file}" "${section}" "${key}" "1"
+						else
+							((upgrade_note++))
+							write_log -f "${UPGRADE_LOG}" "[NOTICE] previous rpmsave plugin config ${section}.ini not prepared!"
+						fi
+					fi
+				done
+			fi
+		done
+	else
+		write_log -f "${UPGRADE_LOG}" "[ERROR] previous esop rpmsave mole config file not prepared!"
+		return 1
+	fi
+}
+
+
+#
+# Main Body Begin ...
+#
+
+write_log -f "${UPGRADE_LOG}" ''
+write_log -f "${UPGRADE_LOG}" ''
+write_log -f "${UPGRADE_LOG}" '[INFO] esop-plugingroup-mail upgrade from 0.1 to 0.2 start.'
+
+restore_plugingroup_config
+
+
+errstr=$(/bin/cp /dev/null "${OLD_ESOP_VERFILE}" 2>&1 1>/dev/null)
+if [ $? -eq 0 ]; then
+	write_log -f "${UPGRADE_LOG}"  "[INFO] empty upgrade tag file ${OLD_ESOP_VERFILE}"
+	((upgrade_succ++))
+else
+	write_log -f "${UPGRADE_LOG}"  "[ERROR] empty upgrade tag file ${OLD_ESOP_VERFILE} [${errstr}]"
+	((upgrade_fail++))
+fi
+
+write_log -f "${UPGRADE_LOG}"  "[INFO] esop-plugingroup-mail upgrade from 0.1 to 0.2 finished. "\
+					"[skip=${upgrade_skip}, succ=${upgrade_succ}, fail=${upgrade_fail}, note=${upgrade_note}]"
