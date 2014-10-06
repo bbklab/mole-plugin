@@ -56,8 +56,8 @@ if [ -z "${1}" ]; then
 	smtp_svr
 	ssd
 	sysload
-	system_dyninfo
-	system_fixinfo
+	# system_dyninfo
+	# system_fixinfo
 	tcp_conn
 	traffic
   )
@@ -94,8 +94,8 @@ if [ "${TARMODE}" == "1" ]; then	# reset specfile and plugins
        	port
  	process
        	sysload
-       	system_dyninfo
-       	system_fixinfo
+       	# system_dyninfo
+       	# system_fixinfo
        	tcp_conn
        	traffic
   )
