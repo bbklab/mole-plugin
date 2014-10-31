@@ -296,8 +296,9 @@ while(@addr_pair) {
   }
 
   if($smtp_user && $smtp_pass) {
-	$smtp_user = encode_base64($smtp_user,'');	# trim '\n', empty eof
-	$smtp_pass = encode_base64($smtp_pass,'');	# trim '\n', empty eof
+	my ($encode_smtp_user, $encode_smtp_pass);
+	$encode_smtp_user = encode_base64($smtp_user,'');	# trim '\n', empty eof
+	$encode_smtp_pass = encode_base64($smtp_pass,'');	# trim '\n', empty eof
 	unless ($smtp_user && $smtp_pass) {
 		$result .= sprintf(_"<font color=red> base64 encode on smtp_user/smtp_pass failed. </font> ### ### ");
 		next;	
@@ -334,7 +335,7 @@ while(@addr_pair) {
 		$time_start = Benchmark->new();         ## reset time_start
 	}
 	
-	print $smtp "$smtp_user\r\n";
+	print $smtp "$encode_smtp_user\r\n";
 	$response = <$smtp>;
 	### orig: $response
 	if ($response && $response ne '') {
@@ -364,7 +365,7 @@ while(@addr_pair) {
 		$time_start = Benchmark->new();         ## reset time_start
 	}
 
-	print $smtp "$smtp_pass\r\n";
+	print $smtp "$encode_smtp_pass\r\n";
 	$response = <$smtp>;
 	### orig: $response
 	if ($response && $response ne '') {
