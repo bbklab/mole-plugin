@@ -19,20 +19,26 @@ msgstr "\t%+#D"
 msgid "\n"
 msgstr "\n"
 
-msgid "{warn}:{str}:{ authpriv file [%s] not exists. }"
-msgstr "{warn}:{str}:{ 系统Auth文件 [%s] 不存在. }"
+msgid "open file [%s] failed."
+msgstr "打开文件 [%s] 失败."
 
-msgid "{warn}:{str}:{ open authpriv file [%s] failed. }"
-msgstr "{warn}:{str}:{ 打开系统Auth文件 [%s] 失败. }"
+msgid "{warn}:{str}:{ bind_filekeyword file [%s] not exists. }"
+msgstr "{warn}:{str}:{ 配置项 bind_filekeyword 所指定的文件[%s]不存在.}"
 
-msgid "%s: user [%s] login from [%s:%d] ###"
-msgstr "%s: 用户 %s 从地址 %s:%d 登录操作系统 ### "
+msgid "{warn}:{str}:{ open bind_filekeyword file [%s] error. }"
+msgstr "{warn}:{str}:{ 打开配置项 bind_filekeyword 所指定的文件[%s]失败.}"
 
-msgid "{succ}:{str}:{no login event found}"
-msgstr "{succ}:{str}:{未发现用户登录操作系统事件}"
+msgid "{succ}:{str}:{no new record found}"
+msgstr "{succ}:{str}:{未发现关键字记录}"
 
-msgid "%d login event | %d login event | "
-msgstr "%d 起用户登录事件 | %d 起用户登录事件 | "
+msgid "%d error occured | %d error occured | "
+msgstr "发生 %d 个错误 | 发生 %d 个错误 | "
+
+msgid "{warn}:{str}:{%s}"
+msgstr "{warn}:{str}:{%s}"
+
+msgid "%d record found | %d record found | "
+msgstr "发现 %d 起关键字记录 | 发现 %d 起关键字记录 | "
 
 msgid "{notify}:{str}:{%s}"
 msgstr "{notify}:{str}:{%s}"

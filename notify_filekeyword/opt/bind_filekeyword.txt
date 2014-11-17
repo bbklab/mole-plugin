@@ -7,10 +7,3 @@
 # /var/log/message 	failed
 # /var/log/message	^[0-9]{3}$    out\s+of\s+memory
 #
-
-/var/log/messages 	warning:.+failed
-/var/log/messages	^[0-9]{3}$    out\s+of\s+memory
-/var/log/secure		zgz
-/var/log/maillog
-/var/log/cron
-/tmp/123		a	b		d
