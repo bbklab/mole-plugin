@@ -167,6 +167,7 @@ sub _load {
   while(<FH>){
 	chomp;
 	next unless m/\A\s*\//;         # skip line not begin with /
+	s/\A\s*//g;
 	my $filename = (split /\s+/)[0];
 	if ($filename eq $logfile) {
 		@position = (split /\s+/)[1,2,3];	
@@ -219,9 +220,13 @@ sub _process {
   	chomp; my $line = $_;
 	foreach my $keyword (@keywords) {
 		if ($case_sensitive eq 'no') {
-  			push @Record, $line . ' ### ' if ($line =~ m/$keyword/i);
+  			if ($line =~ m/$keyword/i) {
+				push @Record, $` . '<font color=red>' . $& . '</font>' . $' . ' ### ';
+			}
 		}
-  		push @Record, $line . ' ### ' if ($line =~ m/$keyword/);
+		if ($line =~ m/$keyword/) {
+			push @Record, $` . '<font color=red>' . $& . '</font>' . $' . ' ### ';
+		}
 	}
   }
   $Position{$file}{'tail'} = tell(FH);		# save new tail position
@@ -262,6 +267,7 @@ unless (open KFH, "<$bind_filekeyword") {
 while(<KFH>){
   chomp;
   next unless m/\A\s*\//;
+  s/\A\s*//g;
   my @configs = split /\s+/;
   my $logfile = shift @configs;
   next unless (-f $logfile);
