@@ -1,0 +1,16 @@
+# resource file which plugin notify_filekeyword.bind_filekeyword specified
+# FORMAT: file-path  keywords-regex1  keywords-regex2  ...
+# Note:	regex can **NOT** contain space chars
+# Note: automatic skip file that not exists
+#
+# Example: 
+# /var/log/message 	failed
+# /var/log/message	^[0-9]{3}$    out\s+of\s+memory
+#
+
+/var/log/messages 	warning:.+failed
+/var/log/messages	^[0-9]{3}$    out\s+of\s+memory
+/var/log/secure		zgz
+/var/log/maillog
+/var/log/cron
+/tmp/123		a	b		d

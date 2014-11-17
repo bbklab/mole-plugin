@@ -1,0 +1,309 @@
+#!/usr/bin/env perl
+
+our $basedir = '/usr/local/esop/agent/mole';
+our $mole = "$basedir/sbin/mole";
+
+BEGIN {
+  my $basedir = '/usr/local/esop/agent/mole';
+  my $pllib_dir = "$basedir/opt/plmods";
+  my @incs = (    # set additional path
+        # rhel5 32bit
+        $pllib_dir.'/lib/perl5/',
+        $pllib_dir.'/lib/perl5/5.8.8/',
+        $pllib_dir.'/lib/perl5/site_perl/',
+        $pllib_dir.'/lib/perl5/site_perl/5.8.8/',
+        # rhel5 64bit
+        $pllib_dir.'/lib64/perl5/',
+        $pllib_dir.'/lib64/perl5/5.8.8/',
+        $pllib_dir.'/lib64/perl5/site_perl/',
+        $pllib_dir.'/lib64/perl5/site_perl/5.8.8/',
+        # rhel6 32bit
+        $pllib_dir.'/lib/perl5/',
+	$pllib_dir.'/share/perl5/',
+        # rhel6 64bit
+        $pllib_dir.'/lib64/perl5/',
+	$pllib_dir.'/share/perl5/',
+  );
+
+  push @INC, @incs;
+};
+
+use strict;
+use warnings;
+use utf8;
+use Locale::Messages qw (textdomain bindtextdomain gettext nl_putenv :locale_h :libintl_h);
+use POSIX qw (setlocale);
+# use Smart::Comments;
+binmode(STDIN, ":encoding(utf8)");
+binmode(STDOUT, ":encoding(utf8)");
+binmode(STDERR, ":encoding(utf8)");
+binmode STDOUT, ':raw';
+
+# return codes
+our ($state_succ,$state_warn,$state_crit,$state_unkn,$state_noop,$state_notify) = (0,1,2,3,4,5);
+
+# return stuff
+our ($rc, $result) = (0,'');
+
+our $filename = (split /\//, __FILE__)[-1];
+our $tracefile = "/var/tmp/$filename.trace";
+
+# check mole
+unless (-f $mole && -x $mole) {
+  printf "{unkn}:{str}:{$mole not prepared.}";
+  exit $state_unkn;
+}
+
+# read mole locale_def
+our $localdir = "$basedir/share/locale/";
+open my $fh, "$mole printdef LOCALE_DIR 2>&- |";
+if($fh){
+  while(<$fh>){
+        chomp; $localdir = $_;
+        last;
+  }
+}
+
+# read plugin locale setting
+our $locale = 'zh_CN.UTF-8';
+open $fh, "$mole view $filename locale 2>&- |";
+if($fh){
+  while(<$fh>){
+        chomp; $locale = $_;
+        last;
+  }
+  if(!defined $locale || $locale eq ''){
+        open my $fh1, "$mole view default locale 2>&- |";
+        if($fh1){
+                while(<$fh1>){
+                        chomp; $locale = $_;
+                        last;
+                }
+        }
+  }
+}
+if(!defined $locale || $locale eq ''){
+        $locale = 'zh_CN.UTF-8';
+}elsif($locale eq 'zh_CN' || $locale eq 'zh_CN.UTF-8' || $locale eq 'zh'){
+        $locale = 'zh_CN.UTF-8';
+}elsif($locale eq 'en_US' || $locale eq 'en_US.UTF-8' || $locale eq 'en'){
+        $locale = 'en_US.UTF-8';
+}else{
+        $locale = 'zh_CN.UTF-8';
+}
+setlocale(LC_ALL,$locale);
+nl_putenv("LANGUAGE=$locale");
+nl_putenv("LANG=$locale");
+
+# set textdomain; bindtextdomain
+sub _ ($) { &gettext; }
+textdomain "$filename";
+bindtextdomain "$filename", "$localdir";
+
+# read plugin config here
+our $case_sensitive_default = 'no';
+our $case_sensitive = '';
+open $fh, "$mole view $filename case_sensitive 2>&- |";
+if ($fh) {
+  while(<$fh>){
+  	chomp; $case_sensitive = $_;
+	last;
+  }
+}
+$case_sensitive = (!$case_sensitive) ? $case_sensitive_default : $case_sensitive;
+
+our $bind_filekeyword;
+open $fh, "$mole view $filename bind_filekeyword 2>&- |";
+if ($fh) {
+	while(<$fh>) {
+		chomp; $bind_filekeyword = $_;
+		last;
+	}
+}
+
+
+# global hash to save logfile and keywords
+my %FileKeyword = ();
+
+# global hash to save logfile and position
+my %Position = ();
+
+# global array to hold found record and error.
+my @Record = ();
+my @Error = ();
+
+
+#
+# Sub Def
+#
+
+# define savepos
+sub savepos {
+  my $newposition = shift;
+  my %newposition = %{$newposition};
+  my $save = undef;
+  foreach my $file (keys %newposition) {
+	$save .= "$file $newposition{$file}{'dev'} $newposition{$file}{'inode'} $newposition{$file}{'tail'}\n";
+  }
+  unless (open FH, ">$tracefile") {
+	return undef;
+  }
+  unless ($save){
+	return undef;
+  }
+  unless (print FH "$save") {
+	return undef;
+  }
+  close FH;
+}
+
+# defined _load
+sub _load {
+  my $logfile = shift;
+  my @position = (0,0,0);		# default dev,inode,tail
+  unless (open FH, "<$tracefile") {
+	return @position;
+  }
+  while(<FH>){
+	chomp;
+	next unless m/\A\s*\//;         # skip line not begin with /
+	my $filename = (split /\s+/)[0];
+	if ($filename eq $logfile) {
+		@position = (split /\s+/)[1,2,3];	
+		last;
+	}
+  }
+  close FH;
+  return @position;
+}
+
+# define loadpos
+sub loadpos {
+  my @filelist = @_;
+  my %position = ();
+  foreach my $file (@filelist) {
+	@{$position{$file}} { qw(
+		dev inode tail
+	) } = &_load($file);
+  }
+  return %position;
+}
+
+# refesh pos if logfile rotated
+sub refreshpos {
+  my $position = shift;
+  my %position = %{$position};
+  foreach my $logfile (keys %position) {
+	my ($nowdev, $nowinode) = (stat $logfile)[0,1];
+	if ($position{$logfile}{'dev'} ne $nowdev || $position{$logfile}{'inode'} ne $nowinode) {
+		@{$position{$logfile}} { qw(
+			dev inode tail
+		) } = ($nowdev, $nowinode, 0);
+	}
+  }
+  return %position;
+}
+
+# define _process
+sub _process {
+  my ($file, $tail, @keywords) = (shift, shift, @_);
+  unless (open FH, "<$file") {
+  	push @Error, sprintf(_"open file [%s] failed.",$file) . ' ### ';
+	return;
+  }
+  if (scalar @Error) {			# if has error before, will not process any new file
+	return;				# after try to open file
+  }
+  seek (FH,$tail,0);			# directly goto tail position
+  while (<FH>) {
+  	chomp; my $line = $_;
+	foreach my $keyword (@keywords) {
+		if ($case_sensitive eq 'no') {
+  			push @Record, $line . ' ### ' if ($line =~ m/$keyword/i);
+		}
+  		push @Record, $line . ' ### ' if ($line =~ m/$keyword/);
+	}
+  }
+  $Position{$file}{'tail'} = tell(FH);		# save new tail position
+  close FH;
+}
+
+# define process
+sub process {
+  my ($filekeyword, $fileposition) = @_;
+  my %filekeyword = %{$filekeyword};
+  my %fileposition = %{$fileposition};
+  foreach my $file (keys %filekeyword) {
+	if ($fileposition{$file}{'tail'}) {
+		_process($file, $fileposition{$file}{'tail'}, @{$filekeyword{$file}});
+	} else {
+		_process($file, 0, @{$filekeyword{$file}});
+	}
+  }
+}
+
+# Main body begin
+
+# 1. check file {bind_filekeyword}
+$bind_filekeyword =~ s/\A\s*file://gi;
+unless ($bind_filekeyword =~ m/\A\//) {
+  $bind_filekeyword = $basedir . '/' . $bind_filekeyword;
+}
+unless (-f $bind_filekeyword) {
+  printf _"{warn}:{str}:{ bind_filekeyword file [%s] not exists. }",$bind_filekeyword;
+  exit $state_warn;
+}
+
+# 2. initial hash %FileKeyword according by configs
+unless (open KFH, "<$bind_filekeyword") {
+  printf _"{warn}:{str}:{ open bind_filekeyword file [%s] error. }",$bind_filekeyword;
+  exit $state_warn;
+}
+while(<KFH>){
+  chomp;
+  next unless m/\A\s*\//;
+  my @configs = split /\s+/;
+  my $logfile = shift @configs;
+  next unless (-f $logfile);
+  push @{$FileKeyword{$logfile}}, @configs;
+}
+close KFH;
+### config: %FileKeyword
+
+# 3. load last position (only load specified files according by config)
+%Position = &loadpos(keys %FileKeyword);
+### init_positon: %Position
+
+# 4. refresh %Position (logrotated file or new added file)
+%Position = &refreshpos(\%Position);
+### after_refresh_position: %Position
+
+# 5. process... (result saved in @Record, @Error)
+&process(\%FileKeyword, \%Position);
+
+# 6. resave new tail position
+savepos(\%Position);
+
+# 7. prepare last output
+my $errnumber = scalar @Error;
+if ($errnumber) {
+	while (@Error) {
+		$result .= shift @Error;
+	}
+	$result = sprintf(_"%d error occured | %d error occured | ", $errnumber, $errnumber) . $result;
+  	printf _"{warn}:{str}:{%s}",$result;
+  	exit $state_warn;
+} else {
+	my $number = scalar @Record;
+	if ($number) {
+		while (@Record) {
+			$result .= shift @Record;
+		}
+		$result = sprintf(_"%d record found | %d record found | ", $number, $number) . $result;
+  		printf _"{notify}:{str}:{%s}",$result;
+  		exit $state_notify;
+	} else {
+  		printf _"{succ}:{str}:{no new record found}";
+  		exit $state_succ;
+	}
+}

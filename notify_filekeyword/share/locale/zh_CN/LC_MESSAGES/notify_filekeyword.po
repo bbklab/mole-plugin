@@ -1,0 +1,38 @@
+# Copyright (C) 2013 MOLE LANGUAGE FILE FOR GETTEXT
+# FIRST AUTHOR <zhangguangzheng@eyou.net>,<zhang.elinks@gmail.com> 2013.
+# This file is distributed under the same license as the mole package.
+#
+msgid ""
+msgstr ""
+"Report-Msgid-Bugs-To: zhangguangzheng@eyou.net\n"
+"Last-Translator: Guangzheng Zhang <zhang.elinks@gmail.com>\n"
+"Language-Team: MOLE-LANGUAGE <zhang.elinks@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Chinese\n"
+"X-Poedit-Country: CHINA\n"
+
+msgid "\t%+#D"
+msgstr "\t%+#D"
+
+msgid "\n"
+msgstr "\n"
+
+msgid "{warn}:{str}:{ authpriv file [%s] not exists. }"
+msgstr "{warn}:{str}:{ 系统Auth文件 [%s] 不存在. }"
+
+msgid "{warn}:{str}:{ open authpriv file [%s] failed. }"
+msgstr "{warn}:{str}:{ 打开系统Auth文件 [%s] 失败. }"
+
+msgid "%s: user [%s] login from [%s:%d] ###"
+msgstr "%s: 用户 %s 从地址 %s:%d 登录操作系统 ### "
+
+msgid "{succ}:{str}:{no login event found}"
+msgstr "{succ}:{str}:{未发现用户登录操作系统事件}"
+
+msgid "%d login event | %d login event | "
+msgstr "%d 起用户登录事件 | %d 起用户登录事件 | "
+
+msgid "{notify}:{str}:{%s}"
+msgstr "{notify}:{str}:{%s}"
