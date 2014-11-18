@@ -1,9 +1,12 @@
 # resource file which plugin notify_filekeyword.bind_filekeyword specified
 # FORMAT: file-path  keywords-regex1  keywords-regex2  ...
-# Note:	regex can **NOT** contain space chars
+#
+# Note:	regex **MUST** be placed in single/double quotes
 # Note: automatic skip file that not exists
 #
 # Example: 
-# /var/log/message 	failed
-# /var/log/message	^[0-9]{3}$    out\s+of\s+memory
+# /var/log/messages 	"failed"
+# /var/log/messages	"^[0-9]{3}$"    "out of memory"
+# /var/log/messages	'^Nov 16 10:41'		'... max period:        000000007fffffff'
+# /var/log/secure       "Failed password for"
 #
