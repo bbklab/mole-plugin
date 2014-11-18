@@ -221,11 +221,19 @@ sub _process {
 	foreach my $keyword (@keywords) {
 		if ($case_sensitive eq 'no') {
   			if ($line =~ m/$keyword/i) {
-				push @Record, $` . '<font color=red>' . $& . '</font>' . $' . ' ### ';
+				if (length $&) {
+					push @Record, $` . '<font color=red>' . $& . '</font>' . $' . ' ### ';
+				} else {
+					push @Record, $line;
+				}
 			}
 		}
 		if ($line =~ m/$keyword/) {
-			push @Record, $` . '<font color=red>' . $& . '</font>' . $' . ' ### ';
+			if (length $&) {
+				push @Record, $` . '<font color=red>' . $& . '</font>' . $' . ' ### ';
+			} else {
+				push @Record, $line;
+			}
 		}
 	}
   }
@@ -266,12 +274,14 @@ unless (open KFH, "<$bind_filekeyword") {
 }
 while(<KFH>){
   chomp;
-  next unless m/\A\s*\//;
-  s/\A\s*//g;
-  my @configs = split /\s+/;
-  my $logfile = shift @configs;
-  next unless (-f $logfile);
-  push @{$FileKeyword{$logfile}}, @configs;
+  next unless m/\A\s*\//;			# skip line not begin with /
+  s/\A\s*//g;					# remove line begin space chars
+  s/\A(\S+?)\s+//g;				# remove line first non-space-part
+  my $logfile = $1;				# take $1 as filepath
+  next unless (-f $logfile);			# skip filepath not exists
+  my @keywords = split /['|"]\s+['|"]/, $_;	# split remain line content as keyword array
+  map { s/\A\s*['|"]|['|"]\s*\Z//g } @keywords;	# remove all head/tail '|" from keyword array
+  push @{$FileKeyword{$logfile}}, @keywords;	# packaging as hash %FileKeyword
 }
 close KFH;
 ### config: %FileKeyword
