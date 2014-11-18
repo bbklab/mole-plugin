@@ -101,7 +101,7 @@ textdomain "$filename";
 bindtextdomain "$filename", "$localdir";
 
 # read plugin config here
-our $case_sensitive_default = 'no';
+our $case_sensitive_default = 'yes';
 our $case_sensitive = '';
 open $fh, "$mole view $filename case_sensitive 2>&- |";
 if ($fh) {
