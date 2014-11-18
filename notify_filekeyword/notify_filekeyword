@@ -129,7 +129,7 @@ my %FileKeyword = ();
 my %Position = ();
 
 # global array to hold found record and error.
-my @Record = ();
+my %Record = ();
 my @Error = ();
 
 
@@ -222,17 +222,17 @@ sub _process {
 		if ($case_sensitive eq 'no') {
   			if ($line =~ m/$keyword/i) {
 				if (length $&) {
-					push @Record, $` . '<font color=red>' . $& . '</font>' . $' . ' ### ';
+					push @{$Record{$file}}, $` . '<font color=red>' . $& . '</font>' . $' . ' ### ';
 				} else {
-					push @Record, $line;
+					push @{$Record{$file}}, $line;
 				}
 			}
 		}
 		if ($line =~ m/$keyword/) {
 			if (length $&) {
-				push @Record, $` . '<font color=red>' . $& . '</font>' . $' . ' ### ';
+				push @{$Record{$file}}, $` . '<font color=red>' . $& . '</font>' . $' . ' ### ';
 			} else {
-				push @Record, $line;
+				push @{$Record{$file}}, $line;
 			}
 		}
 	}
@@ -294,7 +294,7 @@ close KFH;
 %Position = &refreshpos(\%Position);
 ### after_refresh_position: %Position
 
-# 5. process... (result saved in @Record, @Error)
+# 5. process... (result saved in %Record, @Error)
 &process(\%FileKeyword, \%Position);
 
 # 6. resave new tail position
@@ -310,12 +310,20 @@ if ($errnumber) {
   	printf _"{warn}:{str}:{%s}",$result;
   	exit $state_warn;
 } else {
-	my $number = scalar @Record;
+	my $number = scalar keys %Record;
 	if ($number) {
-		while (@Record) {
-			$result .= shift @Record;
+		my $recordnumber = 0;
+		foreach my $file (keys %Record) {
+			if (scalar @{$Record{$file}}) {
+				$result .= "$file ### ";
+				while (@{$Record{$file}}) {
+					$result .= shift @{$Record{$file}};
+					$recordnumber ++;
+				}
+				$result .= ' ### ### ';
+			}
 		}
-		$result = sprintf(_"%d record found | %d record found | ", $number, $number) . $result;
+		$result = sprintf(_"%d record found | %d record found | ", $recordnumber, $recordnumber) . $result;
   		printf _"{notify}:{str}:{%s}",$result;
   		exit $state_notify;
 	} else {
