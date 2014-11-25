@@ -127,8 +127,47 @@ if (!$authfile) {
 }
 $authfile = (!$authfile) ? $authfile_default : $authfile;
 
+our $exclude_ip = '';
+open $fh, "$mole view $filename exclude_ip 2>&- |";
+if ($fh) {
+  while(<$fh>){
+	chomp; $exclude_ip = $_;
+	last;
+  }
+}
+our @exclude_ip = split /\s+/, $exclude_ip;
+
+our $exclude_user = '';
+open $fh, "$mole view $filename exclude_user 2>&- |";
+if ($fh) {
+  while(<$fh>){
+	chomp; $exclude_user = $_;
+	last;
+  }
+}
+our @exclude_user = split /\s+/, $exclude_user;
+
+our $check_publickey;
+open $fh, "$mole view $filename check_publickey 2>&- |";
+if ($fh) {
+  while(<$fh>){
+	chomp; $check_publickey = $_;
+	last;
+  }
+}
+$check_publickey = (defined $check_publickey && $check_publickey eq 'yes') ? 1 : 0;
+
 # define dev, inode, position for {authfile}
 our ($dev, $inode, $position) = ();
+
+# define is_sub
+sub is_sub {
+  my ($item, @array) = (shift, @_); 
+  for (@array) {
+	( $item eq $_ ) && return 1;
+	0;  
+  }   
+}
 
 # define savepos
 sub savepos {
@@ -181,8 +220,20 @@ seek (FH,$position,0);		# directly goto last position
 my @record = ();
 while (<FH>) {
   chomp;
+  my ($time, $user, $ip, $port);
   if (m/\A(\w+ +\d+ +.+? ).*Accepted password for (\w+) from (.+) port (\d+) .*\Z/i) {
-	push @record,  sprintf(_"%s: user [%s] login from [%s:%d] ###",$1,$2,$3,$4);
+	($time, $user, $ip, $port) = ($1, $2, $3, $4);
+	unless ( &is_sub($user, @exclude_user) || &is_sub($ip, @exclude_ip) ) {
+		push @record,  sprintf(_"%s: user [%s] through password auth login from [%s:%d] ###",$time,$user,$ip,$port);
+	}
+  } else {
+	next unless ($check_publickey);
+  	if (m/\A(\w+ +\d+ +.+? ).*Accepted publickey for (\w+) from (.+) port (\d+) .*\Z/i) {
+		($time, $user, $ip, $port) = ($1, $2, $3, $4);
+		unless ( &is_sub($user, @exclude_user) || &is_sub($ip, @exclude_ip) ) {
+			push @record,  sprintf(_"%s: user [%s] through public key login from [%s:%d] ###",$time,$user,$ip,$port);
+		}
+	}
   }
 }
 # 5. read nower position and save again.

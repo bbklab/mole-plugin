@@ -25,8 +25,11 @@ msgstr "{warn}:{str}:{ 系统Auth文件 [%s] 不存在. }"
 msgid "{warn}:{str}:{ open authpriv file [%s] failed. }"
 msgstr "{warn}:{str}:{ 打开系统Auth文件 [%s] 失败. }"
 
-msgid "%s: user [%s] login from [%s:%d] ###"
-msgstr "%s: 用户 %s 从地址 %s:%d 登录操作系统 ### "
+msgid "%s: user [%s] through password auth login from [%s:%d] ###"
+msgstr "%s: 用户 %s 从地址 %s:%d 通过密码认证登录操作系统 ### "
+
+msgid "%s: user [%s] through public key login from [%s:%d] ###"
+msgstr "%s: 用户 %s 从地址 %s:%d 通过公钥认证登陆操作系统 ### "
 
 msgid "{succ}:{str}:{no login event found}"
 msgstr "{succ}:{str}:{未发现用户登录操作系统事件}"
