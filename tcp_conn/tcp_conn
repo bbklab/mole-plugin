@@ -183,13 +183,13 @@ check_single(){
 					for(c in num) \
 						printf("%s:%s\n",c,num[c]) }'\
 		 	"${statfile}" 2>&- )
-  local ip_stat=$( awk '$4~/:'${s_port}'\>/ {print $5}' \
+  local ip_stat=$( ( awk '$4~/:'${s_port}'\>/ {print $5}' \
 			"${statfile}" 2>&- |\
 		   awk -F: '($(NF-1)!=""){Num[$(NF-1)]++} \
 				END{for (c in Num) \
 						{printf("%s  %s\n"),Num[c],c}}' |\
-		   sort -rn | head)  ## only print top 10 ipaddress
-  local total=$(echo -e "${conn_stat}" | awk -F: '/^Total\>/{print $2;exit}' | tr -d ' ')
+		   sort -rn | head ) 2>&- )  ## only print top 10 ipaddress
+  local total=$( (echo -e "${conn_stat}" | awk -F: '/^Total\>/{print $2;exit}' | tr -d ' ') 2>&- )
 
   # output data and exit if MODE=1
   [ "${MODE}" == "1" ] && {

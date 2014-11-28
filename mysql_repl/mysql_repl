@@ -146,7 +146,7 @@ check() {
 	errstuff=$( ${cmd} -s -e "SHOW SLAVE STATUS\G" 2>&1 1>"${tmpfile}" )
 	if [ "$?" != "0" ]; then
 		((errnum++))
-		errstuff=$(echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n')
+		errstuff=$( (echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n') 2>&- )
 		result="${result} $(html_red "$(eval_gettext "show slave status failed: return [\${errstuff}]")") ### "
 	else
 		if [ -f "${tmpfile}" ] && [ -s "${tmpfile}" ]; then

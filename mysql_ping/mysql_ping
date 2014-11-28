@@ -142,7 +142,7 @@ check() {
 	fi
 
 	ping_result=$( ${cmd} ping 2>&1 )
-	ping_result=$(echo -e "${ping_result}" | sed -e '/password on the command line/d' |tr -d '\r\n')
+	ping_result=$( (echo -e "${ping_result}" | sed -e '/password on the command line/d' |tr -d '\r\n') 2>&- )
 	if [ "$(echo "${ping_result}"|grep -E -o -i "is alive")" == "" ]; then
 		((errnum++))
 		result="${result} $(html_red "$(gettext "result:") [${ping_result}]") ### ### "

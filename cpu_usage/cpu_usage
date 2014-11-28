@@ -270,8 +270,8 @@ check(){
 
   # collect data
   local cpu_usage=
-  cpu_usage=( $( /usr/bin/vmstat 1 10 | tail -n +3 |\
-	awk '{id+=$15;wa+=$16;sy+=$14;us+=$13} END{print 100-id/10,wa/10,sy/10,us/10}' 2>&1 ) )
+  cpu_usage=( $( ( /usr/bin/vmstat 1 10 | tail -n +3 |\
+	awk '{id+=$15;wa+=$16;sy+=$14;us+=$13} END{print 100-id/10,wa/10,sy/10,us/10}' ) 2>/dev/null ) )
 
   # output data and exit if MODE=1
   [ "${MODE}" == "1" ] && {
@@ -331,13 +331,13 @@ check(){
 
   total=$((${critnum}+${warnnum}+${oknum}))
   if [ ${critnum} -gt 0 ]; then
-	local top_pcpu_ps=$(ps -eo pid,comm,pcpu|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
+	local top_pcpu_ps=$( (ps -eo pid,comm,pcpu|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n') 2>&- )
 	EXIT_STATUS=${STATE_CRIT};
 	LEVEL="crit";
 	TYPE="str";
 	CONTENT="$(gettext "CPU Usage Check CRITICAL") | $(eval_gettext "\${critnum}/\${total} check critical.") | ${result} ### ### $(gettext "cpu usage top10:") ### ${top_pcpu_ps}"
   elif [ ${warnnum} -gt 0 ]; then
-	local top_pcpu_ps=$(ps -eo pid,comm,pcpu|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
+	local top_pcpu_ps=$( (ps -eo pid,comm,pcpu|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n') 2>&- )
 	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";

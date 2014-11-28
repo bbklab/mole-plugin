@@ -188,7 +188,7 @@ check(){
   errstuff=$( ${usrmysql} -s -e "select concat(acct_key.acct_name,'@',domain_key.domain_name) from acct_key,domain_key,user_basic where acct_key.domain_id=domain_key.domain_id and acct_key.acct_id=user_basic.acct_id and user_basic.has_smtp=0 and user_basic.has_remote=0 and acct_key.acct_type=0 and domain_key.domain_type=0; " 2>&1 1>"${locklst_tmpfile}" )
   if [ "$?" != "0" ]; then
 	((unknnum++))
-	errstuff=$(echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n')
+	errstuff=$( (echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n') 2>&- )
 	result="${result} $(gettext "Read Locked Users from User Mysql Failed:") [${errstuff}] ### "
   else
 	start=$( date -d "" +%s 2>&-)
@@ -197,7 +197,7 @@ check(){
 	errstuff=$( $logmysql -s -e "select count(*), concat(real_acct_name,'@',real_domain_name) from log_auth where auth_time between '${start}' and '${end}' and auth_type=1 and result=0 group by 2 order by 1 desc limit $top_limit;" 2>&1 1>"${authlst_tmpfile}" )
 	if [ "$?" != "0" ]; then
 		((unknnum++))
-		errstuff=$(echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n')
+		errstuff=$( (echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n') 2>&- )
 		result="${result} $(gettext "Read SMTP Auth Top Records from Log Mysql Failed:") [${errstuff}] ### "
 	else
 		smtp_lock_list=$(cat "${locklst_tmpfile}" 2>&-)

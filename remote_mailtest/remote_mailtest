@@ -134,11 +134,11 @@ check() {
   local v5_config="/usr/local/eyou/mail/etc/eyou_mail.ini"
   local gw_config="/var/emdg/etc/domain.conf"
   if [ -f "${v5_config}" ] && [ -s "${v5_config}" ]; then
-	base_domain=$(awk -F"=" '($1~/server_me\>/) {$1="";print;exit;}' "${v5_config}" 2>&- | tr -d '[" \t\n]' | sed -e 's/\x00//g;s/\x0D//g' )
+	base_domain=$( (awk -F"=" '($1~/server_me\>/) {$1="";print;exit;}' "${v5_config}" 2>&- | tr -d '[" \t\n]' | sed -e 's/\x00//g;s/\x0D//g') 2>&- )
   elif [ -f "${v4_config}" ] && [ -s "${v4_config}" ]; then
-	base_domain=$(awk '($1~/o_value\>/) {$1="";print;exit;}' "${v4_config}" 2>&- | tr -d '[" \t\n]' | sed -e 's/\x00//g;s/\x0D//g' )
+	base_domain=$( (awk '($1~/o_value\>/) {$1="";print;exit;}' "${v4_config}" 2>&- | tr -d '[" \t\n]' | sed -e 's/\x00//g;s/\x0D//g') 2>&- )
   elif [ "${gw_config}" ] && [ -s "${gw_config}" ]; then
-	base_domain=$(awk '{print $1;exit}' "${gw_config}" 2>&- | tr -d '[ \t]' | sed -e 's/\x00//g;s/\x0D//g')
+	base_domain=$( (awk '{print $1;exit}' "${gw_config}" 2>&- | tr -d '[ \t]' | sed -e 's/\x00//g;s/\x0D//g') 2>&- )
   fi
   [ -z "${base_domain//[ ]}" ] && base_domain="demo.eyou.net"
 
@@ -149,10 +149,10 @@ check() {
 	local str1=  str2= date=$(date +%F_%T 2>&-)
 	local subject="$(eval_gettext "Remote Test Mail from [\${base_domain}] at \${date}")"
 	### first set mx-host if specified.
-	local mx_host=$( echo -e "${content}" | awk -F ":::" '($1~/'${x}'\>/) {print $2;exit;}' | tr -d '[ \t]' )
+	local mx_host=$( (echo -e "${content}" | awk -F ":::" '($1~/'${x}'\>/) {print $2;exit;}' | tr -d '[ \t]') 2>&- )
 	if [ -z "${mx_host}" ]; then
 		### search best mx-host for domain: ${x/#@/} if not specified.
-		local mx_host=$( /usr/bin/host -t mx ${x/#@/} 2>&- | awk '($(NF-1)~/[0-9]+/ && $0~/'${x/#@/}'/) {print $(NF-1),$NF}' | sort -n | awk '{print $NF;exit}' )
+		local mx_host=$( (/usr/bin/host -t mx ${x/#@/} 2>&- | awk '($(NF-1)~/[0-9]+/ && $0~/'${x/#@/}'/) {print $(NF-1),$NF}' | sort -n | awk '{print $NF;exit}') 2>&- )
 	fi
 	if [ -z "${mx_host}" ]; then
 		target_domain="${x/#@/}"
@@ -167,7 +167,7 @@ check() {
 	do
 		str1=$( ${SENDEMAIL} -f "mole@${base_domain}" -t "${y}" -s "${mx_host}" -u "${subject}" -o message-file="${mail_body_file}"  -o fqdn="${helo_greeting_fqdn}" -o message-charset=utf8 2>&1 )
 		rc=$?
-  		str2=$( echo -e "${str1}" | awk -F "sendEmail" '{$1="";print}' | awk -F: '{for(x=2;x<=NF;x++) {printf $x}}')
+  		str2=$( (echo -e "${str1}" | awk -F "sendEmail" '{$1="";print}' | awk -F: '{for(x=2;x<=NF;x++) {printf $x}}') 2>&-)
 		if [ "${rc}" == "0" ]; then
 			result=" $result $(eval_gettext "remote mail to [\${y}] return [\${str2}]") ### "
 			result=" $result $(eval_gettext "talked with mx-host: [\${mx_host}]") ### "

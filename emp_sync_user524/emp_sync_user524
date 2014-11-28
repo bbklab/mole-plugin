@@ -162,7 +162,7 @@ check(){
   genstr() {
 	local line=; line=( $* )  
 	local uid=${line[1]} domain=${line[2]} password=${line[3]} action=${line[4]}
-	local pass_type="$(echo -e "${password}" | grep -E -o "\{[^\}\{]+\}" | tr -d '\{\}' | tr '[A-Z]' '[a-z]')"
+	local pass_type="$( (echo -e "${password}" | grep -E -o "\{[^\}\{]+\}" | tr -d '\{\}' | tr '[A-Z]' '[a-z]') 2>&- )"
 
 	# 1. check pass type
 	case "${pass_type}" in 
@@ -272,7 +272,7 @@ check(){
 		result="${result} $(gettext "generating eyouv4 script strings") ["${script_str//[\{\}]/%}"] OK ###"
 	fi
 	
-	script_result=$( echo -e "${script_str}" | /var/eyou/sbin/eyou_control -a 2>&1 | /usr/bin/iconv -f gbk -t utf8 2>&1)
+	script_result=$( (echo -e "${script_str}" | /var/eyou/sbin/eyou_control -a 2>&1 | /usr/bin/iconv -f gbk -t utf8) 2>&1 )
 	write_log -f ${logfile} "eyouv4 script result: [${script_result}]"
 	if [ "$(echo -e "${script_result}" | grep -E -o "\+000")" == "" ]; then
 		write_log -f ${logfile} "SYNC USER CHANGES ERROR"

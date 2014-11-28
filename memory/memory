@@ -276,15 +276,15 @@ check(){
 
   total=$((${critnum}+${warnnum}+${oknum}))
   if [ ${critnum} -gt 0 ]; then
-	local rsz_top_ps=$(ps -eo pid,comm,rsz|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
-	local vsz_top_ps=$(ps -eo pid,comm,vsz|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
+	local rsz_top_ps=$( (ps -eo pid,comm,rsz|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n') 2>&- )
+	local vsz_top_ps=$( (ps -eo pid,comm,vsz|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n') 2>&- )
 	EXIT_STATUS=${STATE_CRIT};
 	LEVEL="crit";
 	TYPE="str";
 	CONTENT="$(gettext "Memory/Swap Usage Check CRITICAL") | $(eval_gettext "\${critnum}/\${total} check critical.") | ${result} ### $(gettext "RSZ_TOP:") ### ${rsz_top_ps} ### ###  $(gettext "VSZ_TOP:") ### ${vsz_top_ps}"
   elif [ ${warnnum} -gt 0 ]; then
-	local rsz_top_ps=$(ps -eo pid,comm,rsz|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
-	local vsz_top_ps=$(ps -eo pid,comm,vsz|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n')
+	local rsz_top_ps=$( (ps -eo pid,comm,rsz|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n') 2>&- )
+	local vsz_top_ps=$( (ps -eo pid,comm,vsz|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n') 2>&- )
 	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";

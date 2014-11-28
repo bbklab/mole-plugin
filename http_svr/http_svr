@@ -176,9 +176,9 @@ check(){
 
 	code=${arr[0]}; time=${arr[1]}; pagesize=${arr[2]};
 	namelookup=${arr[3]}; connect=${arr[4]}; transfer=${arr[5]};
-	connect=$(echo "${connect}-${namelookup}" |bc 2>&-|sed -e 's/^\./0\./')
-	process=$(echo "${transfer}-${connect}" |bc 2>&-|sed -e 's/^\./0\./')
-	download=$(echo "${time}-${transfer}" |bc 2>&-|sed -e 's/^\./0\./')
+	connect=$( (echo "${connect}-${namelookup}" |bc 2>&-|sed -e 's/^\./0\./') 2>&- )
+	process=$( (echo "${transfer}-${connect}" |bc 2>&-|sed -e 's/^\./0\./') 2>&- )
+	download=$( (echo "${time}-${transfer}" |bc 2>&-|sed -e 's/^\./0\./') 2>&- )
   	if [ "${code}" == "200" ]; then
 		result=" ${result} $(eval_gettext "check [\${x}] return [code=\${code}, time=\${time}s, pagesize=\${pagesize}]") ### "
 		result=" ${result} $(eval_gettext "time details: [namelookup=\${namelookup}s, connect=\${connect}s, process=\${process}s, download=\${download}s]") ### ### "
