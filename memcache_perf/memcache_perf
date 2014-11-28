@@ -42,6 +42,8 @@ binmode(STDOUT, ":encoding(utf8)");
 binmode(STDERR, ":encoding(utf8)");
 binmode STDOUT, ':raw';
 
+$SIG{'PIPE'} = 'IGNORE';
+
 $| = 1;
 
 # return codes
