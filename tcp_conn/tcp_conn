@@ -204,21 +204,23 @@ check_single(){
 	echo -e "${output}"
 	return 1
   else
-	local details="$(echo -e "${conn_stat} ### $(gettext "IP Connect Stat:") ### ${ip_stat} ### " | sed -e 's/$/ ### /g' | tr -d '\n' )"
-
+	local details=
 	if [ -n "${CRIT_LIMIT}" ] && [ "$(echo " ${total} >= ${CRIT_LIMIT} " | bc 2>&-)" == "1" ]; then
+		details="$(echo -e "${conn_stat} ### $(gettext "IP Connect Stat:") ### ${ip_stat} ### " |\
+				 sed -e 's/$/ ### /g' | tr -d '\n' )"
 		output="${output} $(html_red "$(eval_gettext "Total: [\${total}] >= Crit Limit: [\${CRIT_LIMIT}]")") ### "
 		output="${output} ${details}"
 		echo -e "${output}"
 		return 3
 	elif [ -n "${WARN_LIMIT}" ] && [ "$(echo " ${total} >= ${WARN_LIMIT} " | bc 2>&-)" == "1" ]; then
+		details="$(echo -e "${conn_stat} ### $(gettext "IP Connect Stat:") ### ${ip_stat} ### " |\
+				 sed -e 's/$/ ### /g' | tr -d '\n' )"
 		output="${output} $(html_red "$(eval_gettext "Total: [\${total}] >= Warn Limit: [\${WARN_LIMIT}]")") ### "
 		output="${output} ${details}"
 		echo -e "${output}"
 		return 1
 	else
 		output="${output} $(eval_gettext "Total: [\${total}]") ### "
-		output="${output} ${details}"
 		echo -e "${output}"
 		return 0
 	fi
