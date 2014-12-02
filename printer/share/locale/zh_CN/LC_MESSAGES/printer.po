@@ -19,6 +19,42 @@ msgstr "\t%+#D"
 msgid "\n"
 msgstr "\n"
 
+msgid "{unkn}:{str}:{ addr_port not defined.}"
+msgstr "{unkn}:{str}:{ 配置项 addr_port 未定义.}"
+
+msgid "{unkn}:{str}:{ time_out not defined.}"
+msgstr "{unkn}:{str}:{ 配置项 time_out (SNMP连接超时时长) 未定义 }"
+
+msgid "{unkn}:{str}:{ time_out [%s] shoule be int.}"
+msgstr "{unkn}:{str}:{ SNMP连接超时时长配置 [%s] 必须是正整数.}"
+
+msgid "{unkn}:{str}:{ comt_name not defined.}"
+msgstr "{unkn}:{str}:{ SNMP团体名称未定义. }"
+
+msgid "{unkn}:{str}:{ tray_limit not defined.}"
+msgstr "{unkn}:{str}:{ 纸张阈值未定义 }"
+
+msgid "{unkn}:{str}:{ tray_warn [%s] shoule be int.}"
+msgstr "{unkn}:{str}:{ 纸张告警阈值 [%s] 必须是正整数. }"
+
+msgid "{unkn}:{str}:{ tray_crit [%s] shoule be int.}"
+msgstr "{unkn}:{str}:{ 纸张故障阈值 [%s] 必须是正整数. }"
+
+msgid "{unkn}:{str}:{ tray_crit [%s] shoule be smaller than tray_warn [%s].}"
+msgstr "{unkn}:{str}:{ 纸张故障阈值 [%s] 必须低于警告阈值 [%s] }"
+
+msgid "{unkn}:{str}:{ toner_limit not defined.}"
+msgstr "{unkn}:{str}:{ 碳粉阈值未定义 }"
+
+msgid "{unkn}:{str}:{ toner_warn [%s] shoule be int.}"
+msgstr "{unkn}:{str}:{ 碳粉告警阈值 [%s] 必须是正整数. }"
+
+msgid "{unkn}:{str}:{ toner_crit [%s] shoule be int.}"
+msgstr "{unkn}:{str}:{ 碳粉故障阈值 [%s] 必须是正整数. }"
+
+msgid "{unkn}:{str}:{ toner_crit [%s] shoule be smaller than toner_warn [%s].}"
+msgstr "{unkn}:{str}:{ 碳粉故障阈值 [%s] 必须低于警告阈值 [%s] }"
+
 msgid "check list: %s ### ### "
 msgstr "要检查的打印机: %s ### ### "
 

@@ -129,7 +129,7 @@ if ($fh) {
   }
 }
 if (!defined $time_out) {
-  printf _"{unkn}:{str}:{ time_out shoule be defined as int.}";
+  printf _"{unkn}:{str}:{ time_out not defined.}";
   exit $state_unkn;
 } elsif ($time_out =~ m/\D/) {
   printf _"{unkn}:{str}:{ time_out [%s] shoule be int.}",$time_out;
@@ -164,21 +164,21 @@ if (!defined $tray_limit) {
 our ($tray_warn, $tray_crit) = split (/,/, $tray_limit);
 if (defined $tray_warn && defined $tray_crit) {
   if ($tray_warn =~ /\D/) {
-  	printf _"{unkn}:{str}:{ tray_warn shoule be int.}";
+  	printf _"{unkn}:{str}:{ tray_warn [%s] shoule be int.}", $tray_warn;
   	exit $state_unkn;
   }
   if ($tray_crit =~ /\D/) {
- 	printf _"{unkn}:{str}:{ tray_crit shoule be int.}";
+ 	printf _"{unkn}:{str}:{ tray_crit [%s] shoule be int.}", $tray_crit;
 	exit $state_unkn;
   }
   if ($tray_crit >= $tray_warn) {
-  	printf _"{unkn}:{str}:{ tray_crit shoule be smaller than tray_warn.}";
+  	printf _"{unkn}:{str}:{ tray_crit [%s] shoule be smaller than tray_warn [%s].}", $tray_crit, $tray_warn;
   	exit $state_unkn;
   }
 } else {
   $tray_crit = $tray_warn;	# only crit limit defined
   if ($tray_crit =~ /\D/) {
- 	printf _"{unkn}:{str}:{ tray_crit shoule be smaller than defined.}";
+ 	printf _"{unkn}:{str}:{ tray_crit [%s] shoule be int.}", $tray_crit;
 	exit $state_unkn;
   }
 }
@@ -198,21 +198,21 @@ if (!defined $toner_limit) {
 our ($toner_warn, $toner_crit) = split (/,/, $toner_limit);
 if (defined $toner_warn && defined $toner_crit) {
   if ($toner_warn =~ /\D/) {
-  	printf _"{unkn}:{str}:{ toner_warn shoule be int.}";
+  	printf _"{unkn}:{str}:{ toner_warn [%s] shoule be int.}", $toner_warn;
   	exit $state_unkn;
   }
   if ($toner_crit =~ /\D/) {
- 	printf _"{unkn}:{str}:{ toner_crit shoule be int.}";
+ 	printf _"{unkn}:{str}:{ toner_crit [%s] shoule be int.}", $toner_crit;
 	exit $state_unkn;
   }
   if ($toner_crit >= $toner_warn) {
-  	printf _"{unkn}:{str}:{ toner_crit shoule be smaller than toner_warn.}";
+  	printf _"{unkn}:{str}:{ toner_crit [%s] shoule be smaller than toner_warn [%s].}", $toner_crit, $toner_warn;
   	exit $state_unkn;
   }
 } else {
   $toner_crit = $toner_warn;	# only crit limit defined
   if ($toner_crit =~ /\D/) {
- 	printf _"{unkn}:{str}:{ toner_crit shoule be smaller than defined.}";
+ 	printf _"{unkn}:{str}:{ toner_crit [%s] shoule be int.}", $toner_crit;
 	exit $state_unkn;
   }
 }
