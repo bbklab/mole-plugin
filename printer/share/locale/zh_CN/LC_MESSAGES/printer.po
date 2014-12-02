@@ -19,59 +19,98 @@ msgstr "\t%+#D"
 msgid "\n"
 msgstr "\n"
 
-msgid "{unkn}:{str}:{ time_out shoule be defined as int.}"
-msgstr "{unkn}:{str}:{ 配置项time_out 未定义, 应该定义为正整数. }"
-
-msgid "{unkn}:{str}:{ time_out [%s] shoule be int.}"
-msgstr "{unkn}:{str}:{ 配置项time_out [%s] 应该为正整数. }"
-
 msgid "check list: %s ### ### "
-msgstr "要检查的IMAP地址列表: %s ### ### "
+msgstr "要检查的打印机: %s ### ### "
 
-msgid "<font color=yellow> imap_host or imap_port not defined </font> ### ### "
-msgstr "<font color=yellow>  IMAP地址或IMAP端口未设定 </font> ### ### "
+msgid "<font color=yellow> printer_host or printer_port not defined </font> ### ### "
+msgstr "<font color=yellow> 打印机地址或SNMP端口未定义 </font> ### ### "
 
-msgid "<font color=yellow> %s:%s imap port not numberic </font> ### ### "
-msgstr "<font color=yellow> %s:%s IMAP端口不是整数数字 </font> ### ### "
+msgid "<font color=yellow> %s:%s snmp port not int </font> ### ### "
+msgstr "<font color=yellow> %s:%s SNMP端口不是正整数 </font> ### ### "
 
-msgid "<font color=red> connect [%s:%d] failed in %d seconds, return [%s] "
-msgstr "<font color=red> 连接IMAP地址 [%s:%d] 在 %d 秒内失败, 失败信息: [%s] "
+msgid "<font color=red> connect printer [%s:%d] through snmp return [%s] "
+msgstr "<font color=red> 通过SNMP连接打印机 [%s:%d] 时遇到错误: [%s] "
 
-msgid "<font color=red> connect [%s:%d] failed in %d seconds. "
-msgstr "<font color=red> 连接IMAP地址 [%s:%d] 在 %d 秒内失败. "
+msgid "printer [%s:%s] general information: ### "
+msgstr "打印机 [%s:%s] 的普通信息: ### "
 
-msgid "connect [%s:%d] return welcome banner ### [%s] (%f seconds) ### "
-msgstr "连接IMAP地址 [%s:%d] 返回欢迎信息: ### [%s] (耗时 %f 秒) ### "
+msgid "System Describe: %s ### "
+msgstr "设备描述: %s ### "
 
-msgid "<font color=red> connect [%s:%d] return welcome banner [%s] "
-msgstr "<font color=red> 连接IMAP地址 [%s:%d] 返回欢迎信息: [%s]"
+msgid "System Uptime: %s ### "
+msgstr "运行时长: %s ### "
 
-msgid "<font color=red> connect [%s:%d] didn't return welcome banner "
-msgstr "<font color=red> 连接IMAP地址 [%s:%d] 未返回欢迎信息 "
+msgid "System Model: %s ### "
+msgstr "设备型号: %s ### "
 
-msgid "<font color=red> imap command: A01 NOOP return [message=%s] "
-msgstr "<font color=red> IMAP命令: A01 NOOP 返回信息 [%s] "
+msgid "System Serial: %s ### "
+msgstr "设备序列: %s ### "
 
-msgid "imap command: A01 NOOP return [message=%s] (%f seconds) ### "
-msgstr "IMAP命令: A01 NOOP 返回信息 [%s] (耗时 %f 秒) ### "
+msgid "<font color=red> read printer [%s:%s] general information error: [%s]"
+msgstr "<font color=red> 读取打印机 [%s:%s] 普通信息时遇到错误: [%s]"
 
-msgid "<font color=red> imap command: A01 LOGIN return [message=%s] "
-msgstr "<font color=red> IMAP登录命令: A01 LOGIN 返回信息 [%s] "
+msgid "printer [%s:%s] general information unknown ### "
+msgstr "打印机 [%s:%s] 普通信息未知 ### "
 
-msgid "imap command: A01 LOGIN return [message=%s] (%f seconds) ### ### "
-msgstr "IMAP登录命令: A01 LOGIN 返回信息 [%s] (耗时 %f 秒) ### ### "
+msgid " - Tray (%s) is OK! (%d) ### "
+msgstr " - 纸盒 (%s) 正常! (纸张: %d) ### "
 
-msgid " imap_user or imap_pass not defined, imap login test skip ### ### "
-msgstr "IMAP登录测试跳过, 因为未指定IMAP用户或IMAP登录密码 ### ### "
+msgid " - Tray (%s) is Unknown! (%d) ### "
+msgstr " - 纸盒 (%s) 未知! (纸张: %d) ### "
+
+msgid " - Tray (%s) is Empty! (0/%d) ### "
+msgstr " - 纸盒 (%s) 已空! (纸张: 0/%d) ### "
+
+msgid " - Tray (%s) is at %s"
+msgstr " - 纸盒 (%s) 纸张存量为 %s"
+
+msgid "<font color=red> Tray Paper is at %s"
+msgstr "<font color=red> 打印机缺纸! 纸张存量为 %s"
+
+msgid "Tray Paper is at %s"
+msgstr "打印机纸盒正常! 纸张存量为 %s"
+
+msgid "<font color=red> read printer [%s:%s] paper tray information error: [%s]"
+msgstr "<font color=red> 读取打印机 [%s:%s] 的纸盒信息失败: [%s]"
+
+msgid "printer paper tray information unknown ### "
+msgstr "打印机纸盒信息未知 ### "
+
+msgid " - Toner (%s) is FULL! (%d) ### "
+msgstr " - 碳粉 (%s) 满! (用量: %d) ### "
+
+msgid " - Toner (%s) is Unknown! (%d) ### "
+msgstr " - 碳粉 (%s) 未知! (用量: %d) ### "
+
+msgid " - Toner (%s) is Empty! (0/%d) ### "
+msgstr " - 碳粉 (%s) 已空! (用量: 0/%d) ### "
+
+msgid " - Toner (%s) is at %s" 
+msgstr " - 碳粉 (%s) 存量为 %s"
+
+msgid "<font color=red> Toner is at %s"
+msgstr "<font color=red> 打印机缺少碳粉! 碳粉存量为 %s"
+
+msgid "Toner is at %s"
+msgstr "打印机碳粉正常! 碳粉存量为 %s"
+
+msgid "<font color=red> read printer [%s:%s] consumor information error: [%s]"
+msgstr "<font color=red> 读取打印机 [%s:%s] 耗材信息失败: [%s]"
+
+msgid "printer consumor information unknown ### "
+msgstr "打印机碳粉信息未知 ### "
 
 msgid " (%f seconds) </font> ### ### "
-msgstr " (耗时 %f 秒) </font> ### ### "
+msgstr " 耗时(%f 秒) </font> ### ### "
 
-msgid "{crit}:{str}:{ IMAP SVR CRITICAL | %d/%d imap check critical | %s }"
-msgstr "{crit}:{str}:{ IMAP服务状态异常 | %d/%d 项检查异常 | %s }"
+msgid "{crit}:{str}:{ Printer Check CRITICAL | %d/%d printer check critical | %s }"
+msgstr "{crit}:{str}:{ 打印机检查故障 | %d/%d 个打印机检查故障 | %s }"
 
-msgid "{unkn}:{str}:{ IMAP SVR UNKNOWN | %d/%d imap check unknown | %s }"
-msgstr "{unkn}:{str}:{ IMAP服务状态未知 | %d/%d  项检查未知 | %s }"
+msgid "{warn}:{str}:{ Printer Check WARNING | %d/%d printer check warnning | %s }"
+msgstr "{warn}:{str}:{ 打印机检查告警| %d/%d 个打印机检查告警 | %s }"
 
-msgid "{succ}:{str}:{ IMAP SVR OK | %d/%d imap check success | %s }"
-msgstr "{succ}:{str}:{ IMAP服务状态正常 | %d/%d 项检查正常 | %s }"
+msgid "{unkn}:{str}:{ Printer Check UNKNOWN | %d/%d printer check unknown | %s }"
+msgstr "{unkn}:{str}:{ 打印机检查未知 | %d/%d 个打印机检查未知 | %s }"
+
+msgid "{succ}:{str}:{ Printer Check OK | %d/%d printer check success | %s }"
+msgstr "{succ}:{str}:{ 打印机检查正常 | %d/%d 个打印机检查正常 | %s }"

@@ -262,7 +262,8 @@ while(@addr_pair) {
   my ($snmp,$error) = Net::SNMP->session(
 	-hostname     =>  $snmp_host,
 	-port	      =>  $snmp_port,
-	-timeout      =>  $time_out,
+	-timeout      =>  (int($time_out/4)) ? int($time_out/4) : 1,	# in all of my test, the real {timeout} is 4 times of 
+									# configed {timeout}, so I reduced it to 1/4
 	-community    =>  $comt_name,
 	-version      =>  'snmpv1',
 	-nonblocking  =>  0,		# be in blocking mode
@@ -299,6 +300,7 @@ while(@addr_pair) {
   }
   
   # get paper tray consume
+  my ($tray_critflag,$tray_warnflag) = (0,0);
   $snmp_result = $snmp->get_entries(
 	-columns 	=>	[$OID_Tray{'prTrayName'},$OID_Tray{'prTrayMax'},$OID_Tray{'prTrayNow'}],
   );
@@ -326,32 +328,32 @@ while(@addr_pair) {
 	foreach my $key (keys %tray_index) {
 		my ($name, $now, $max) = ($tray_index{$key}{'name'},$tray_index{$key}{'now'},$tray_index{$key}{'max'});
 		if ($now eq '-3') {		# (-3) means that the printer knows that at least one unit remains.
-			$tray_details .= sprintf(" - Tray (%s) is OK! (%d) ### ",$name,$max);
+			$tray_details .= sprintf(_" - Tray (%s) is OK! (%d) ### ",$name,$max);
 		} elsif ($now eq '-2') {	# (-2) means unknown
-			$tray_details .= sprintf(" - Tray (%s) is Unknown! (%d) ### ",$name,$max);
+			$tray_details .= sprintf(_" - Tray (%s) is Unknown! (%d) ### ",$name,$max);
 		} elsif ($now eq '0') {		# (0) means no paper left!
 			$totalmax += $max; $totalnow += 0;
-			$tray_details .= sprintf(" - Tray (%s) is Empty! (0/%d) ### ",$name,$max);
+			$tray_details .= sprintf(_" - Tray (%s) is Empty! (0/%d) ### ",$name,$max);
 		} else {
 			$totalmax += $max; $totalnow += $now;
 			if($max eq '0') { $max = 1; }
 			my $pct = sprintf("%.2f",$now*100/$max);
-			$tray_details .= sprintf(" - Tray (%s) is at %s", $name, $pct) . '%! ';
-			$tray_details .= sprintf("(%d/%d) ### ", $now, $max);
+			$tray_details .= sprintf(_" - Tray (%s) is at %s", $name, $pct) . '%! ';
+			$tray_details .= sprintf(_"(%d/%d) ### ", $now, $max);
 		}
 		next;
 	}
 	$total_traypct = sprintf("%.2f",$totalnow*100/$totalmax);
 	if ($total_traypct <= $tray_crit) {
-		$result .= sprintf("<font color=red> Tray Paper is at %s", $total_traypct) . '%! </font> ### ';
+		$result .= sprintf(_"<font color=red> Tray Paper is at %s", $total_traypct) . '%! </font> ### ';
 		$result .= $tray_details;
-		$critnum ++;
+		$tray_critflag ++;
 	} elsif ($total_traypct <= $tray_warn) {
-		$result .= sprintf("<font color=red> Tray Paper is at %s", $total_traypct) . '%! </font> ### ';
+		$result .= sprintf(_"<font color=red> Tray Paper is at %s", $total_traypct) . '%! </font> ### ';
 		$result .= $tray_details;
-		$warnnum ++;
+		$tray_warnflag ++;
 	} else {
-		$result .= sprintf("Tray Paper is at %s", $total_traypct) . '%! ### ';
+		$result .= sprintf(_"Tray Paper is at %s", $total_traypct) . '%! ### ';
 		$result .= $tray_details;
 	}
 	
@@ -368,6 +370,7 @@ while(@addr_pair) {
   }
 
   # get toner consume
+  my ($toner_critflag,$toner_warnflag) = (0,0);
   $snmp_result = $snmp->get_entries(
 	-columns 	=>	[$OID_Consumables{'prConsumNames'},$OID_Consumables{'prConsumMax'},$OID_Consumables{'prConsumNow'}],
   );
@@ -402,32 +405,32 @@ while(@addr_pair) {
 		my ($name, $now, $max) = ($toner_index{$key}{'name'},$toner_index{$key}{'now'},$toner_index{$key}{'max'});
 		if ($now eq '-3') {		# (-3) means that the consumor is full
 			$totalmax += $max; $totalnow += $max;
-			$toner_details .= sprintf(" - Toner (%s) is FULL! (%d) ### ",$name,$max);
+			$toner_details .= sprintf(_" - Toner (%s) is FULL! (%d) ### ",$name,$max);
 		} elsif ($now eq '-2') {	# (-2) means unknown
-			$toner_details .= sprintf(" - Toner (%s) is Unknown! (%d) ### ",$name,$max);
+			$toner_details .= sprintf(_" - Toner (%s) is Unknown! (%d) ### ",$name,$max);
 		} elsif ($now eq '0') {		# (0) means no paper left!
 			$totalmax += $max; $totalnow += 0;
-			$toner_details .= sprintf(" - Toner (%s) is Empty! (0/%d) ### ",$name,$max);
+			$toner_details .= sprintf(_" - Toner (%s) is Empty! (0/%d) ### ",$name,$max);
 		} else {
 			$totalmax += $max; $totalnow += $now;
 			if($max eq '0') { $max = 1; }
 			my $pct = sprintf("%.2f",$now*100/$max);
-			$toner_details .= sprintf(" - Toner (%s) is at %s", $name, $pct) . '%! ';
-			$toner_details .= sprintf("(%d/%d) ### ", $now, $max);
+			$toner_details .= sprintf(_" - Toner (%s) is at %s", $name, $pct) . '%! ';
+			$toner_details .= sprintf(_"(%d/%d) ### ", $now, $max);
 		}
 		next;
 	}
 	$total_tonerpct = sprintf("%.2f",$totalnow*100/$totalmax);
 	if ($total_tonerpct <= $toner_crit) {
-		$result .= sprintf("<font color=red> Toner is at %s", $total_tonerpct) . '%! </font> ### ';
+		$result .= sprintf(_"<font color=red> Toner is at %s", $total_tonerpct) . '%! </font> ### ';
 		$result .= $toner_details;
-		$critnum ++;
+		$toner_critflag ++;
 	} elsif ($total_tonerpct <= $toner_warn) {
-		$result .= sprintf("<font color=red> Toner is at %s", $total_tonerpct) . '%! </font> ### ';
+		$result .= sprintf(_"<font color=red> Toner is at %s", $total_tonerpct) . '%! </font> ### ';
 		$result .= $toner_details;
-		$warnnum ++;
+		$toner_warnflag ++;
 	} else {
-		$result .= sprintf("Toner is at %s", $total_tonerpct) . '%! ### ';
+		$result .= sprintf(_"Toner is at %s", $total_tonerpct) . '%! ### ';
 		$result .= $toner_details;
 	}
 	
@@ -443,6 +446,13 @@ while(@addr_pair) {
 	}
   }
 
+  if ($tray_critflag || $toner_critflag) {
+	$critnum++;
+  } elsif ($tray_warnflag || $toner_warnflag) {
+	$warnnum++;
+  }
+
+  $result .= ' ### ';
   next;
 
   ERREND: {
