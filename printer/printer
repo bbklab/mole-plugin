@@ -345,15 +345,15 @@ while(@addr_pair) {
 	}
 	$total_traypct = sprintf("%.2f",$totalnow*100/$totalmax);
 	if ($total_traypct <= $tray_crit) {
-		$result .= sprintf(_"<font color=red> Tray Paper is at %s", $total_traypct) . '%! </font> ### ';
+		$result .= sprintf(_"<font color=red> Tray Paper is at %s", $total_traypct) . '%! ' . sprintf(_"(%s paper)",$totalnow) . ' </font> ### ';
 		$result .= $tray_details;
 		$tray_critflag ++;
 	} elsif ($total_traypct <= $tray_warn) {
-		$result .= sprintf(_"<font color=red> Tray Paper is at %s", $total_traypct) . '%! </font> ### ';
+		$result .= sprintf(_"<font color=red> Tray Paper is at %s", $total_traypct) . '%! ' . sprintf(_"(%s paper)",$totalnow) . ' </font> ### ';
 		$result .= $tray_details;
 		$tray_warnflag ++;
 	} else {
-		$result .= sprintf(_"Tray Paper is at %s", $total_traypct) . '%! ### ';
+		$result .= sprintf(_"Tray Paper is at %s", $total_traypct) . '%! ' . sprintf(_"(%s paper)",$totalnow) . ' ### ';
 		$result .= $tray_details;
 	}
 	
