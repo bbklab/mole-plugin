@@ -32,9 +32,15 @@ use warnings;
 use strict;
 use utf8;
 use JSON;
-# use Smart::Comments;
+use Locale::Messages qw (textdomain bindtextdomain gettext nl_putenv :locale_h :libintl_h);
+use POSIX qw (setlocale);
+use Smart::Comments;
 binmode(STDIN, ":encoding(utf8)");
 binmode(STDOUT, ":encoding(utf8)");
+binmode(STDERR, ":encoding(utf8)");
+binmode STDOUT, ':raw';
+
+$SIG{'PIPE'} = 'IGNORE';
 
 $| = 1;
 
@@ -46,29 +52,312 @@ our ($rc, $result) = (0,'');
 
 our $filename = (split /\//, __FILE__)[-1];
 
+# check mole
+unless (-f $mole && -x $mole) {
+  printf "{unkn}:{str}:{$mole not prepared.}";
+  exit $state_unkn;
+}
+
+# read mole locale_def
+our $localdir = "$basedir/share/locale/";
+open my $fh, "$mole printdef LOCALE_DIR 2>&- |";
+if($fh){
+  while(<$fh>){
+        chomp; $localdir = $_;
+        last;
+  }
+}
+
+# read plugin locale setting
+our $locale = 'zh_CN.UTF-8';
+open $fh, "$mole view $filename locale 2>&- |";
+if($fh){
+  while(<$fh>){
+        chomp; $locale = $_;
+        last;
+  }
+  if(!defined $locale || $locale eq ''){
+        open my $fh1, "$mole view default locale 2>&- |";
+        if($fh1){
+                while(<$fh1>){
+                        chomp; $locale = $_;
+                        last;
+                }
+        }
+  }
+}
+if(!defined $locale || $locale eq ''){
+        $locale = 'zh_CN.UTF-8';
+}elsif($locale eq 'zh_CN' || $locale eq 'zh_CN.UTF-8' || $locale eq 'zh'){
+        $locale = 'zh_CN.UTF-8';
+}elsif($locale eq 'en_US' || $locale eq 'en_US.UTF-8' || $locale eq 'en'){
+        $locale = 'en_US.UTF-8';
+}else{
+        $locale = 'zh_CN.UTF-8';
+}
+setlocale(LC_ALL,$locale);
+nl_putenv("LANGUAGE=$locale");
+nl_putenv("LANG=$locale");
+
+# set textdomain; bindtextdomain
+sub _ ($) { &gettext; }
+textdomain "$filename";
+bindtextdomain "$filename", "$localdir";
+
+# read plugin config here
+our $maillicense_decoder = undef;
+open $fh, "$mole view $filename maillicense_decoder 2>&- |";
+if ($fh) {
+  while(<$fh>){
+       chomp; $maillicense_decoder = $_;
+       last;
+  }
+}
+if ($maillicense_decoder) {
+  $maillicense_decoder =~ s/\A\s*file://gi;
+  unless ($maillicense_decoder =~ m/\A\s*\//) {
+	$maillicense_decoder = $basedir . '/' . $maillicense_decoder;
+  }
+}
+
 #
 #  BEGIN to COLLECT eYou INFORMATION 
 #
 
-my $mail_license = '{}';
-my $php = '/usr/local/eyou/mail/opt/bin/php';
-my $decoder = '/usr/local/esop/agent/mole/mail/mail_license.php';
-if (-f $php && -x $php && -f $decoder && -x $decoder) {
-	open my $fh, "sudo -u eyou $php $decoder 2>&-|";
-	if($fh){
+# define EYOU_XXX
+use constant EYOUMAIL_INST  => '/usr/local/eyou/mail';
+use constant EYOUMAIL_ETC   => EYOUMAIL_INST . '/etc';
+use constant EYOUMAIL_CFG   => EYOUMAIL_ETC  . '/eyou_mail.ini';
+
+use constant EYOUGATE_INST  => '/var/emdg';
+use constant EYOUGATE_ETC   => EYOUGATE_INST . '/etc';
+use constant EYOUGATE_CFG   => EYOUGATE_ETC  . '/mail.conf';
+
+use constant EYOUPUSH_INST  => '/usr/local/eYou_ePush'; 
+use constant EYOUPUSH_ETC   => EYOUPUSH_INST . '/ProxyServer/bin/';
+use constant EYOUPUSH_CFG   => EYOUPUSH_ETC  . '/config.properties';
+
+use constant EYOUMAIL4_INST => '/var/eyou';
+use constant EYOUMAIL4_ETC  => EYOUMAIL4_INST . '/etc';
+use constant EYOUMAIL4_CTRL => EYOUMAIL4_ETC  . '/eyoumail';
+
+use constant EYOUARCIV_INST => EYOUMAIL4_INST;
+use constant EYOUARCIV_ETC  => EYOUMAIL4_ETC;
+use constant EYOUARCIV_CTRL => EYOUMAIL4_ETC  . '/eyouarchive';
+
+
+# init each eyou product hash
+my (%mail, %gw, %epush, %mail4, %archive, %result);
+
+# get mail_serial
+my $mail_serial = undef;
+my $em_serial1 = EYOUMAIL_INST . '/sbin/em_serial';
+my $em_serial2 = EYOUMAIL_INST . '/app/sbin/em_serial';
+my $em_serial = (-f $em_serial1 && -x $em_serial1) ? $em_serial1 :$em_serial2;
+if (-f $em_serial && -x $em_serial) {
+	open my $fh, "$em_serial 2>&- |";
+	if ($fh) {
 		while(<$fh>){
-			chomp; $mail_license = $_ unless (m/\A\s*\Z/);
-			last;
+			chomp; 
+			next if (m/\A\s*#/ || m/\A\s*;/ || m/\A\s*\Z/);
+			$mail_serial = $_;
+			last if ($mail_serial);
 		}
 	}
 }
 
+# get mail_license
+my %mail_license = ();
+my $mail_license = undef;
+my $mailphp = EYOUMAIL_INST . '/opt/bin/php';
+if (-f $mailphp && -x $mailphp) {
+	if ( $maillicense_decoder
+	&& length $maillicense_decoder
+	&& -f $maillicense_decoder
+	&& -x $maillicense_decoder ) {
+		open my $fh, "sudo -u eyou $mailphp $maillicense_decoder 2>&- |";
+		if($fh){
+			while(<$fh>){
+				chomp; $mail_license = $_ unless (m/\A\s*\Z/);
+				last;
+			}
+		}
+	}
+}
+if ($mail_license) {	# json decode and test if error or not ?
+	eval { $mail_license = JSON->new->allow_nonref->utf8(1)->ascii(1)->decode($mail_license); };
+	unless ($@) {
+		%mail_license = %{$mail_license};
+	}
+}
+
+# get mail_startups
+my @mail_startups = ();
+my $mail_initctrl = EYOUMAIL_INST . '/etc/em_init_config';
+if (-f $mail_initctrl && -x $mail_initctrl) {
+	if (open my $fh, "<$mail_initctrl") {
+		my $flag = 0;
+		while (<$fh>) {
+			chomp;
+			next if (m/\A\s*#/ || m/\A\s*;/ || m/\A\s*\Z/);
+			if (m/\A\s*ARRAY_START=/) {
+				$flag = 1;
+				next;
+			}
+			if (m/\)/) {
+				$flag = 0 if ($flag);
+				next;
+			}
+			if ($flag) {
+				s/\A\s*|\s*\Z//gi;
+				push @mail_startups, $_;
+				next;
+			}
+		}
+		close $fh if $fh;
+	}
+}
+
+# get mail configs
+my %mail_config = ();
+if (-f EYOUMAIL_CFG) {
+	if (open my $fh, "<", EYOUMAIL_CFG) {
+		while (<$fh>) {
+			chomp;
+			next if (m/\A\s*#/ || m/\A\s*;/ || m/\A\s*\Z/);
+			if (m/\A\s*(db_|mta_db_|dbumi_|mta_dbumi_|dblog_|dbdml_|memcache_|server_me|restrict_).*\s+/i) {
+				my ($key, $value) = (m/\A\s*(\w+?)\s*=\s*(.+)\s*\Z/);
+				if ($key && $value && length $key && length $value) { 
+					map { s/\A\s*[\'\"]|[\'\"]\s*\Z//gi } $key, $value;
+					$mail_config{$key} = $value; next;
+				}
+			}
+		}
+		close $fh if $fh;
+	}
+}
+
+# get gw version
+my $gw_version = undef;
+my $gw_version_ini = EYOUGATE_ETC . '/version.ini';
+if (-f $gw_version_ini) {
+	if (open my $fh, "<$gw_version_ini") {
+		while (<$fh>) {
+			chomp;
+			next if (m/\A\s*#/ || m/\A\s*;/ || m/\A\s*\Z/);
+			$gw_version = $_;
+			last if ($gw_version);
+		}
+		close $fh if $fh;
+	}
+}
+
+# get gw_serial
+my $gw_serial = undef;
+my $gw_eyouunid = EYOUGATE_INST . '/sbin/eyouunid';
+if (-f $gw_eyouunid && -x $gw_eyouunid) {
+	open my $fh, "$gw_eyouunid 2>&- |";
+	if ($fh) {
+		while (<$fh>) {
+			chomp; 
+			next if (m/\A\s*#/ || m/\A\s*;/ || m/\A\s*\Z/);
+			$gw_serial = $_;
+			last if ($gw_serial);
+		}
+	}
+}
+
+# get gw_domainsum
+my $gw_domainsum = undef;
+my $gw_domainconf = EYOUGATE_INST . '/etc/domain.conf';
+if (-f $gw_domainconf) {
+	if (open my $fh, "<$gw_domainconf") {
+		my @gw_domains = <$fh>;
+		$gw_domainsum = scalar @gw_domains;
+		close $fh if $fh;
+	}
+}
+
+# get gw configs
+my %gw_config = ();
+if (-f EYOUGATE_CFG) {
+	if (open my $fh, "<", EYOUGATE_CFG) {
+		while (<$fh>) {
+			chomp;
+			next if (m/\A\s*#/ || m/\A\s*;/ || m/\A\s*\Z/);
+			if (m/\A\s*(product_type|spf_level|abroad_proxy_on|abroad_proxy_ip|auth_type|me)\s+/i) {
+				my ($key, $value) = (split (/\s+/))[0,1];
+				$gw_config{$key} = $value; next;
+			}
+		}
+		close $fh if $fh;
+	}
+}
+
+# get epush version
+my $epush_version = undef;
+if (-f EYOUPUSH_CFG) {
+	if (open my $fh, "<", EYOUPUSH_CFG) {
+		while (<$fh>) {
+			chomp;
+			next if (m/\A\s*#/ || m/\A\s*;/ || m/\A\s*\Z/);
+			if (m/\A\s*lastestVersion\s*=\s*(.+)\s*\Z/) {
+				$epush_version = $1;
+				$epush_version =~ s/\A\s*|\s*\Z//gi;
+				last;
+			}
+		}
+		close $fh if $fh;
+	}
+}
+
+
+
 # PREPARE LAST RESULT HASH
-my %result = (
-        'mail_license'          => $mail_license,
+%mail = (
+	'is_installed'		=> (-d EYOUMAIL_INST && -f EYOUMAIL_CFG) ? 1 : 0,
+        'license'		=> \%mail_license,
+	'serial'		=> $mail_serial,
+	'startups'		=> \@mail_startups,
+	'configs'		=> \%mail_config,
+);
+
+%gw = (
+	'is_installed'		=> (-d EYOUGATE_INST && -f EYOUGATE_CFG) ? 1 : 0,
+	'version'		=> $gw_version,
+	'serial'		=> $gw_serial,
+	'domains'		=> $gw_domainsum,
+	'configs'		=> \%gw_config,
+);
+
+%epush = (
+	'is_installed'		=> (-d EYOUPUSH_INST && -f EYOUPUSH_CFG) ? 1 : 0,
+	'version'		=> $epush_version,
+);
+
+%mail4 = (
+	'is_installed'		=> (-d EYOUMAIL4_INST && -f EYOUMAIL4_CTRL) ? 1 : 0,
+);
+
+%archive = (
+	'is_installed'		=> (-d EYOUARCIV_INST && -f EYOUARCIV_CTRL) ? 1 : 0,
+);
+
+%result = (
+	'mail'		=> \%mail,
+	'gw'		=> \%gw,
+	'epush'		=> \%epush,
+	'mail4'		=> \%mail4,
+	'archive'	=> \%archive,
 );
 ### %result
 
-$result = JSON->new->utf8(1)->ascii(1)->encode(\%result);
-print "{succ}:{str}:{$filename|$filename|$result}";
-exit $state_succ;
+eval { $result = JSON->new->utf8(1)->ascii(1)->encode(\%result); };
+unless($@){
+	print "{succ}:{str}:{$filename|$filename|$result}";
+	exit $state_succ;
+} else {
+	$@ =~ s/[\r\n]//g;
+	print "{warn}:{str}:{json encode failed|json encode failed| $@ }";
+	exit $state_warn;
+}
