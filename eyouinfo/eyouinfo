@@ -6,23 +6,28 @@ our $mole = "$basedir/sbin/mole";
 BEGIN {
   my $basedir = '/usr/local/esop/agent/mole';
   my $pllib_dir = "$basedir/opt/plmods";
+  my $esoplib_dir = "$basedir/opt/EsopLib";
   my @incs = (    # set additional path
         # rhel5 32bit
         $pllib_dir.'/lib/perl5/',
         $pllib_dir.'/lib/perl5/5.8.8/',
         $pllib_dir.'/lib/perl5/site_perl/',
         $pllib_dir.'/lib/perl5/site_perl/5.8.8/',
+	$pllib_dir.'/lib/perl5/site_perl/5.8.8/i386-linux-thread-multi/',
         # rhel5 64bit
         $pllib_dir.'/lib64/perl5/',
         $pllib_dir.'/lib64/perl5/5.8.8/',
         $pllib_dir.'/lib64/perl5/site_perl/',
         $pllib_dir.'/lib64/perl5/site_perl/5.8.8/',
+	$pllib_dir.'/lib64/perl5/site_perl/5.8.8/x86_64-linux-thread-multi/',
         # rhel6 32bit
         $pllib_dir.'/lib/perl5/',
 	$pllib_dir.'/share/perl5/',
         # rhel6 64bit
         $pllib_dir.'/lib64/perl5/',
 	$pllib_dir.'/share/perl5/',
+	# esop lib
+	$esoplib_dir.'/lib/',
   );   
 
   push @INC, @incs;
@@ -33,6 +38,7 @@ use strict;
 use utf8;
 use JSON;
 # use Smart::Comments;
+use EsopLib;
 binmode(STDIN, ":encoding(utf8)");
 binmode(STDOUT, ":encoding(utf8)");
 binmode(STDERR, ":encoding(utf8)");
@@ -249,6 +255,50 @@ if (-f EYOUGATE_CFG) {
 	}
 }
 
+# get gw_license
+my %gw_license = ();
+my $gw_mysqlcli = '/opt/mysql/bin/mysql';
+my $gw_dbconfig = EYOUGATE_ETC . '/mysql.conf';
+my ($gw_dbhost, $gw_dbport, $gw_dbuser, $gw_dbpass) = (
+	EsopLib::read_ini('global', 'mysql_host', $gw_dbconfig) || '127.0.0.1',
+	EsopLib::read_ini('global', 'mysql_port', $gw_dbconfig) || '3301',
+	EsopLib::read_ini('global', 'mysql_user', $gw_dbconfig) || 'root',
+	EsopLib::read_ini('global', 'mysql_pass', $gw_dbconfig) || '',
+);
+if (-f $gw_mysqlcli && -x $gw_mysqlcli) {
+	if ($gw_dbpass && length $gw_dbpass) {
+		$gw_mysqlcli = "$gw_mysqlcli -h $gw_dbhost -P $gw_dbport -u$gw_dbuser -p$gw_dbpass -D filter -s -e ";
+	} else {
+		$gw_mysqlcli = "$gw_mysqlcli -h $gw_dbhost -P $gw_dbport -u$gw_dbuser -D filter -s -e ";
+	}
+	my $sql = "SELECT license_type, start_date, expire_date, max_child FROM system_config\\G";
+	open my $fh, "$gw_mysqlcli \"$sql\" 2>&- | ";
+	if ($fh) {
+		while (<$fh>) {
+			chomp;
+			next if (m/\A\s*#/ || m/\A\s*;/ || m/\A\s*\Z/);
+			if (m/\A\s*license_type:\s*(\d+)\s*\Z/) {
+				$gw_license{'license_type'} = $1;
+				next;
+			}
+			if (m/\A\s*start_date:\s*(\d+)\s*\Z/) {
+				$gw_license{'start_date'} = $1;
+				next;
+			}
+			if (m/\A\s*expire_date:\s*(\d+)\s*\Z/) {
+				$gw_license{'expire_date'} = $1;
+				next;
+			}
+			if (m/\A\s*max_child:\s*(\d+)\s*\Z/) {
+				$gw_license{'max_child'} = $1;
+				next;
+			}
+		}
+	}
+}
+
+
+
 # get epush version
 my $epush_version = undef;
 if (-f EYOUPUSH_CFG) {
@@ -301,6 +351,7 @@ if (-f $mail4_scriptd) {
 	'serial'		=> $gw_serial,
 	'domains'		=> $gw_domainsum,
 	'configs'		=> \%gw_config,
+	'license'		=> \%gw_license,
 );
 
 %epush = (
