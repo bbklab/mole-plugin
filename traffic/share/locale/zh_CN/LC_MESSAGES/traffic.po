@@ -88,11 +88,17 @@ msgstr "网卡入口流量速度: ${ib_rate_m}M/s 超出故障阈值${IB_CRIT_LI
 msgid "bytes flowin rate: ${ib_rate_m}M/s >= ${IB_WARN_LIMIT}M/s"
 msgstr "网卡入口流量速度: ${ib_rate_m}M/s 超出警告阈值${IB_WARN_LIMIT}M/s"
 
+msgid "bytes flowin rate:"
+msgstr "网卡入口流量速度:"
+
 msgid "bytes flowout rate: ${ob_rate_m}M/s >= ${OB_CRIT_LIMIT}M/s"
 msgstr "网卡出口流量速度: ${ob_rate_m}M/s 超出故障阈值${OB_CRIT_LIMIT}M/s"
 
 msgid "bytes flowout rate: ${ob_rate_m}M/s >= ${OB_WARN_LIMIT}M/s"
 msgstr "网卡出口流量速度: ${ob_rate_m}M/s 超出警告阈值${OB_WARN_LIMIT}M/s"
+
+msgid "bytes flowout rate:"
+msgstr "网卡出口流量速度:"
 
 msgid "packs flowin rate: ${ip_rate}/s >= ${IP_CRIT_LIMIT}/s"
 msgstr "网卡入口数据包速度: ${ip_rate}/s 超出故障阈值${IP_CRIT_LIMIT}/s"
@@ -100,11 +106,17 @@ msgstr "网卡入口数据包速度: ${ip_rate}/s 超出故障阈值${IP_CRIT_LI
 msgid "packs flowin rate: ${ip_rate}/s >= ${IP_WARN_LIMIT}/s"
 msgstr "网卡入口数据包速度: ${ip_rate}/s 超出警告阈值${IP_WARN_LIMIT}/s"
 
+msgid "packs flowin rate:"
+msgstr "网卡入口数据包速度:"
+
 msgid "packs flowout rate: ${op_rate}/s >= ${OP_CRIT_LIMIT}/s"
 msgstr "网卡出口数据包速度: ${op_rate}/s 超出故障阈值${OP_CRIT_LIMIT}/s"
 
 msgid "packs flowout rate: ${op_rate}/s >= ${OP_WARN_LIMIT}/s"
 msgstr "网卡出口数据包速度: ${op_rate}/s 超出警告阈值${OP_WARN_LIMIT}/s"
+
+msgid "packs flowout rate:"
+msgstr "网卡出口数据包速度:"
 
 msgid "Check List:"
 msgstr "检查的网卡列表:"
