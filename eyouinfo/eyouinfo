@@ -32,9 +32,7 @@ use warnings;
 use strict;
 use utf8;
 use JSON;
-use Locale::Messages qw (textdomain bindtextdomain gettext nl_putenv :locale_h :libintl_h);
-use POSIX qw (setlocale);
-use Smart::Comments;
+# use Smart::Comments;
 binmode(STDIN, ":encoding(utf8)");
 binmode(STDOUT, ":encoding(utf8)");
 binmode(STDERR, ":encoding(utf8)");
@@ -58,55 +56,9 @@ unless (-f $mole && -x $mole) {
   exit $state_unkn;
 }
 
-# read mole locale_def
-our $localdir = "$basedir/share/locale/";
-open my $fh, "$mole printdef LOCALE_DIR 2>&- |";
-if($fh){
-  while(<$fh>){
-        chomp; $localdir = $_;
-        last;
-  }
-}
-
-# read plugin locale setting
-our $locale = 'zh_CN.UTF-8';
-open $fh, "$mole view $filename locale 2>&- |";
-if($fh){
-  while(<$fh>){
-        chomp; $locale = $_;
-        last;
-  }
-  if(!defined $locale || $locale eq ''){
-        open my $fh1, "$mole view default locale 2>&- |";
-        if($fh1){
-                while(<$fh1>){
-                        chomp; $locale = $_;
-                        last;
-                }
-        }
-  }
-}
-if(!defined $locale || $locale eq ''){
-        $locale = 'zh_CN.UTF-8';
-}elsif($locale eq 'zh_CN' || $locale eq 'zh_CN.UTF-8' || $locale eq 'zh'){
-        $locale = 'zh_CN.UTF-8';
-}elsif($locale eq 'en_US' || $locale eq 'en_US.UTF-8' || $locale eq 'en'){
-        $locale = 'en_US.UTF-8';
-}else{
-        $locale = 'zh_CN.UTF-8';
-}
-setlocale(LC_ALL,$locale);
-nl_putenv("LANGUAGE=$locale");
-nl_putenv("LANG=$locale");
-
-# set textdomain; bindtextdomain
-sub _ ($) { &gettext; }
-textdomain "$filename";
-bindtextdomain "$filename", "$localdir";
-
 # read plugin config here
 our $maillicense_decoder = undef;
-open $fh, "$mole view $filename maillicense_decoder 2>&- |";
+open my $fh, "$mole view $filename maillicense_decoder 2>&- |";
 if ($fh) {
   while(<$fh>){
        chomp; $maillicense_decoder = $_;
@@ -119,6 +71,9 @@ if ($maillicense_decoder) {
 	$maillicense_decoder = $basedir . '/' . $maillicense_decoder;
   }
 }
+
+# for test
+# $maillicense_decoder = './opt/mail_license.php';
 
 #
 #  BEGIN to COLLECT eYou INFORMATION 
@@ -311,6 +266,24 @@ if (-f EYOUPUSH_CFG) {
 	}
 }
 
+# get mail4 version
+my $mail4_version = undef;
+my $mail4_scriptd = EYOUMAIL4_INST . '/sbin/eyou_scriptd';
+if (-f $mail4_scriptd) {
+	open my $fh, "/usr/bin/strings $mail4_scriptd 2>&- | ";
+	if ($fh) {
+		while (<$fh>) {
+			chomp;
+			if (m/\A\s*VERSION-INFO:(.+)\Z/) {
+				$mail4_version = $1;
+				$mail4_version =~ s/email-//gi;
+				last;
+			}
+		}
+	}
+}
+
+
 
 
 # PREPARE LAST RESULT HASH
@@ -337,6 +310,7 @@ if (-f EYOUPUSH_CFG) {
 
 %mail4 = (
 	'is_installed'		=> (-d EYOUMAIL4_INST && -f EYOUMAIL4_CTRL) ? 1 : 0,
+	'version'		=> $mail4_version,
 );
 
 %archive = (
