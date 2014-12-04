@@ -37,6 +37,7 @@ use warnings;
 use strict;
 use utf8;
 use JSON;
+use POSIX;
 # use Smart::Comments;
 use EsopLib;
 binmode(STDIN, ":encoding(utf8)");
@@ -266,6 +267,9 @@ my ($gw_dbhost, $gw_dbport, $gw_dbuser, $gw_dbpass) = (
 	EsopLib::read_ini('global', 'mysql_pass', $gw_dbconfig) || '',
 );
 if (-f $gw_mysqlcli && -x $gw_mysqlcli) {
+	if ($gw_dbhost && $gw_dbhost eq 'localhost') {
+		$gw_dbhost = '127.0.0.1';
+	}
 	if ($gw_dbpass && length $gw_dbpass) {
 		$gw_mysqlcli = "$gw_mysqlcli -h $gw_dbhost -P $gw_dbport -u$gw_dbuser -p$gw_dbpass -D filter -s -e ";
 	} else {
@@ -282,11 +286,17 @@ if (-f $gw_mysqlcli && -x $gw_mysqlcli) {
 				next;
 			}
 			if (m/\A\s*start_date:\s*(\d+)\s*\Z/) {
-				$gw_license{'start_date'} = $1;
+				eval { $gw_license{'start_date'} = sprintf("%s",strftime("%Y-%m-%d_%H:%M:%S", localtime($1))); };
+				if ($@) {
+					$gw_license{'start_date'} = $1;
+				}
 				next;
 			}
 			if (m/\A\s*expire_date:\s*(\d+)\s*\Z/) {
-				$gw_license{'expire_date'} = $1;
+				eval { $gw_license{'expire_date'} = sprintf("%s",strftime("%Y-%m-%d_%H:%M:%S", localtime($1))); };
+				if ($@) {
+					$gw_license{'expire_date'} = $1;
+				}
 				next;
 			}
 			if (m/\A\s*max_child:\s*(\d+)\s*\Z/) {
