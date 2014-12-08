@@ -42,17 +42,17 @@ mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/handler/
 mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/opt/
 mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/share/
 mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/upgrade/
-for p in dns_svr http_svr imap_svr pop_svr smtp_svr emp_mailqueue
+for p in dns_svr http_svr imap_svr pop_svr smtp_svr emp_mailqueue emp_smtpauth_limit remote_mailtest
 do
-  cp -a ${p}/${p}	   $RPM_BUILD_ROOT/usr/local/esop/agent/mole/plugin/
-  cp -a ${p}/conf/${p}.ini $RPM_BUILD_ROOT/usr/local/esop/agent/mole/conf/
+  /bin/cp -a ${p}/${p}	   		$RPM_BUILD_ROOT/usr/local/esop/agent/mole/plugin/
+  /bin/cp -a ${p}/conf/${p}.ini 	$RPM_BUILD_ROOT/usr/local/esop/agent/mole/conf/
   [ -f "${p}/docs/cn/readme" ] && cp -a ${p}/docs/cn/readme  $RPM_BUILD_ROOT/usr/local/esop/agent/mole/docs/cn/${p}.readme
   [ -f "${p}/docs/en/readme" ] && cp -a ${p}/docs/en/readme  $RPM_BUILD_ROOT/usr/local/esop/agent/mole/docs/en/${p}.readme
-  cp -a ${p}/handler/      $RPM_BUILD_ROOT/usr/local/esop/agent/mole/
-  cp -a ${p}/opt/          $RPM_BUILD_ROOT/usr/local/esop/agent/mole/
-  cp -a ${p}/share/	   $RPM_BUILD_ROOT/usr/local/esop/agent/mole/
+  /bin/cp -a ${p}/handler/      	$RPM_BUILD_ROOT/usr/local/esop/agent/mole/
+  /bin/cp -a ${p}/opt/          	$RPM_BUILD_ROOT/usr/local/esop/agent/mole/
+  /bin/cp -a ${p}/share/	   	$RPM_BUILD_ROOT/usr/local/esop/agent/mole/
 done
-cp -a esop-plugingroup-mail_upgrade $RPM_BUILD_ROOT/usr/local/esop/agent/mole/upgrade/
+/bin/cp -a esop-plugingroup-mail_upgrade $RPM_BUILD_ROOT/usr/local/esop/agent/mole/upgrade/
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && [ -d $RPM_BUILD_ROOT ] && rm -rf $RPM_BUILD_ROOT
@@ -91,7 +91,7 @@ fi
 
 %post
 # init plugin configs
-plugins=( dns_svr http_svr imap_svr pop_svr smtp_svr emp_mailqueue )
+plugins=( dns_svr http_svr imap_svr pop_svr smtp_svr emp_mailqueue emp_smtpauth_limit remote_mailtest)
 /bin/bash /usr/local/esop/agent/mole/bin/autoconf rpminit ${plugins[*]}
 
 # upgrade old version
