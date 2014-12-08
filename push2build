@@ -3,8 +3,6 @@
 basedir="$(cd $(dirname $0);pwd)"
 destdir="/data/esop_codes"
 autorpm="${basedir}/rpm_build/autorpm"
-args1="basic tarball"
-args2="mail  tarball"
 
 check_rc() {
   if [ $? == 0 ]; then
@@ -14,19 +12,20 @@ check_rc() {
   fi
 }
 
-# def spec files
-
+# check root privilege
 if [ "$(id -u)" != "0" ]; then
   echo " root privileges required! "
   exit 1
 fi
 
-
+# def spec files
 spec_dir="$basedir/rpm_build/spec_files/"
 spec_files=(
+	# {xyz}.spec files for rpm ball {xyz}
 	"esop-plugingroup-mail.spec"
 )
 
+# publish single spec files
 for((i=0;i<=${#spec_files[*]}-1;i++))
 do
 	if [ -f "${spec_dir}/${spec_files[$i]}" ]; then
@@ -35,9 +34,9 @@ do
 	fi
 done
 
-
-filename1=$( eval "${autorpm} ${args1}" )
-check_rc "make rpm for $filename1"
+# publish basic tarball
+filename1=$( eval "${autorpm} basic tarball" )
+check_rc "make tarball: $filename1"
 
 ls "${filename1}" >/dev/null 2>&1
 check_rc "check path: ${filename1}"
@@ -45,9 +44,9 @@ check_rc "check path: ${filename1}"
 /bin/cp -f "${filename1}" "${destdir}/"
 check_rc "copy to ${destdir}/${filename1##*/}"
 
-
-filename2=$( eval "${autorpm} ${args2}" )
-check_rc "make rpm for $filename2"
+# publish plugins-mailgroup tarball
+filename2=$( eval "${autorpm} mail  tarball" )
+check_rc "make tarball: $filename2"
 
 ls "${filename2}" >/dev/null 2>&1
 check_rc "check path: ${filename2}"
@@ -55,5 +54,6 @@ check_rc "check path: ${filename2}"
 /bin/cp -f "${filename2}" "${destdir}/"
 check_rc "copy to ${destdir}/${filename2##*/}"
 
+# cleaning job
 ${autorpm} clean
-check_rc "rpm clean"
+check_rc "do cleaning"
