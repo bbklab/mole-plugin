@@ -1,13 +1,13 @@
 Summary: 	esop plugin-group for mail system
 Name: 		esop-plugingroup-mail
-Version: 	0.2
+Version: 	0.3
 Release:	rhel
 License: 	GPLv3
 Group:  	Extension
 Packager: 	Zhang Guangzheng <zhang.elinks@gmail.com>
 BuildRoot: 	/var/tmp/%{name}-%{version}-%{release}-root
-Source0: 	esop-plugingroup-mail-0.2-rhel.tgz
-Requires:		esop >= 1.1.0
+Source0: 	esop-plugingroup-mail-0.3-rhel.tgz
+Requires:		esop >= 1.2.0
 Requires:		bind-utils >= 9.3.3
 Requires:		findutils >= 4.2.27
 Requires:		perl >= 5.8.8
@@ -105,6 +105,11 @@ ESOP_UPGRADE_MODE=1 ESOP_RPM_UPGRADE=1 /bin/bash /usr/local/esop/agent/mole/upgr
 :
 
 %changelog
+* Mon Dec  8 2014 Zhang Guangzheng<zhangguangzheng@eyou.net>
+- 发布: 0.3 正式版
+- 新增: 新增加插件emp_smtpauth_limit, 用于限制eYou5/8邮件系统中的账户单日SMTP认证次数
+- 新增: 新增加插件remote_mailtest, 用于测试当前服务器能否和指定域名的邮箱进行SMTP通讯
+- 修正: 若干bug修复
 * Wed Sep 17 2014 Zhang Guangzheng<zhangguangzheng@eyou.net>
 - 发布: 0.2 正式版
 - 新增: 插件emp_mailqueue支持多阈值配置
