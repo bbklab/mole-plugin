@@ -104,7 +104,7 @@ textdomain "$filename";
 bindtextdomain "$filename", "$localdir";
 
 # read plugin config here
-our $action_tag_path = "/usr/local/eyou/mail/log/$filename/";
+our $action_tag_path;
 open $fh, "$mole view $filename action_tag_path 2>&- |";
 if ($fh) {
   while(<$fh>){
@@ -112,9 +112,14 @@ if ($fh) {
         last;
   }
 }
-$action_tag_path = "/usr/local/eyou/mail/log/$filename/" if (!defined $action_tag_path || $action_tag_path eq '');
+unless (defined $action_tag_path && length $action_tag_path) {
+	die 'action_tag_path not defined';
+}
+unless (-d $action_tag_path && -w $action_tag_path) {
+	die 'action_tag_path must be exist directory';
+}
 
-our $action_pipe_file = "/var/tmp/$filename.pipe";
+our $action_pipe_file;
 open $fh, "$mole view $filename action_pipe_file 2>&- |";
 if ($fh) {
   while(<$fh>){
@@ -122,7 +127,6 @@ if ($fh) {
         last;
   }
 }
-$action_pipe_file = "/var/tmp/$filename.pipe" if (!defined $action_pipe_file || $action_pipe_file eq '');
 
 our $action_lock_user = 1;
 open $fh, "$mole view $filename action_lock_user 2>&- |";
@@ -132,7 +136,9 @@ if ($fh) {
         last;
   }
 }
-$action_lock_user = 1 if ($action_lock_user =~ m/\D/ || !defined $action_lock_user);
+if ($action_lock_user =~ m/\D/ || !defined $action_lock_user) {
+	$action_lock_user = 1;
+}
 
 our $action_mod_pass = "{}";
 open $fh, "$mole view $filename action_mod_pass 2>&- |";
@@ -142,13 +148,19 @@ if ($fh) {
         last;
   }
 }
-our $mod_pass_config = JSON->new->allow_nonref->utf8(1)->ascii(1)->decode($action_mod_pass);
-our %mod_pass_config = ( 
-  'enable'		=> $mod_pass_config->{'enable'},
-  'fixpass'		=> $mod_pass_config->{'password'}{'fixed'},
-  'fixstr'		=> $mod_pass_config->{'password'}{'password'},
-  'display'		=> $mod_pass_config->{'password'}{'display'},
-);
+our $mod_pass_config;
+our %mod_pass_config = ();
+eval { $mod_pass_config = JSON->new->allow_nonref->utf8(1)->ascii(1)->decode($action_mod_pass); };
+if ($@) {
+	die 'action_mod_pass not valid json';
+} else {
+	%mod_pass_config = ( 
+  		'enable'		=> $mod_pass_config->{'enable'},
+  		'fixpass'		=> $mod_pass_config->{'password'}{'fixed'},
+  		'fixstr'		=> $mod_pass_config->{'password'}{'password'},
+  		'display'		=> $mod_pass_config->{'password'}{'display'},
+	);
+}
 ### %mod_pass_config
 
 our $tmpcsvfile = "/tmp/$filename.lockuser.tmp.csv";

@@ -97,16 +97,13 @@ fi
 # if null return STATE_UNKN.
 
 # if null or invalid set default.
-[ -z "${mysqlcli_path}" ] && mysqlcli_path="/usr/local/eyou/mail/opt/mysql/bin/mysql"
-[ -z "${usrmysql_conn_conf}" ] && usrmysql_conn_conf="127.0.0.1,3306,eyou,eyou,eyou_mail"
-[ -z "${logmysql_conn_conf}" ] && logmysql_conn_conf="127.0.0.1,3326,eyou,eyou,eyou_mail_log"
-[ -z "${mysql_time_out}" -o ! -z "${mysql_time_out//[0-9]}" ] && mysql_time_out=10
-[ -z "${smtp_auth_limit}" -o ! -z "${smtp_auth_limit//[0-9]}" ] && smtp_auth_limit=300
-[ -z "${smtp_white_list}" ] && smtp_white_list=
+is_int "${mysql_time_out}"  || mysql_time_out=10
+is_int "${smtp_auth_limit}" || smtp_auth_limit=300
+is_int "${user_max_repeat}" || user_max_repeat=1
 [ -z "${action_pipe_file}" ] && action_pipe_file="/var/tmp/${0##*/}.pipe"
-[ -z "${action_tag_path}" ] && action_tag_path="/usr/local/eyou/mail/log/${0##*/}"
-[ -z "${user_max_repeat}" -o ! -z "${user_max_repeat//[0-9]}" ] && user_max_repeat=1
+[ -z "${action_tag_path}" ] && action_tag_path="/var/tmp/${0##*/}.tag/"
 
+# pre set {smtp_white_list}
 if [ -f "/${smtp_white_list##*file:}" -a -s "/${smtp_white_list##*file:}" ]; then
 	smtp_white_list=$(awk '($0!~/^[ \t]*#/) { for(i=1;i<=NF;i++) {printf "%s ",$i} }' "/${smtp_white_list##*file:}")
 elif [ -f "${BASE_DIR}/${smtp_white_list##*file:}" -a -s "${BASE_DIR}/${smtp_white_list##*file:}" ]; then
@@ -114,11 +111,18 @@ elif [ -f "${BASE_DIR}/${smtp_white_list##*file:}" -a -s "${BASE_DIR}/${smtp_whi
 else
         [ -z "${smtp_white_list}" ] && smtp_white_list="white_user@list.here"
 fi
-smtp_lock_list=
 
 
 # check function here
 check(){
+
+  [ -z "${mysqlcli_path}" ] && {
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
+        TYPE="str";
+        CONTENT="$(gettext "mysqlcli_path not defined.")";
+        return
+  }
 
   [ -f "${mysqlcli_path}" -a -x "${mysqlcli_path}" ] || {
         EXIT_STATUS=${STATE_UNKN};
@@ -128,12 +132,19 @@ check(){
         return
   }
 
-  /bin/mkdir -p -m 777 "${action_tag_path}" 2>&-
-  [ -d "${action_tag_path}" -a -x "${action_tag_path}" ] ||  {
+  [ -z "${usrmysql_conn_conf}" ] && {
         EXIT_STATUS=${STATE_UNKN};
         LEVEL="unkn";
         TYPE="str";
-        CONTENT="$(eval_gettext "directory: [\${action_tag_path}] not prepared.")";
+        CONTENT="$(gettext "usrmysql_conn_conf not defined.")";
+        return
+  }
+
+  [ -z "${logmysql_conn_conf}" ] && {
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
+        TYPE="str";
+        CONTENT="$(gettext "logmysql_conn_conf not defined.")";
         return
   }
 
@@ -154,7 +165,7 @@ check(){
 	if [ -z "${mysql_pass}" ]; then
 		usrmysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} --connect-timeout ${mysql_time_out}  -D ${usr_database} "
 	else
-		usrmysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user}  -p"${mysql_pass}" --connect-timeout ${mysql_time_out} -D ${usr_database} "
+		usrmysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} -p${mysql_pass} --connect-timeout ${mysql_time_out} -D ${usr_database} "
 	fi
   fi
 
@@ -175,30 +186,37 @@ check(){
 	if [ -z "${mysql_pass}" ]; then
 		logmysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} --connect-timeout ${mysql_time_out}  -D ${log_database} "
 	else
-		logmysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user}  -p"${mysql_pass}" --connect-timeout ${mysql_time_out} -D ${log_database} "
+		logmysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} -p${mysql_pass} --connect-timeout ${mysql_time_out} -D ${log_database} "
 	fi
   fi
 
+  [ -d "${action_tag_path}" -a -x "${action_tag_path}" ] ||  {
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
+        TYPE="str";
+        CONTENT="$(eval_gettext "directory: [\${action_tag_path}] not prepared.")";
+        return
+  }
 
   local result=
   local warnnum=0  unknnum=0
   
   locklst_tmpfile="/var/tmp/${0##*/}.locked.lst.tmp"
   authlst_tmpfile="/var/tmp/${0##*/}.authtop.lst.tmp"
-  errstuff=$( ${usrmysql} -s -e "select concat(acct_key.acct_name,'@',domain_key.domain_name) from acct_key,domain_key,user_basic where acct_key.domain_id=domain_key.domain_id and acct_key.acct_id=user_basic.acct_id and user_basic.has_smtp=0 and user_basic.has_remote=0 and acct_key.acct_type=0 and domain_key.domain_type=0; " 2>&1 1>"${locklst_tmpfile}" )
+  errstuff=$( ${usrmysql} -s -e "SELECT concat(acct_key.acct_name,'@',domain_key.domain_name) FROM acct_key,domain_key,user_basic WHERE acct_key.domain_id=domain_key.domain_id AND acct_key.acct_id=user_basic.acct_id AND user_basic.has_smtp=0 AND user_basic.has_remote=0 AND acct_key.acct_type=0 AND domain_key.domain_type=0; " 2>&1 1>"${locklst_tmpfile}" )
   if [ "$?" != "0" ]; then
 	((unknnum++))
 	errstuff=$( (echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n') 2>&- )
-	result="${result} $(gettext "Read Locked Users from User Mysql Failed:") [${errstuff}] ### "
+	result="${result} $(html_red "$(gettext "Read Locked Users from User Mysql Failed:") [${errstuff}]") ### "
   else
 	start=$( date -d "" +%s 2>&-)
 	end=$(( $start + 86400 ))
 	top_limit=100
-	errstuff=$( $logmysql -s -e "select count(*), concat(real_acct_name,'@',real_domain_name) from log_auth where auth_time between '${start}' and '${end}' and auth_type=1 and result=0 group by 2 order by 1 desc limit $top_limit;" 2>&1 1>"${authlst_tmpfile}" )
+	errstuff=$( $logmysql -s -e "SELECT count(*), concat(real_acct_name,'@',real_domain_name) FROM log_auth WHERE auth_time between '${start}' AND '${end}' AND auth_type=1 AND result=0 GROUP BY 2 ORDER BY 1 DESC LIMIT $top_limit;" 2>&1 1>"${authlst_tmpfile}" )
 	if [ "$?" != "0" ]; then
 		((unknnum++))
 		errstuff=$( (echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n') 2>&- )
-		result="${result} $(gettext "Read SMTP Auth Top Records from Log Mysql Failed:") [${errstuff}] ### "
+		result="${result} $(html_red "$(gettext "Read SMTP Auth Top Records from Log Mysql Failed:") [${errstuff}]") ### "
 	else
 		smtp_lock_list=$(cat "${locklst_tmpfile}" 2>&-)
 		: > "${action_pipe_file}" 2>&-
