@@ -40,26 +40,23 @@ msgstr "${date} 从域名[${base_domain}]发出的远程投递测试邮件"
 msgid "Sorrsy: can NOT get mx for domain: [${target_domain}]. SKIP"
 msgstr "抱歉: 无法获取域名 [${target_domain}] 的邮件交换记录."
 
-msgid "remote mail to [${y}] return [${str2}]"
-msgstr "测试向 [${y}] 发信, 结果为: [${str2}]"
+msgid "remote mail to [${y}] succeed!"
+msgstr "测试向 [${y}] 发信成功!"
 
 msgid "remote mail to [${y}] return [${str1}]"
-msgstr "测试向 [${y}] 发信, 结果为: [${str1}]"
+msgstr "测试向 [${y}] 发信失败! [${str1}]"
 
 msgid "talked with mx-host: [${mx_host}]"
-msgstr "和对方进行SMTP会话的邮件交换服务器为: [${mx_host}]"
-
-msgid "subject: [${subject}]"
-msgstr "测试信主题为: [${subject}]"
+msgstr "对方域的MX主机为 [${mx_host}]"
 
 msgid "Remote Mail Test OK"
 msgstr "向外域邮件发送测试正常"
 
 msgid "${total}/${total} remote mail test succeed"
-msgstr "${total}/${total} 项检查正常."
+msgstr "${total}/${total} 项测试正常."
 
 msgid "Remote Mail Test CRITICAL"
 msgstr "向外域邮件发送测试失败"
 
 msgid "${errnum}/${total} remote mail test failed"
-msgstr "${errnum}/${total} 项检查失败."
+msgstr "${errnum}/${total} 项测试失败."

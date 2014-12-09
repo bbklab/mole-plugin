@@ -68,17 +68,19 @@ CONTENT=      ### { strings | /path/to/result.file }
 # Read plugin config value here
 sample_email_file=$( read_mole_config remote_mailtest sample_email_file )
 mail_body_file=$( read_mole_config remote_mailtest mail_body_file )
+base_domain=$( read_mole_config remote_mailtest base_domain )
 helo_greeting_fqdn=$( read_mole_config remote_mailtest helo_greeting_fqdn )
 
 # if null or invalid set default.
-[ -z "${helo_greeting_fqdn}" ] && helo_greeting_fqdn="eyou.net."
+[ -z "${base_domain}" ] && base_domain="demo.eyou.net"
+[ -z "${helo_greeting_fqdn}" ] && helo_greeting_fqdn="localhost.localdomain"
 
 # if null return STATE_UNKN
 
 
 # check function here.
 check() {
-  local total=0  errnum=0  result=  base_domain=  ### {object number} {faile number} {return information}
+  local total=0  errnum=0  result=   ### {object number} {faile number} {return information}
 
   if [ -f "/usr/bin/host" ] && [ -x "/usr/bin/host" ]; then
 	:
@@ -130,23 +132,11 @@ check() {
 	return
   fi
 
-  local v4_config="/var/eyou/etc/eyou_smtpd_config"
-  local v5_config="/usr/local/eyou/mail/etc/eyou_mail.ini"
-  local gw_config="/var/emdg/etc/domain.conf"
-  if [ -f "${v5_config}" ] && [ -s "${v5_config}" ]; then
-	base_domain=$( (awk -F"=" '($1~/server_me\>/) {$1="";print;exit;}' "${v5_config}" 2>&- | tr -d '[" \t\n]' | sed -e 's/\x00//g;s/\x0D//g') 2>&- )
-  elif [ -f "${v4_config}" ] && [ -s "${v4_config}" ]; then
-	base_domain=$( (awk '($1~/o_value\>/) {$1="";print;exit;}' "${v4_config}" 2>&- | tr -d '[" \t\n]' | sed -e 's/\x00//g;s/\x0D//g') 2>&- )
-  elif [ "${gw_config}" ] && [ -s "${gw_config}" ]; then
-	base_domain=$( (awk '{print $1;exit}' "${gw_config}" 2>&- | tr -d '[ \t]' | sed -e 's/\x00//g;s/\x0D//g') 2>&- )
-  fi
-  [ -z "${base_domain//[ ]}" ] && base_domain="demo.eyou.net"
-
   local content=$( awk -F":::" '($0!~/^[ \t]*$/ && $0!~/^[ \t]*#/)' "${sample_email_file}" 2>&- )
   local remote_domain=$( echo -e "${content}" | awk -F":::" '{print $1}' )
   for x in `echo "${remote_domain}"`
   do
-	local str1=  str2= date=$(date +%F_%T 2>&-)
+	local str1=  date=$(date +%F_%T 2>&-)
 	local subject="$(eval_gettext "Remote Test Mail from [\${base_domain}] at \${date}")"
 	### first set mx-host if specified.
 	local mx_host=$( (echo -e "${content}" | awk -F ":::" '($1~/'${x}'\>/) {print $2;exit;}' | tr -d '[ \t]') 2>&- )
@@ -167,15 +157,12 @@ check() {
 	do
 		str1=$( ${SENDEMAIL} -f "mole@${base_domain}" -t "${y}" -s "${mx_host}" -u "${subject}" -o message-file="${mail_body_file}"  -o fqdn="${helo_greeting_fqdn}" -o message-charset=utf8 2>&1 )
 		rc=$?
-  		str2=$( (echo -e "${str1}" | awk -F "sendEmail" '{$1="";print}' | awk -F: '{for(x=2;x<=NF;x++) {printf $x}}') 2>&-)
 		if [ "${rc}" == "0" ]; then
-			result=" $result $(eval_gettext "remote mail to [\${y}] return [\${str2}]") ### "
-			result=" $result $(eval_gettext "talked with mx-host: [\${mx_host}]") ### "
-			result=" $result $(eval_gettext "subject: [\${subject}]") ### ### "
+			result=" $result $(eval_gettext "remote mail to [\${y}] succeed!") ### "
+			result=" $result $(eval_gettext "talked with mx-host: [\${mx_host}]") ### ### "
 		else
 			result=" $result $(html_red "$(eval_gettext "remote mail to [\${y}] return [\${str1}]")") ### "
-			result=" $result $(eval_gettext "talked with mx-host: [\${mx_host}]") ### "
-			result=" $result $(eval_gettext "subject: [\${subject}]") ### ###"
+			result=" $result $(eval_gettext "talked with mx-host: [\${mx_host}]") ### ### "
 			((errnum++))
 		fi
 		((total++))
