@@ -139,14 +139,6 @@ check(){
         return
   }
 
-  [ -z "${logmysql_conn_conf}" ] && {
-        EXIT_STATUS=${STATE_UNKN};
-        LEVEL="unkn";
-        TYPE="str";
-        CONTENT="$(gettext "logmysql_conn_conf not defined.")";
-        return
-  }
-
   sepnum=$(echo -e "${usrmysql_conn_conf}" | awk -F"," 'END{print --NF}')
   if [ "${sepnum}" != "4" ]; then
         EXIT_STATUS=${STATE_UNKN};
@@ -167,6 +159,14 @@ check(){
 		usrmysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} -p${mysql_pass} --connect-timeout ${mysql_time_out} -D ${usr_database} "
 	fi
   fi
+
+  [ -z "${logmysql_conn_conf}" ] && {
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
+        TYPE="str";
+        CONTENT="$(gettext "logmysql_conn_conf not defined.")";
+        return
+  }
 
   sepnum=$(echo -e "${logmysql_conn_conf}" | awk -F"," 'END{print --NF}')
   if [ "${sepnum}" != "4" ]; then
