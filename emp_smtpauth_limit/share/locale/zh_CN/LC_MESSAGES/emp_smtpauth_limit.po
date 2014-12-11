@@ -20,23 +20,35 @@ msgid "\n"
 msgstr "\n"
 
 ### for shell plugin: emp_smtpauth_limit
+msgid "mysqlcli_path not defined."
+msgstr "配置项 mysqlcli_path 未定义."
+
 msgid "utitile: [${mysqlcli_path}] not prepared."
 msgstr "[${mysqlcli_path}] 不存在或没有执行权限."
+
+msgid "usrmysql_conn_conf not defined."
+msgstr "配置项 usrmysql_conn_conf 未定义."
+
+msgid "logmysql_conn_conf not defined."
+msgstr "配置项 logmysql_conn_conf 未定义."
+
+msgid "usrmysql_conn_conf [${usrmysql_conn_conf}] is invalid."
+msgstr "配置项 usrmysql_conn_conf [${usrmysql_conn_conf}] 不能识别."
+
+msgid "logmysql_conn_conf [${logmysql_conn_conf}] is invalid."
+msgstr "配置项 logmysql_conn_conf [${logmysql_conn_conf}] 不能识别."
 
 msgid "directory: [${action_tag_path}] not prepared."
 msgstr "目录 [${action_tag_path}] 尚未准备就绪."
 
-msgid "user mysql connection config: [${usrmysql_conn_conf}] is invalid."
-msgstr "用户Mysql数据库连接方式配置 [${usrmysql_conn_conf}] 不能识别."
-
-msgid "log mysql connection config: [${logmysql_conn_conf}] is invalid."
-msgstr "日志Mysql数据库连接方式配置 [${logmysql_conn_conf}] 不能识别."
+msgid "smtp_auth_limit: [${smtp_auth_limit}] not integer."
+msgstr "配置项 smtp_auth_limit [${smtp_auth_limit}] 必须是正整数."
 
 msgid "Read Locked Users from User Mysql Failed:"
-msgstr "从用户Mysql数据库读取已锁定账号列表失败:"
+msgstr "从用户Mysql读取已锁定的账号列表失败:"
 
 msgid "Read SMTP Auth Top Records from Log Mysql Failed:"
-msgstr "从日志Mysql数据库读取SMTP认证日志记录失败:"
+msgstr "从日志Mysql读取SMTP认证日志记录失败:"
 
 msgid "already locked"
 msgstr "已锁定状态"
@@ -72,6 +84,15 @@ msgid "No Users SMTP Auth Exceed"
 msgstr "今日没有用户SMTP认证次数超限"
 
 ### for perl handler: lock_user
+msgid "action_tag_path not defined."
+msgstr "配置项 action_tag_path 未定义."
+
+msgid "action_tag_path [%s] not directory"
+msgstr "目录 [%s] 不存在."
+
+msgid "action_mod_pass not valid json"
+msgstr "配置项 action_mod_pass 不是一个合法的JSON"
+
 msgid "lock user %s@%s succeed, result: ### %s ### "
 msgstr "锁定账号 %s@%s 成功, 详细: ### %s ### "
 

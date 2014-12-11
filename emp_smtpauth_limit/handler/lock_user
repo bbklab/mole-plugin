@@ -113,10 +113,12 @@ if ($fh) {
   }
 }
 unless (defined $action_tag_path && length $action_tag_path) {
-	die 'action_tag_path not defined';
+	printf (_"action_tag_path not defined.");
+	exit (1);
 }
-unless (-d $action_tag_path && -w $action_tag_path) {
-	die 'action_tag_path must be exist directory';
+unless (-d $action_tag_path) {
+	printf (_"action_tag_path [%s] not directory",$action_tag_path);
+	exit (1);
 }
 
 our $action_pipe_file;
@@ -128,7 +130,7 @@ if ($fh) {
   }
 }
 
-our $action_lock_user = 1;
+our $action_lock_user = 0;
 open $fh, "$mole view $filename action_lock_user 2>&- |";
 if ($fh) {
   while(<$fh>){
@@ -137,7 +139,7 @@ if ($fh) {
   }
 }
 if ($action_lock_user =~ m/\D/ || !defined $action_lock_user) {
-	$action_lock_user = 1;
+	$action_lock_user = 0;
 }
 
 our $action_mod_pass = "{}";
@@ -152,7 +154,7 @@ our $mod_pass_config;
 our %mod_pass_config = ();
 eval { $mod_pass_config = JSON->new->allow_nonref->utf8(1)->ascii(1)->decode($action_mod_pass); };
 if ($@) {
-	die 'action_mod_pass not valid json';
+	printf (_"action_mod_pass not valid json");
 } else {
 	%mod_pass_config = ( 
   		'enable'		=> $mod_pass_config->{'enable'},
@@ -262,9 +264,9 @@ if ($mod_pass_config{'enable'}) {
   }
   if ($mod_pass_config{'display'}) {
 	$result .= sprintf(_"lock user on smtp and remote ### modify user password as [%s] ### ### ",$password);
-  } else {
-	$result .= sprintf(_"lock user on smtp and remote ### ### ");
   }
+} else {
+  $result .= sprintf(_"lock user on smtp and remote ### ### ");
 }
 ### $password
 

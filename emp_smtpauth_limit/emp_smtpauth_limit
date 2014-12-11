@@ -98,15 +98,14 @@ fi
 
 # if null or invalid set default.
 is_int "${mysql_time_out}"  || mysql_time_out=10
-is_int "${smtp_auth_limit}" || smtp_auth_limit=300
 is_int "${user_max_repeat}" || user_max_repeat=1
 [ -z "${action_pipe_file}" ] && action_pipe_file="/var/tmp/${0##*/}.pipe"
 [ -z "${action_tag_path}" ] && action_tag_path="/var/tmp/${0##*/}.tag/"
 
 # pre set {smtp_white_list}
-if [ -f "/${smtp_white_list##*file:}" -a -s "/${smtp_white_list##*file:}" ]; then
+if [ -f "/${smtp_white_list##*file:}" ] && [ -s "/${smtp_white_list##*file:}" ]; then
 	smtp_white_list=$(awk '($0!~/^[ \t]*#/) { for(i=1;i<=NF;i++) {printf "%s ",$i} }' "/${smtp_white_list##*file:}")
-elif [ -f "${BASE_DIR}/${smtp_white_list##*file:}" -a -s "${BASE_DIR}/${smtp_white_list##*file:}" ]; then
+elif [ -f "${BASE_DIR}/${smtp_white_list##*file:}" ] && [ "${BASE_DIR}/${smtp_white_list##*file:}" ]; then
         smtp_white_list=$(awk '($0!~/^[ \t]*#/) { for(i=1;i<=NF;i++) {printf "%s ",$i} }' "${BASE_DIR}/${smtp_white_list##*file:}")
 else
         [ -z "${smtp_white_list}" ] && smtp_white_list="white_user@list.here"
@@ -153,7 +152,7 @@ check(){
         EXIT_STATUS=${STATE_UNKN};
         LEVEL="unkn";
         TYPE="str";
-        CONTENT="$(eval_gettext "user mysql connection config: [\${usrmysql_conn_conf}] is invalid.")";
+        CONTENT="$(eval_gettext "usrmysql_conn_conf [\${usrmysql_conn_conf}] is invalid.")";
         return
   else
 	mysql_host="$(echo -e "${usrmysql_conn_conf}"|awk -F"," '{print $1}')"
@@ -174,7 +173,7 @@ check(){
         EXIT_STATUS=${STATE_UNKN};
         LEVEL="unkn";
         TYPE="str";
-        CONTENT="$(eval_gettext "log mysql connection config: [\${logmysql_conn_conf}] is invalid.")";
+        CONTENT="$(eval_gettext "logmysql_conn_conf [\${logmysql_conn_conf}] is invalid.")";
         return
   else
 	mysql_host="$(echo -e "${logmysql_conn_conf}"|awk -F"," '{print $1}')"
@@ -198,6 +197,14 @@ check(){
         return
   }
 
+  is_int "${smtp_auth_limit}" || {
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
+        TYPE="str";
+        CONTENT="$(eval_gettext "smtp_auth_limit: [\${smtp_auth_limit}] not integer.")";
+        return
+  }
+
   local result=
   local warnnum=0  unknnum=0
   
@@ -218,7 +225,10 @@ check(){
 		errstuff=$( (echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n') 2>&- )
 		result="${result} $(html_red "$(gettext "Read SMTP Auth Top Records from Log Mysql Failed:") [${errstuff}]") ### "
 	else
+		# locked user saved in file: {locklst_tmpfile}
+		# smtpauth top list saved in file: {authlst_tmpfile}
 		smtp_lock_list=$(cat "${locklst_tmpfile}" 2>&-)
+		# will save spamer user into file: {action_pipe_file}
 		: > "${action_pipe_file}" 2>&-
 		today=$(date +%Y%m%d 2>&-)
 		while read number email
@@ -231,7 +241,7 @@ check(){
 			elif [ "${number}" -ge "${smtp_auth_limit}" ]; then
 				if [ -f "${lock_tag}" -a -s "${lock_tag}" ]; then
 					locknum=$(head -n1 "${lock_tag}" 2>&-)
-					[ -z "${locknum}" -o ! -z "${locknum//[0-9]}" ] && locknum=0
+					is_int "${locknum}" || locknum=0
 					if [ "${locknum}" -ge "${user_max_repeat}" ]; then
 						result="${result} ${number} ${email} ($(eval_gettext "already lock for \${locknum} times today")) ### "
 					else
@@ -254,24 +264,24 @@ check(){
   # exit if MODE=1
   [ "${MODE}" == "1" ] && exit;
 
-  [ "${warnnum}" -gt "0" ] && {
+  if [ "${warnnum}" -gt "0" ]; then
 	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
 	CONTENT="$(gettext "SMPT Auth Limit Check WARNING") | $(eval_gettext "\${warnnum} Users SMTP Auth Exceed") | ${result} "
-  } || {
-	[ "${unknnum}" -gt "0" ] && {
+  else
+	if [ "${unknnum}" -gt "0" ]; then
 		EXIT_STATUS=${STATE_UNKN};
 		LEVEL="unkn";
 		TYPE="str";
 		CONTENT="$(gettext "SMTP Auth Limit Check UNKNOWN") | $(gettext "Something Unknown Happened") | ${result} "
-	} || {
+	else
 		EXIT_STATUS="${STATE_SUCC}"
 		LEVEL="succ"
 		TYPE="str"
 		CONTENT="$(gettext "SMTP Auth Limit Check OK") | $(gettext "No Users SMTP Auth Exceed") | ${result} "
-	}
-  }
+	fi
+  fi
 }
 
 check
