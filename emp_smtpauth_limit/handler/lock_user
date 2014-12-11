@@ -155,6 +155,7 @@ our %mod_pass_config = ();
 eval { $mod_pass_config = JSON->new->allow_nonref->utf8(1)->ascii(1)->decode($action_mod_pass); };
 if ($@) {
 	printf (_"action_mod_pass not valid json");
+	exit (1);
 } else {
 	%mod_pass_config = ( 
   		'enable'		=> $mod_pass_config->{'enable'},
