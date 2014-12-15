@@ -94,6 +94,36 @@ fi
 
 # if null or invalid set default.
 
+# get_iopp function here
+# Note: no returned stuff
+# Note: result saved in ${iopp_write_details} and ${iopp_read_details}
+get_iopp() {
+  # collect iopp data if avaliable
+  local iopp="${UTIL_IOPP}" 
+  if [ -f "${iopp}" ] && [ -x "${iopp}" ]; then
+	local iopp_top=10
+	local iopp_data=$( ${iopp} -k 1 11 2>&- )
+	if [ -n "${iopp_data}" ]; then
+		local iopp_details=$( (echo -e "${iopp_data}" |\
+					awk '($1~/^[ \t]*[0-9]+/) { i=sprintf("%s (%s)",$NF,$1); \
+						write[i]+=$7; read[i]+=$6} \
+						END{ for(w in write) {printf("write: %d,%s\n",write[w]/10,w)} \
+						     for(r in read)  {printf("read: %d,%s\n",read[r]/10,r)} }'
+					) 2>&- )
+		if [ -n "${iopp_details}" ]; then
+			iopp_write_details=$( ( echo -e "${iopp_details}"  |\
+					awk -F "," '(/^write: /) {gsub("write: ", "", $0); printf("%dKB/S %s\n",$1,$2);}' |\
+					sort -rn | head -n "${iopp_top}"
+					) 2>&- )
+			iopp_read_details=$( ( echo -e "${iopp_details}"  |\
+					awk -F "," '(/^read: /) {gsub("read: ", "", $0); printf("%dKB/S %s\n",$1,$2);}' |\
+					sort -rn | head -n "${iopp_top}"
+					) 2>&- )
+		fi
+	fi
+  fi
+}
+
 # check function here
 check(){
 
@@ -228,12 +258,30 @@ check(){
 	EXIT_STATUS=${STATE_CRIT};
 	LEVEL="crit";
 	TYPE="str";
-	CONTENT="$(gettext "IOStat Check CRITICAL") | $(eval_gettext "\${critnum}/\${total} check critical.") | ${result}"
+
+	iopp_write_details=
+	iopp_read_details=
+	get_iopp;
+	if [ -n "${iopp_write_details}" ] && [ -n "${iopp_read_details}" ]; then
+		iopp_details=$( (echo -e "$(gettext "write")\n${iopp_write_details}\n$(gettext "read")\n${iopp_read_details}\n"|sed -e 's/$/###/g'|tr -d '\n') 2>&- )
+		CONTENT="$(gettext "IOStat Check CRITICAL") | $(eval_gettext "\${critnum}/\${total} check critical.") | ${result} ### ### $(gettext "disk read/write top:") ### ${iopp_details} "
+	else
+		CONTENT="$(gettext "IOStat Check CRITICAL") | $(eval_gettext "\${critnum}/\${total} check critical.") | ${result} "
+	fi
   elif [ ${warnnum} -gt 0 ]; then
 	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
-	CONTENT="$(gettext "IOStat Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check warning.") | ${result}"
+
+	iopp_write_details=
+	iopp_read_details=
+	get_iopp;
+	if [ -n "${iopp_write_details}" ] && [ -n "${iopp_read_details}" ]; then
+		iopp_details=$( (echo -e "$(gettext "write")\n${iopp_write_details}\n$(gettext "read")\n${iopp_read_details}\n"|sed -e 's/$/###/g'|tr -d '\n') 2>&- )
+		CONTENT="$(gettext "IOStat Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check warning.") | ${result} ### ### $(gettext "disk read/write top:") ### ${iopp_details} "
+	else
+		CONTENT="$(gettext "IOStat Check WARNING") | $(eval_gettext "\${warnnum}/\${total} check warning.") | ${result} "
+	fi
   elif [ ${unknnum} -gt 0 ]; then
 	EXIT_STATUS=${STATE_UNKN};
 	LEVEL="unkn";

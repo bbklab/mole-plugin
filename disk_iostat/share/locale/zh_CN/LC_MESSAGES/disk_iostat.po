@@ -52,6 +52,15 @@ msgstr "设备: ${dev} (挂载点${mpoint}) IO繁忙程度为 ${util}%, 超出�
 msgid "${dev} (${mpoint}) io busy percent: [${util}%] >= uplimit: [${WARN_LIMIT}%]"
 msgstr "设备: ${dev} (挂载点${mpoint}) IO繁忙程度为 ${util}%, 超出告警阈值 ${WARN_LIMIT}%"
 
+msgid "write"
+msgstr "磁盘写:"
+
+msgid "read"
+msgstr "磁盘读:"
+
+msgid "disk read/write top:"
+msgstr "磁盘读写最多的进程:"
+
 msgid "IOStat Check CRITICAL"
 msgstr "磁盘IO繁忙度检查故障"
 
