@@ -331,13 +331,13 @@ check(){
 
   total=$((${critnum}+${warnnum}+${oknum}))
   if [ ${critnum} -gt 0 ]; then
-	local top_pcpu_ps=$( (ps -eo pid,comm,pcpu|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n') 2>&- )
+	local top_pcpu_ps=$( (ps -eo pid,comm,pcpu|tail -n +2|sort -rn -k 3|head -n 10|sed -e 's/$/###/g' | tr -d '\n') 2>&- )
 	EXIT_STATUS=${STATE_CRIT};
 	LEVEL="crit";
 	TYPE="str";
 	CONTENT="$(gettext "CPU Usage Check CRITICAL") | $(eval_gettext "\${critnum}/\${total} check critical.") | ${result} ### ### $(gettext "cpu usage top10:") ### ${top_pcpu_ps}"
   elif [ ${warnnum} -gt 0 ]; then
-	local top_pcpu_ps=$( (ps -eo pid,comm,pcpu|tail -n +2|sort -rn -k 3|head|sed -e 's/$/###/g' | tr -d '\n') 2>&- )
+	local top_pcpu_ps=$( (ps -eo pid,comm,pcpu|tail -n +2|sort -rn -k 3|head -n 10|sed -e 's/$/###/g' | tr -d '\n') 2>&- )
 	EXIT_STATUS=${STATE_WARN};
 	LEVEL="warn";
 	TYPE="str";
