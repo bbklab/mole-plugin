@@ -1,0 +1,68 @@
+# Copyright (C) 2013 MOLE LANGUAGE FILE FOR GETTEXT
+# FIRST AUTHOR <zhangguangzheng@eyou.net>,<zhang.elinks@gmail.com> 2013.
+# This file is distributed under the same license as the mole package.
+#
+msgid ""
+msgstr ""
+"Report-Msgid-Bugs-To: zhangguangzheng@eyou.net\n"
+"Last-Translator: Guangzheng Zhang <zhang.elinks@gmail.com>\n"
+"Language-Team: MOLE-LANGUAGE <zhang.elinks@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Chinese\n"
+"X-Poedit-Country: CHINA\n"
+
+msgid "\t%+#D"
+msgstr "\t%+#D"
+
+msgid "\n"
+msgstr "\n"
+
+msgid "Util: [/usr/bin/dig] not prepared."
+msgstr "[/usr/bin/dig] 不存在或没有执行权限."
+
+msgid "time_out [${time_out}] should be int."
+msgstr "配置项 time_out [${time_out}] 应该是正整数."
+
+msgid "dnsbl_server not defined."
+msgstr "配置项 dnsbl_server 未定义"
+
+msgid "exposed_addr not defined."
+msgstr "配置项 exposed_addr 未定义"
+
+msgid "DNSBL Server: [${dnsbl_server}]"
+msgstr "DNSBL黑名单服务器: [${dnsbl_server}]"
+
+msgid "${x} is not valid ip address"
+msgstr "${x} 不是一个合法的IP地址"
+
+msgid "${queryname} dns query failed: [${response}]"
+msgstr "DNS查询 ${queryname} 失败: [${response}]"
+
+msgid "${x} listed in ${y}"
+msgstr "${x} 被 ${y} 列入黑名单"
+
+msgid "reason:"
+msgstr "列入原因:"
+
+msgid "${x} not listed in blacklist"
+msgstr "${x} 未被列入黑名单"
+
+msgid "DNSBL Check WARNING"
+msgstr "DNSBL 黑名单检查告警"
+
+msgid "${warnnum}/${total} check warning"
+msgstr "${warnnum}/${total} 个地址被列入黑名单"
+
+msgid "DNSBL Check UNKNOWN"
+msgstr "DNSBL 黑名单检查未知"
+
+msgid "${unknnum}/${total} check unknown"
+msgstr "${unknnum}/${total} 个地址检查未知"
+
+msgid "DNSBL Check OK"
+msgstr "DNSBL 黑名单检查正常"
+
+msgid "${total}/${total} check success"
+msgstr "${total}/${total} 个地址不在黑名单中"
