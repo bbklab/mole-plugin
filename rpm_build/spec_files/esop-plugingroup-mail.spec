@@ -42,7 +42,7 @@ mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/handler/
 mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/opt/
 mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/share/
 mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/upgrade/
-for p in dns_svr http_svr imap_svr pop_svr smtp_svr emp_mailqueue emp_smtpauth_limit remote_mailtest
+for p in dns_svr http_svr imap_svr pop_svr smtp_svr emp_mailqueue emp_smtpauth_limit remote_mailtest dnsbl
 do
   /bin/cp -a ${p}/${p}	   		$RPM_BUILD_ROOT/usr/local/esop/agent/mole/plugin/
   /bin/cp -a ${p}/conf/${p}.ini 	$RPM_BUILD_ROOT/usr/local/esop/agent/mole/conf/
@@ -91,7 +91,7 @@ fi
 
 %post
 # init plugin configs
-plugins=( dns_svr http_svr imap_svr pop_svr smtp_svr emp_mailqueue emp_smtpauth_limit remote_mailtest)
+plugins=( dns_svr http_svr imap_svr pop_svr smtp_svr emp_mailqueue emp_smtpauth_limit remote_mailtest dnsbl )
 /bin/bash /usr/local/esop/agent/mole/bin/autoconf rpminit ${plugins[*]}
 
 # upgrade old version
@@ -109,6 +109,7 @@ ESOP_UPGRADE_MODE=1 ESOP_RPM_UPGRADE=1 /bin/bash /usr/local/esop/agent/mole/upgr
 - 发布: 0.3 正式版
 - 新增: 新增加插件emp_smtpauth_limit, 用于限制eYou5/8邮件系统中的账户单日SMTP认证次数
 - 新增: 新增加插件remote_mailtest, 用于测试当前服务器能否和指定域名的邮箱进行SMTP通讯
+- 新增: 新增插件dnsbl, 用于查询出口IP是否被列入DNSBL服务器黑名单
 - 修正: 若干bug修复
 * Wed Sep 17 2014 Zhang Guangzheng<zhangguangzheng@eyou.net>
 - 发布: 0.2 正式版
