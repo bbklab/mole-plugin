@@ -278,8 +278,9 @@ while(<KFH>){
   chomp;
   next unless m/\A\s*\//;			# skip line not begin with /
   s/\A\s*//g;					# remove line begin space chars
-  s/\A(\S+?)\s+//g;				# remove line first non-space-part
-  my $logfile = $1;				# take $1 as filepath
+  m/\A(\S+?)\s+(.+)\s*\Z/;			# match the first non-space-part and the rest (reg lst)
+  next unless (defined $1 && defined $2);	# skip misform lines
+  my $logfile = $1; $_ = $2;			# take $1 as filepath, rest as whole line
   next unless (-f $logfile);			# skip filepath not exists
   my @keywords = split /['|"]\s+['|"]/, $_;	# split remain line content as keyword array
   map { s/\A\s*['|"]|['|"]\s*\Z//g } @keywords;	# remove all head/tail '|" from keyword array
