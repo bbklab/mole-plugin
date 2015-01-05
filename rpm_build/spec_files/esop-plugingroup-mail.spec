@@ -105,7 +105,7 @@ ESOP_UPGRADE_MODE=1 ESOP_RPM_UPGRADE=1 /bin/bash /usr/local/esop/agent/mole/upgr
 :
 
 %changelog
-* Mon Dec  8 2014 Zhang Guangzheng<zhangguangzheng@eyou.net>
+* Mon Jan  5 2015 Zhang Guangzheng<zhangguangzheng@eyou.net>
 - 发布: 0.3 正式版
 - 新增: 新增加插件emp_smtpauth_limit, 用于限制eYou5/8邮件系统中的账户单日SMTP认证次数
 - 新增: 新增加插件remote_mailtest, 用于测试当前服务器能否和指定域名的邮箱进行SMTP通讯
