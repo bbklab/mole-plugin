@@ -41,7 +41,7 @@ if [ -z "${OLD_ESOP_VERSION}" ]; then
 	write_log -f "${UPGRADE_LOG}" "[ERROR] previous esop-plugingroup-mail version unknown, maybe already has been upgraded or new install!"
 	exit 1
 fi
-if [ "${OLD_ESOP_VERSION}" != "0.1" ]; then
+if [ "${OLD_ESOP_VERSION}" != "0.2" ]; then
 	write_log -f "${UPGRADE_LOG}" "[ERROR] previous esop-plugingroup-mail version [${OLD_ESOP_VERSION}] not supported!"
 	exit 1
 fi
@@ -63,17 +63,19 @@ ARRAY_OLDMOLE_BASECONF=(
   auto_handler
   locale
   debug
+  mail_policy
+  sms_policy
 )
 
-# Set Restore ESOP-PluginGroup-Mail Configs (0.1 configs)
-# List all 0.1 configs here.
+# Set Restore ESOP-PluginGroup-Mail Configs (0.2 configs)
+# List all 0.2 configs here.
 ARRAY_MOLECONF_RESTORE=(
 	# plugins' config
 	"dns_svr"		"${ARRAY_OLDMOLE_BASECONF[*]} dns_check_lst max_wait_time"
 	"pop_svr"		"${ARRAY_OLDMOLE_BASECONF[*]} addr_port time_out pop_user pop_pass"
 	"http_svr"		"${ARRAY_OLDMOLE_BASECONF[*]} addr_port time_out"
 	"imap_svr"		"${ARRAY_OLDMOLE_BASECONF[*]} addr_port time_out imap_user imap_pass"
-	"smtp_svr"		"${ARRAY_OLDMOLE_BASECONF[*]} addr_port time_out smtp_user smtp_pass"
+	"smtp_svr"		"${ARRAY_OLDMOLE_BASECONF[*]} addr_port time_out smtp_user smtp_pass helo_me"
 	"emp_mailqueue"		"${ARRAY_OLDMOLE_BASECONF[*]} uplimit"
 )
 # Skip restore configs, which will use new value instead restoring old values, 
@@ -186,7 +188,7 @@ restore_plugingroup_config() {
 
 write_log -f "${UPGRADE_LOG}" ''
 write_log -f "${UPGRADE_LOG}" ''
-write_log -f "${UPGRADE_LOG}" '[INFO] esop-plugingroup-mail upgrade from 0.1 to 0.2 start.'
+write_log -f "${UPGRADE_LOG}" '[INFO] esop-plugingroup-mail upgrade from 0.2 to 0.3 start.'
 
 restore_plugingroup_config
 
@@ -200,5 +202,5 @@ else
 	((upgrade_fail++))
 fi
 
-write_log -f "${UPGRADE_LOG}"  "[INFO] esop-plugingroup-mail upgrade from 0.1 to 0.2 finished. "\
+write_log -f "${UPGRADE_LOG}"  "[INFO] esop-plugingroup-mail upgrade from 0.2 to 0.3 finished. "\
 					"[skip=${upgrade_skip}, succ=${upgrade_succ}, fail=${upgrade_fail}, note=${upgrade_note}]"
