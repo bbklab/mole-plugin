@@ -76,6 +76,12 @@ if /bin/rpm -qi "esop-plugingroup-mail" >/dev/null 2>&1; then
 	if [ ! -z "${OLD_ESOP_VERSION//[0-9.]}" ]; then
 		OLD_ESOP_VERSION="0.1"		# 0.1 do NOT support version
 	fi
+	if [ "${OLD_ESOP_VERSION}" == "0.2" ]; then
+		:   
+	else
+		echo -e "\033[1;31monly allowed to upgrade from esop-plugingroup-mail 0.2\033[0m\n"
+		exit 1  # exit with non-zero so rpm installation progress won't continue.
+	fi
 	if [ -n "${OLD_ESOP_VERSION}" ]; then
 		OLD_ESOP_SAVEDIR="/var/tmp/oldesop-plugingroup-mail-rpmsavedir"
 		OLD_ESOP_VERFILE="${OLD_ESOP_SAVEDIR}/.version_upgrade-esop-plugingroup-mail"
