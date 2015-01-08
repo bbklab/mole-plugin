@@ -144,11 +144,11 @@ check(){
 	return
   fi
 
-  ln=$( (find ${ldir} -follow -type f 2>&-| wc -l) 2>&- )
-  rn=$( (find ${rdir} -follow -type f 2>&-| wc -l) 2>&- )
-  bn=$( (find ${bdir} -follow -type f 2>&-| wc -l) 2>&- )
-  mn=$( (find ${mdir} -follow -type f 2>&-| wc -l) 2>&- )
-  tn=$( (find ${tdir} -follow -type f 2>&-| wc -l) 2>&- )
+  ln=$( (find ${ldir}/[0-3][0-9] -follow -type f 2>&-| wc -l) 2>&- )
+  rn=$( (find ${rdir}/[0-3][0-9] -follow -type f 2>&-| wc -l) 2>&- )
+  bn=$( (find ${bdir}/[0-3][0-9] -follow -type f 2>&-| wc -l) 2>&- )
+  mn=$( (find ${mdir}/[0-3][0-9] -follow -type f 2>&-| wc -l) 2>&- )
+  tn=$( (find ${tdir}/[0-3][0-9] -follow -type f 2>&-| wc -l) 2>&- )
   total=$(echo "${ln}+${rn}+${bn}+${mn}" | bc 2>&-)
 
   # output data and exit if MODE=1 
