@@ -194,7 +194,9 @@ sub gen_lock_csv {	# only called by lock_user
 
 sub lock_user {
   my ($user,$domain,$locknum,$password) = @_;
-  my $em_control = "/usr/local/eyou/mail/app/sbin/em_control";
+  my $em_control = ( -f "/usr/local/eyou/mail/app/sbin/em_control" ) ? 
+	"/usr/local/eyou/mail/app/sbin/em_control" :
+	"/usr/local/eyou/mail/sbin/em_control";
   my $rmessage = "";
   if (defined $password && $password ne '') {
 	&gen_lock_csv($user,$domain,$password);
