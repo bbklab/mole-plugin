@@ -77,6 +77,27 @@ helo_greeting_fqdn=$( read_mole_config remote_mailtest helo_greeting_fqdn )
 
 # if null return STATE_UNKN
 
+#
+gen_text () {
+	local min=1 max=100
+	local line_maxlen=60				# line max length
+	local line_num=$( random_num 3 10 2>&- )	# line max number
+	local linen=0
+	local x=1
+	local line=
+	local result=
+	while (( ${linen} < ${line_num} ))
+	do
+		x=$( random_num ${min} ${max} 2>&- )
+		line="${line}$(gettext "rand${x}" 2>&-)"
+		if [ ${#line} -gt ${line_maxlen} ] ; then
+			result="${result}\n\n${line}"
+			line=
+			((linen++))
+		fi
+	done
+	echo -en "${result}\n"
+}
 
 # check function here.
 check() {
@@ -132,6 +153,15 @@ check() {
 	return
   fi
 
+  # write random content into {mail_body_file}
+  local _tmp_mail_body_file="/var/tmp/.${mail_body_file##*/}"
+  { 
+	/bin/cat "${mail_body_file}"
+	gen_text
+  } > "${_tmp_mail_body_file}" 2>/dev/null
+
+
+
   local content=$( awk -F":::" '($0!~/^[ \t]*$/ && $0!~/^[ \t]*#/)' "${sample_email_file}" 2>&- )
   local remote_domain=$( echo -e "${content}" | awk -F":::" '{print $1}' )
   for x in `echo "${remote_domain}"`
@@ -156,7 +186,7 @@ check() {
 	xlist=$( echo -e "${content}" | awk -F ":::" '($1~/'${x}'\>/) {$1=$2="";print;}' )
 	for y in `echo "${xlist}"`
 	do
-		str1=$( ${SENDEMAIL} -f "mole@${base_domain}" -t "${y}" -s "${mx_host}" -u "${subject}" -o message-file="${mail_body_file}"  -o fqdn="${helo_greeting_fqdn}" -o message-charset=utf8 2>&1 )
+		str1=$( ${SENDEMAIL} -f "mole@${base_domain}" -t "${y}" -s "${mx_host}" -u "${subject}" -o message-file="${_tmp_mail_body_file}"  -o fqdn="${helo_greeting_fqdn}" -o message-charset=utf8 2>&1 )
 		rc=$?
 		if [ "${rc}" == "0" ]; then
 			result=" $result $(eval_gettext "remote mail to [\${y}] succeed!") ### "
