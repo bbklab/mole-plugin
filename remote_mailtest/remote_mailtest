@@ -152,7 +152,8 @@ check() {
 		continue
 	fi
 
-	xlist=$( echo -e "${content}" | awk -F ":::" '($1~/'${x}'\>/) {$1=$2="";print;exit;}' )
+	#xlist=$( echo -e "${content}" | awk -F ":::" '($1~/'${x}'\>/) {$1=$2="";print;exit;}' )
+	xlist=$( echo -e "${content}" | awk -F ":::" '($1~/'${x}'\>/) {$1=$2="";print;}' )
 	for y in `echo "${xlist}"`
 	do
 		str1=$( ${SENDEMAIL} -f "mole@${base_domain}" -t "${y}" -s "${mx_host}" -u "${subject}" -o message-file="${mail_body_file}"  -o fqdn="${helo_greeting_fqdn}" -o message-charset=utf8 2>&1 )
