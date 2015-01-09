@@ -1,0 +1,214 @@
+#!/usr/bin/env bash
+
+# BASE_DIR DEF
+[ -z ${BASE_DIR} ] && { 
+        path=$( cd $(dirname $0) && pwd)
+        BASE_DIR=${path%/*}
+}
+
+# === LOAD GETTEXT.SH FILE
+if [ -f "/usr/bin/gettext.sh" ] && [ -s "/usr/bin/gettext.sh" ]; then
+        source "/usr/bin/gettext.sh" 2>&1
+        rc=$?
+        [ "$rc" != "0" ] && {
+                echo -en "{unkn}:{str}:{load [/usr/bin/gettext.sh] failed with status $rc}"
+                exit 3
+        }   
+else
+        echo -en "{unkn}:{str}:{[/usr/bin/gettext.sh] not exists or empty, maybe gettext not installed. exit}"
+        exit 3
+fi
+
+# === LOAD INCLUDE FILE
+if [ -f "${BASE_DIR}/bin/include" ] && [ -s "${BASE_DIR}/bin/include" ]; then
+        source ${BASE_DIR}/bin/include 2>&- 
+else    
+        echo -en "{unkn}:{str}:{include file not exists or empty}"
+        exit 3
+fi
+
+# === SET TEXTDOMAINDIR TEXTDOMAIN
+if [ -d "${LOCALE_DIR}" ] && [ -r "${LOCALE_DIR}" ]; then
+        export TEXTDOMAINDIR="${LOCALE_DIR}"
+        export TEXTDOMAIN="emp_gearmanqueue"
+else    
+        echo -en "{unkn}:{str}:{locale directory [${LOCALE_DIR}] not exist or accessable, exit}"
+        exit 3
+fi
+
+
+# === SET GLOBAL LOCALE
+glocale=$(get_locale emp_gearmanqueue)
+if [ -z "${glocale}" ]; then
+        export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
+elif [ "${glocale}" == "zh_CN" ] || [ "${glocale}" == "zh_CN.UTF-8" ] && [ "${glocale}" == "zh" ]; then
+        export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
+elif [ "${glocale}" == "en_US" ] || [ "${glocale}" == "en_US.UTF-8" ] || [ "${glocale}" == "en" ]; then
+        export LANG="en_US.UTF-8"  LC_ALL="en_US.UTF-8"
+else
+        export LANG="zh_CN.UTF-8"  LC_ALL="zh_CN.UTF-8"
+fi
+
+
+show_help(){
+cat <<EOF
+Arguments:   {d|data|h|help}
+
+Usage:  data 
+EOF
+exit 0;
+}
+
+MODE=0
+[ "$1" == "data" -o "$1" == "d" ] && MODE=1
+[ "$1" == "help" -o "$1" == "h" ] && show_help;
+
+# Return Codes
+STATE_SUCC=0
+STATE_WARN=1
+STATE_CRIT=2
+STATE_UNKN=3
+STATE_NOOP=4
+STATE_NOTIFY=5
+
+# Set Default
+EXIT_STATUS=0
+LEVEL=""    	### { succ | warn | crit | unkn | noop | notify }
+TYPE=""    	### { str| file }
+CONTENT=""      ### { strings | /path/to/result.file }
+
+# Read plugin config value here
+mysqlcli_path=$( read_mole_config emp_gearmanqueue mysqlcli_path )
+mysql_conn_conf=$( read_mole_config emp_gearmanqueue mysql_conn_conf )
+mysql_time_out=$( read_mole_config emp_gearmanqueue mysql_time_out ) 
+uplimit=$( read_mole_config emp_gearmanqueue uplimit )
+
+# if null return STATE_UNKN.
+
+# if null or invalid set default.
+is_int "${mysql_time_out}"  || mysql_time_out=10
+
+# check function here
+check(){
+
+  [ -z "${mysqlcli_path}" ] && {
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
+        TYPE="str";
+        CONTENT="$(gettext "mysqlcli_path not defined.")";
+        return
+  }
+
+  [ -f "${mysqlcli_path}" -a -x "${mysqlcli_path}" ] || {
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
+        TYPE="str";
+        CONTENT="$(eval_gettext "utitile: [\${mysqlcli_path}] not prepared.")";
+        return
+  }
+
+
+  [ -z "${mysql_conn_conf}" ] && {
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
+        TYPE="str";
+        CONTENT="$(gettext "mysql_conn_conf not defined.")";
+        return
+  }
+
+  sepnum=$(echo -e "${mysql_conn_conf}" | awk -F"," 'END{print --NF}')
+  if [ "${sepnum}" != "4" ]; then
+        EXIT_STATUS=${STATE_UNKN};
+        LEVEL="unkn";
+        TYPE="str";
+        CONTENT="$(eval_gettext "mysql_conn_conf [\${mysql_conn_conf}] is invalid.")";
+        return
+  else
+        mysql_host="$(echo -e "${mysql_conn_conf}"|awk -F"," '{print $1}')"
+        mysql_port="$(echo -e "${mysql_conn_conf}"|awk -F"," '{print $2}')"
+        mysql_user="$(echo -e "${mysql_conn_conf}"|awk -F"," '{print $3}')"
+        mysql_pass="$(echo -e "${mysql_conn_conf}"|awk -F"," '{print $4}')"
+        database="$(echo -e "${mysql_conn_conf}"|awk -F"," '{print $5}')"
+
+        if [ -z "${mysql_pass}" ]; then
+                mysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} --connect-timeout ${mysql_time_out}  -D ${database} "
+        else
+                mysql="${mysqlcli_path} -h ${mysql_host} -P ${mysql_port} -u${mysql_user} -p${mysql_pass} --connect-timeout ${mysql_time_out} -D ${database} "
+        fi
+  fi
+
+  local WARN_LIMIT= CRIT_LIMIT=
+  if is_multi_threshold "${uplimit}"; then
+	if check_multi_threshold "${uplimit}" 1; then
+		local ARRY_LIMIT=( $(seperate_multi_threshold "${uplimit}" 2>&- ) )
+		WARN_LIMIT=${ARRY_LIMIT[0]}
+		CRIT_LIMIT=${ARRY_LIMIT[1]}
+		if [ "$(echo "${WARN_LIMIT} >= ${CRIT_LIMIT}" | bc 2>&-)" == "1" ]; then
+			EXIT_STATUS=${STATE_UNKN};
+        		LEVEL="unkn";
+        		TYPE="str";
+        		CONTENT="$(eval_gettext "uplimit [\${uplimit}] warn threshold must lower than crit threshold.")"
+        		return
+		fi
+	else
+        	EXIT_STATUS=${STATE_UNKN};
+        	LEVEL="unkn";
+        	TYPE="str";
+        	CONTENT="$(eval_gettext "uplimit [\${uplimit}] is invalid multi threshold on int check.")"
+        	return
+	fi
+  else
+  	if is_int "${uplimit}"; then
+        	:
+  	else
+        	EXIT_STATUS=${STATE_UNKN};
+        	LEVEL="unkn";
+        	TYPE="str";
+        	CONTENT="$(eval_gettext "uplimit [\${uplimit}] should be int.")";
+        	return
+  	fi 
+  fi
+
+  # output data and exit if MODE=1 
+  [ "${MODE}" == "1" ] && {
+	exit
+  }
+
+  local total=0
+  local warnnum=0  unknnum=0
+  local result=
+
+  # get gearman queueing number
+  errstuff=$( ${mysql} -s -e "" 2>&1 1>"${locklst_tmpfile}" )
+  
+
+  if is_int "${total}"; then
+ 	if [ -n "${CRIT_LIMIT}" ] && [ "$( echo "${total} >= ${CRIT_LIMIT}" | bc 2>&- )" == "1" ]; then
+		EXIT_STATUS="${STATE_CRIT}"
+		LEVEL="crit"
+		TYPE="str"
+		CONTENT="$(gettext "Queuing Letters Number CRITICAL") | $(eval_gettext "\${total} letters >= \${CRIT_LIMIT}") | $(html_red "$(eval_gettext "\${total} letters >= \${CRIT_LIMIT}")") ### ### "
+	elif [ -n "${WARN_LIMIT}" ] && [ "$( echo "${total} >= ${WARN_LIMIT}" | bc 2>&- )" == "1" ]; then
+		EXIT_STATUS="${STATE_WARN}"
+		LEVEL="warn"
+		TYPE="str"
+		CONTENT="$(gettext "Queuing Letters Number WARNING") | $(eval_gettext "\${total} letters >= \${WARN_LIMIT}") | $(html_red "$(eval_gettext "\${total} letters >= \${WARN_LIMIT}")") ### ### "
+	else
+		EXIT_STATUS="${STATE_SUCC}"
+		LEVEL="succ"
+		TYPE="str"
+		CONTENT="$(gettext "Queuing Letters Number OK") | $(eval_gettext "\${total} letters") | $(eval_gettext "\${total} letters") ### ### "
+	fi
+  else
+	EXIT_STATUS=${STATE_UNKN}
+	LEVEL="unkn"
+	TYPE="str"
+	CONTENT="$(gettext "Queuing Letters Number Unknown") | $(eval_gettext "total: [${total}] not numberic") | $(html_yellow "$(eval_gettext "\${total} letters")") ### ### "
+  fi
+}
+
+check
+
+# output result and return exit status here.
+echo "{"${LEVEL}"}:{"${TYPE}"}:{"${CONTENT}"}"  | tr -d '\015\012'
+exit ${EXIT_STATUS}
