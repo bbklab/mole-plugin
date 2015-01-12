@@ -1,12 +1,12 @@
 Summary: 	esop plugin-group for mail system
 Name: 		esop-plugingroup-mail
-Version: 	0.3
+Version: 	0.4
 Release:	rhel
 License: 	GPLv3
 Group:  	Extension
 Packager: 	Zhang Guangzheng <zhang.elinks@gmail.com>
 BuildRoot: 	/var/tmp/%{name}-%{version}-%{release}-root
-Source0: 	esop-plugingroup-mail-0.3-rhel.tgz
+Source0: 	esop-plugingroup-mail-0.4-rhel.tgz
 Requires:		esop >= 1.2.0
 Requires:		bind-utils >= 9.3.3
 Requires:		findutils >= 4.2.27
@@ -42,7 +42,7 @@ mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/handler/
 mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/opt/
 mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/share/
 mkdir -p $RPM_BUILD_ROOT/usr/local/esop/agent/mole/upgrade/
-for p in dns_svr http_svr imap_svr pop_svr smtp_svr emp_mailqueue emp_smtpauth_limit remote_mailtest dnsbl
+for p in dns_svr http_svr imap_svr pop_svr smtp_svr emp_mailqueue emp_smtpauth_limit emp_gearmanqueue remote_mailtest dnsbl
 do
   /bin/cp -a ${p}/${p}	   		$RPM_BUILD_ROOT/usr/local/esop/agent/mole/plugin/
   /bin/cp -a ${p}/conf/${p}.ini 	$RPM_BUILD_ROOT/usr/local/esop/agent/mole/conf/
@@ -76,10 +76,10 @@ if /bin/rpm -qi "esop-plugingroup-mail" >/dev/null 2>&1; then
 	if [ ! -z "${OLD_ESOP_VERSION//[0-9.]}" ]; then
 		OLD_ESOP_VERSION="0.1"		# 0.1 do NOT support version
 	fi
-	if [ "${OLD_ESOP_VERSION}" == "0.2" ]; then
+	if [ "${OLD_ESOP_VERSION}" == "0.3" ]; then
 		:   
 	else
-		echo -e "\033[1;31monly allowed to upgrade from esop-plugingroup-mail 0.2\033[0m\n"
+		echo -e "\033[1;31monly allowed to upgrade from esop-plugingroup-mail 0.3\033[0m\n"
 		exit 1  # exit with non-zero so rpm installation progress won't continue.
 	fi
 	if [ -n "${OLD_ESOP_VERSION}" ]; then
@@ -97,7 +97,7 @@ fi
 
 %post
 # init plugin configs
-plugins=( dns_svr http_svr imap_svr pop_svr smtp_svr emp_mailqueue emp_smtpauth_limit remote_mailtest dnsbl )
+plugins=( dns_svr http_svr imap_svr pop_svr smtp_svr emp_mailqueue emp_smtpauth_limit emp_gearmanqueue remote_mailtest dnsbl )
 /bin/bash /usr/local/esop/agent/mole/bin/autoconf rpminit ${plugins[*]}
 
 # upgrade old version
@@ -111,6 +111,13 @@ ESOP_UPGRADE_MODE=1 ESOP_RPM_UPGRADE=1 /bin/bash /usr/local/esop/agent/mole/upgr
 :
 
 %changelog
+* Mon Jan 12 2015 Zhang Guangzheng<zhangguangzheng@eyou.net>
+- 发布: 0.4 正式版
+- 新增: 新增插件emp_gearmanqueue, 用于检查eYou5/8邮件系统中Gearman队列的任务总数
+- 调整: 插件remote_mailtest使用随机生成的邮件正文, 降低测试邮件被拦截的概率
+- 调整: 插件remote_mailtest配置允许多行上配置同一个域名, 收件人可以自动合并
+- 修正: 插件emp_smtpauth_limit的处理程序lock_user对不同邮件版本的em_control路径做适配
+- 修正: 插件emp_mailqueue只统计邮件队列目录下的有效目录
 * Mon Jan  5 2015 Zhang Guangzheng<zhangguangzheng@eyou.net>
 - 发布: 0.3 正式版
 - 新增: 新增加插件emp_smtpauth_limit, 用于限制eYou5/8邮件系统中的账户单日SMTP认证次数

@@ -69,6 +69,7 @@ elif [ "${TARMODE}" == "2" ]; then	# reset specfile and plugins
 	smtp_svr
 	emp_mailqueue	
 	emp_smtpauth_limit
+	emp_gearmanqueue
 	remote_mailtest
 	dnsbl
   )
