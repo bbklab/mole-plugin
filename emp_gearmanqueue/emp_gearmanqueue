@@ -204,22 +204,20 @@ check(){
 		LEVEL="crit"
 		TYPE="str"
 		CONTENT="$(gettext "Gearman Queue Number CRITICAL") | $(eval_gettext "\${total} >= \${CRIT_LIMIT}") | $(html_red "$(eval_gettext "\${total} >= \${CRIT_LIMIT}")") ### ### "
-		if [ -n "${details}" ]; then
-			CONTENT="${CONTENT} $(gettext "details:") ### ${details}"
-		fi
 	elif [ -n "${WARN_LIMIT}" ] && [ "$( echo "${total} >= ${WARN_LIMIT}" | bc 2>&- )" == "1" ]; then
 		EXIT_STATUS="${STATE_WARN}"
 		LEVEL="warn"
 		TYPE="str"
 		CONTENT="$(gettext "Gearman Queue Number WARNING") | $(eval_gettext "\${total} >= \${WARN_LIMIT}") | $(html_red "$(eval_gettext "\${total} >= \${WARN_LIMIT}")") ### ### "
-		if [ -n "${details}" ]; then
-			CONTENT="${CONTENT} $(gettext "details:") ### ${details}"
-		fi
 	else
 		EXIT_STATUS="${STATE_SUCC}"
 		LEVEL="succ"
 		TYPE="str"
 		CONTENT="$(gettext "Gearman Queue Number OK") | $(eval_gettext "total [\${total}]") | $(eval_gettext "total [\${total}]") ### ### "
+	fi
+	# add details into content
+	if [ -n "${details}" ]; then
+		CONTENT="${CONTENT} $(gettext "details:") ### ${details}"
 	fi
   else
 	EXIT_STATUS=${STATE_UNKN}

@@ -18,3 +18,57 @@ msgstr "\t%+#D"
 
 msgid "\n"
 msgstr "\n"
+
+msgid "mysqlcli_path not defined."
+msgstr "配置项 mysqlcli_path 未定义."
+
+msgid "utitile: [${mysqlcli_path}] not prepared."
+msgstr "[${mysqlcli_path}] 不存在或没有执行权限."
+
+msgid "mysql_conn_conf not defined."
+msgstr "配置项 mysql_conn_conf 未定义."
+
+msgid "mysql_conn_conf [${mysql_conn_conf}] is invalid."
+msgstr "配置项 mysql_conn_conf [${mysql_conn_conf}] 不能识别."
+
+msgid "uplimit [${uplimit}] warn threshold must lower than crit threshold."
+msgstr "配置项uplimit [${uplimit}] 警告阈值必须小于故障阈值."
+
+msgid "uplimit [${uplimit}] is invalid multi threshold on int check."
+msgstr "配置项uplimit [${uplimit}] 每个阈值都应该是正整数."
+
+msgid "uplimit [${uplimit}] should be int."
+msgstr "配置项uplimit [${uplimit}] 应该是正整数."
+
+msgid "Count Gearman Queue Module Number From Mysql Failed:"
+msgstr "从Mysql中统计Gearman队列的总数失败:"
+
+msgid "Gearman Queue Number Unknown"
+msgstr "Gearman队列总数未知"
+
+msgid "Something Unknown Happened"
+msgstr "发生未知异常"
+
+msgid "Gearman Queue Number CRITICAL"
+msgstr "Gearman队列总数检查故障"
+
+msgid "${total} >= ${CRIT_LIMIT}"
+msgstr "Gearman队列总数 ${total} 超出故障阈值${CRIT_LIMIT}"
+
+msgid "details:"
+msgstr "详细信息:"
+
+msgid "Gearman Queue Number WARNING"
+msgstr "Gearman队列总数检查告警"
+
+msgid "${total} >= ${WARN_LIMIT}"
+msgstr "Gearman队列总数 ${total} 超出告警阈值${WARN_LIMIT}"
+
+msgid "Gearman Queue Number OK"
+msgstr "Gearman队列总数检查正常"
+
+msgid "total [${total}]"
+msgstr "Gearman队列总数 ${total}"
+
+msgid "total: [${total}] not numberic"
+msgstr "Gearman队列总数非数字 [${total}]"
