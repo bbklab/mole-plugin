@@ -159,7 +159,7 @@ check(){
 	fi
   else
   	if is_int "${uplimit}"; then
-        	:
+        	CRIT_LIMIT=${uplimit}		# set single threshold as crit-threshold
   	else
         	EXIT_STATUS=${STATE_UNKN};
         	LEVEL="unkn";
@@ -176,34 +176,56 @@ check(){
 
   local total=0
   local warnnum=0  unknnum=0
-  local result=
+  local errstuff=  details=  result=
 
   # get gearman queueing number
-  errstuff=$( ${mysql} -s -e "" 2>&1 1>"${locklst_tmpfile}" )
-  
+  local gearman_queue_tmpfile="/var/tmp/.${0##*/}.queuegroup.num.tmp"
+  errstuff=$( ${mysql} -s -e " SELECT COUNT(function_name),function_name FROM gearman_queue GROUP BY 2; " 2>&1 1>"${gearman_queue_tmpfile}" )
+  if [ $? -ne 0 ]; then
+	errstuff=$( (echo -e "${errstuff}" | sed -e '/password on the command line/d' | tr -d '\r\n') 2>&- )
+	result="${result} $(html_red "$(gettext "Count Gearman Queue Module Number From Mysql Failed:") [${errstuff}]") ### "
+	EXIT_STATUS="${STATE_UNKN}"
+	LEVEL="unkn"
+	TYPE="str"
+	CONTENT="$(gettext "Gearman Queue Number Unknown") | $(gettext "Something Unknown Happened") | ${result} "
+	return
+  else
+	if [ -f "${gearman_queue_tmpfile}" ] && [ -s "${gearman_queue_tmpfile}" ]; then
+		total=$( cat "${gearman_queue_tmpfile}" | /bin/awk '{x+=$1} END{print x}' )
+		details=$( (cat "${gearman_queue_tmpfile}" | /bin/sort -rn | head -n 10 | sed -e 's/$/###/g' | tr -d '\n') 2>&- )
+	else
+		total=0
+	fi
+  fi
 
   if is_int "${total}"; then
  	if [ -n "${CRIT_LIMIT}" ] && [ "$( echo "${total} >= ${CRIT_LIMIT}" | bc 2>&- )" == "1" ]; then
 		EXIT_STATUS="${STATE_CRIT}"
 		LEVEL="crit"
 		TYPE="str"
-		CONTENT="$(gettext "Queuing Letters Number CRITICAL") | $(eval_gettext "\${total} letters >= \${CRIT_LIMIT}") | $(html_red "$(eval_gettext "\${total} letters >= \${CRIT_LIMIT}")") ### ### "
+		CONTENT="$(gettext "Gearman Queue Number CRITICAL") | $(eval_gettext "\${total} >= \${CRIT_LIMIT}") | $(html_red "$(eval_gettext "\${total} >= \${CRIT_LIMIT}")") ### ### "
+		if [ -n "${details}" ]; then
+			CONTENT="${CONTENT} $(gettext "details:") ### ${details}"
+		fi
 	elif [ -n "${WARN_LIMIT}" ] && [ "$( echo "${total} >= ${WARN_LIMIT}" | bc 2>&- )" == "1" ]; then
 		EXIT_STATUS="${STATE_WARN}"
 		LEVEL="warn"
 		TYPE="str"
-		CONTENT="$(gettext "Queuing Letters Number WARNING") | $(eval_gettext "\${total} letters >= \${WARN_LIMIT}") | $(html_red "$(eval_gettext "\${total} letters >= \${WARN_LIMIT}")") ### ### "
+		CONTENT="$(gettext "Gearman Queue Number WARNING") | $(eval_gettext "\${total} >= \${WARN_LIMIT}") | $(html_red "$(eval_gettext "\${total} >= \${WARN_LIMIT}")") ### ### "
+		if [ -n "${details}" ]; then
+			CONTENT="${CONTENT} $(gettext "details:") ### ${details}"
+		fi
 	else
 		EXIT_STATUS="${STATE_SUCC}"
 		LEVEL="succ"
 		TYPE="str"
-		CONTENT="$(gettext "Queuing Letters Number OK") | $(eval_gettext "\${total} letters") | $(eval_gettext "\${total} letters") ### ### "
+		CONTENT="$(gettext "Gearman Queue Number OK") | $(eval_gettext "total [\${total}]") | $(eval_gettext "total [\${total}]") ### ### "
 	fi
   else
 	EXIT_STATUS=${STATE_UNKN}
 	LEVEL="unkn"
 	TYPE="str"
-	CONTENT="$(gettext "Queuing Letters Number Unknown") | $(eval_gettext "total: [${total}] not numberic") | $(html_yellow "$(eval_gettext "\${total} letters")") ### ### "
+	CONTENT="$(gettext "Gearman Queue Number Unknown") | $(eval_gettext "total: [${total}] not numberic") | $(eval_gettext "total: [${total}] not numberic")"
   fi
 }
 
