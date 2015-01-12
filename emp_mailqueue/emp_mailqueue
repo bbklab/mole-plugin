@@ -124,7 +124,7 @@ check(){
 	fi
   else
   	if is_int "${uplimit}"; then
-        	:
+        	CRIT_LIMIT=${uplimit}		# set single threshold as crit-threshold	
   	else
         	EXIT_STATUS=${STATE_UNKN};
         	LEVEL="unkn";
