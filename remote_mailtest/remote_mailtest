@@ -209,6 +209,7 @@ check() {
 	for y in `echo "${xlist}"`
 	do
 		str1=$( ${SENDEMAIL} -f "${addrfrom}" -t "${y}" -s "${mx_host}" \
+				-o tls=no \
 				-o message-header="${mailfrom}" \
 				-o message-header="${subject}" \
 				-o message-header="${mailer}" \
