@@ -114,7 +114,7 @@ ESOP_UPGRADE_MODE=1 ESOP_RPM_UPGRADE=1 /bin/bash /usr/local/esop/agent/mole/upgr
 * Mon Jan 12 2015 Zhang Guangzheng<zhangguangzheng@eyou.net>
 - 发布: 0.4 正式版
 - 新增: 新增插件emp_gearmanqueue, 用于检查eYou5/8邮件系统中Gearman队列的任务总数
-- 调整: 插件remote_mailtest使用随机生成的邮件正文, 降低测试邮件被拦截的概率
+- 调整: 插件remote_mailtest使用随机生成的邮件正文和主题, 降低测试邮件被拦截的概率
 - 调整: 插件remote_mailtest配置允许多行上配置同一个域名, 收件人可以自动合并
 - 修正: 插件emp_smtpauth_limit的处理程序lock_user对不同邮件版本的em_control路径做适配
 - 修正: 插件emp_mailqueue只统计邮件队列目录下的有效目录
