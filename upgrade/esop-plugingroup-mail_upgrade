@@ -41,7 +41,7 @@ if [ -z "${OLD_ESOP_VERSION}" ]; then
 	write_log -f "${UPGRADE_LOG}" "[ERROR] previous esop-plugingroup-mail version unknown, maybe already has been upgraded or new install!"
 	exit 1
 fi
-if [ "${OLD_ESOP_VERSION}" != "0.2" ]; then
+if [ "${OLD_ESOP_VERSION}" != "0.3" ]; then
 	write_log -f "${UPGRADE_LOG}" "[ERROR] previous esop-plugingroup-mail version [${OLD_ESOP_VERSION}] not supported!"
 	exit 1
 fi
@@ -67,8 +67,8 @@ ARRAY_OLDMOLE_BASECONF=(
   sms_policy
 )
 
-# Set Restore ESOP-PluginGroup-Mail Configs (0.2 configs)
-# List all 0.2 configs here.
+# Set Restore ESOP-PluginGroup-Mail Configs (0.3 configs)
+# List all 0.3 configs here.
 ARRAY_MOLECONF_RESTORE=(
 	# plugins' config
 	"dns_svr"		"${ARRAY_OLDMOLE_BASECONF[*]} dns_check_lst max_wait_time"
@@ -77,6 +77,12 @@ ARRAY_MOLECONF_RESTORE=(
 	"imap_svr"		"${ARRAY_OLDMOLE_BASECONF[*]} addr_port time_out imap_user imap_pass"
 	"smtp_svr"		"${ARRAY_OLDMOLE_BASECONF[*]} addr_port time_out smtp_user smtp_pass helo_me"
 	"emp_mailqueue"		"${ARRAY_OLDMOLE_BASECONF[*]} uplimit"
+	"remote_mailtest"	"${ARRAY_OLDMOLE_BASECONF[*]} sample_email_file mail_body_file base_domain helo_greeting_fqdn"
+	"dnsbl"			"${ARRAY_OLDMOLE_BASECONF[*]} dnsbl_server time_out exposed_addr"
+	"emp_smtpauth_limit"	"${ARRAY_OLDMOLE_BASECONF[*]} mysqlcli_path usrmysql_conn_conf logmysql_conn_conf
+								mysql_time_out smtp_auth_limit smtp_white_list
+								action_pipe_file action_tag_path user_max_repeat
+								action_lock_user action_mod_pass"
 )
 # Skip restore configs, which will use new value instead restoring old values, 
 # Only skip the [section]-[key] if the old value equals {old-value}, as bin/autoconf
@@ -181,6 +187,70 @@ restore_plugingroup_config() {
 	done
 }
 
+restore_plugin_opt_files() {
+	if [ -f "${OLD_ESOP_SAVEDIR}/conf/remote_mailtest.ini" ] && [ -s "${OLD_ESOP_SAVEDIR}/conf/remote_mailtest.ini" ]; then
+		# as this config only allowed {file:} type config, so directely restore back if not changed.
+		local sample_email_file=$(read_mole_config -f "${OLD_ESOP_SAVEDIR}/conf/remote_mailtest.ini" "remote_mailtest" "sample_email_file")
+		if [ "${sample_email_file}" == "file:opt/sample_email.cfg" ]; then
+			if [ -f "${OLD_ESOP_SAVEDIR}/opt/sample_email.cfg" ]; then
+				local rc= errstr=
+				errstr=$( /bin/cp -f "${OLD_ESOP_SAVEDIR}/opt/sample_email.cfg" "${OPT_DIR}/sample_email.cfg" 2>&1 1>/dev/null )
+				rc=$?
+				if [ $rc -eq 0 ]; then	
+					((upgrade_succ++))				
+					write_log -f "${UPGRADE_LOG}"  "[SUCC] restore plugin opt-file [opt/sample_email.cfg] (${rc})"
+				else
+					((upgrade_fail++))
+					write_log -f "${UPGRADE_LOG}"  "[FAIL] restore plugin opt-file [opt/sample_email.cfg] (${rc}) (${errstr})"
+				fi
+			else
+				((upgrade_skip++))
+				write_log -f "${UPGRADE_LOG}"  "[SKIP] restore plugin opt-file [opt/sample_email.cfg], as previous backup not exists!"
+			fi
+		else
+			((upgrade_skip++))
+			write_log -f "${UPGRADE_LOG}"  "[SKIP] restore plugin opt-file [opt/sample_email.cfg], as previous config changed as [${sample_email_file}]"
+		fi
+
+		# as this config only allowed {file:} type config,  but replacint this file is part of this upgrade.
+		# so, no matter this config changed or not, I will skip restore back this opt-file
+		# and this opt-file will always use new file within 0.4-rpm-release
+		local mail_body_file=$(read_mole_config -f "${OLD_ESOP_SAVEDIR}/conf/remote_mailtest.ini" "remote_mailtest" "mail_body_file")
+		if [ "${mail_body_file}" == "file:opt/remote_mail.body" ]; then
+			((upgrade_skip++))
+			write_log -f "${UPGRADE_LOG}"  "[SKIP] restore plugin opt-file [opt/remote_mail.body], no matter what previous config are [${mail_body_file}]"
+		else
+			((upgrade_skip++))
+			write_log -f "${UPGRADE_LOG}"  "[SKIP] restore plugin opt-file [opt/remote_mail.body], no matter what previous config are [${mail_body_file}]"
+		fi
+	fi
+
+	if [ -f "${OLD_ESOP_SAVEDIR}/conf/emp_smtpauth_limit.ini" ] && [ -s "${OLD_ESOP_SAVEDIR}/conf/emp_smtpauth_limit.ini" ]; then
+		# Note: this config allowed {file:} and {str} type config
+		local smtp_white_list=$(read_mole_config -f "${OLD_ESOP_SAVEDIR}/conf/remote_mailtest.ini" "remote_mailtest" "smtp_white_list")
+		if [ "${smtp_white_list}" == "file:opt/smtpauth_white.lst" ]; then
+			if [ -f "${OLD_ESOP_SAVEDIR}/opt/smtpauth_white.lst" ]; then
+				local rc= errstr=
+				errstr=$( /bin/cp -f "${OLD_ESOP_SAVEDIR}/opt/smtpauth_white.lst" "${OPT_DIR}/smtpauth_white.lst" 2>&1 1>/dev/null )
+				rc=$?
+				if [ $rc -eq 0 ]; then	
+					((upgrade_succ++))				
+					write_log -f "${UPGRADE_LOG}"  "[SUCC] restore plugin opt-file [opt/smtpauth_white.lst] (${rc})"
+				else
+					((upgrade_fail++))
+					write_log -f "${UPGRADE_LOG}"  "[FAIL] restore plugin opt-file [opt/smtpauth_white.lst] (${rc}) (${errstr})"
+				fi
+			else
+				((upgrade_skip++))
+				write_log -f "${UPGRADE_LOG}"  "[SKIP] restore plugin opt-file [opt/smtpauth_white.lst], as previous backup not exists!"
+			fi
+		else
+			((upgrade_skip++))
+			write_log -f "${UPGRADE_LOG}"  "[SKIP] restore plugin opt-file [opt/smtpauth_white.lst], as previous config changed as [${smtp_white_list}]"
+		fi
+	fi
+}
+
 
 #
 # Main Body Begin ...
@@ -188,9 +258,10 @@ restore_plugingroup_config() {
 
 write_log -f "${UPGRADE_LOG}" ''
 write_log -f "${UPGRADE_LOG}" ''
-write_log -f "${UPGRADE_LOG}" '[INFO] esop-plugingroup-mail upgrade from 0.2 to 0.3 start.'
+write_log -f "${UPGRADE_LOG}" '[INFO] esop-plugingroup-mail upgrade from 0.3 to 0.4 start.'
 
 restore_plugingroup_config
+restore_plugin_opt_files
 
 
 errstr=$(/bin/cp /dev/null "${OLD_ESOP_VERFILE}" 2>&1 1>/dev/null)
@@ -202,5 +273,5 @@ else
 	((upgrade_fail++))
 fi
 
-write_log -f "${UPGRADE_LOG}"  "[INFO] esop-plugingroup-mail upgrade from 0.2 to 0.3 finished. "\
+write_log -f "${UPGRADE_LOG}"  "[INFO] esop-plugingroup-mail upgrade from 0.3 to 0.4 finished. "\
 					"[skip=${upgrade_skip}, succ=${upgrade_succ}, fail=${upgrade_fail}, note=${upgrade_note}]"
