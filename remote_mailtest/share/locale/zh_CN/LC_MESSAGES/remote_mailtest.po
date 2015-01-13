@@ -34,8 +34,8 @@ msgstr "未设定参数: mail_body_file"
 msgid "mail_body_file [${mail_body_file}] not exist or empty"
 msgstr "邮件正文样例文件 [${mail_body_file}] 不存在或为空文件."
 
-msgid "Remote Test Mail from [${base_domain}] at ${date}"
-msgstr "${date}智能运维团队工程师从[${base_domain}]发出的远程投递调试邮件"
+msgid "${date} From [${base_domain}]"
+msgstr "${date} 从 [${base_domain}] 发出"
 
 msgid "Sorrsy: can NOT get mx for domain: [${target_domain}]. SKIP"
 msgstr "抱歉: 无法获取域名 [${target_domain}] 的邮件交换记录."
@@ -131,7 +131,7 @@ msgid "rand23"
 msgstr "禁止高密级用户发送高密级邮件给低密级用户"
 
 msgid "rand24"
-msgstr "在服务进程间传递文件描述符"
+msgstr "在服务进程间传递文件描述符。"
 
 msgid "rand25"
 msgstr "测试到稳定也需要时间。"
@@ -188,7 +188,7 @@ msgid "rand42"
 msgstr "是否符合判断。"
 
 msgid "rand43"
-msgstr "很常规的TCP长连接"
+msgstr "很常规的TCP长连接。"
 
 msgid "rand44"
 msgstr "包含了两个换行符号。"
@@ -221,7 +221,7 @@ msgid "rand53"
 msgstr "通过交换SyncKey方式获取新数据的论述。"
 
 msgid "rand54"
-msgstr "可靠的状态同步传输的微信协议"
+msgstr "可靠的状态同步传输的微信协议。"
 
 msgid "rand55"
 msgstr "杂七杂八的，有些长，"
@@ -317,7 +317,7 @@ msgid "rand85"
 msgstr "节省锁带来的开销。"
 
 msgid "rand86"
-msgstr "Nginx对惊群现象的处理"
+msgstr "Nginx对惊群现象的处理。"
 
 msgid "rand87"
 msgstr "Nginx的多进程模式"
@@ -341,13 +341,13 @@ msgid "rand93"
 msgstr "稍后发个补丁解决下"
 
 msgid "rand94"
-msgstr "我的北漂之路开启于"
+msgstr "我的北漂之路开启于，"
 
 msgid "rand95"
 msgstr "打印机检查故障"
 
 msgid "rand96"
-msgstr "下面的这些议题超出了这份文档的范畴"
+msgstr "下面的这些议题超出了这份文档的范畴，"
 
 msgid "rand97"
 msgstr "加密是一个备选"
@@ -360,3 +360,63 @@ msgstr "关闭TLS压缩，"
 
 msgid "rand100"
 msgstr "降低已知漏洞风险，"
+
+msgid "rand101"
+msgstr "中国石油全面启用国产亿邮电子邮件系统"
+
+msgid "rand102"
+msgstr "PC客户端修改113项功能"
+
+msgid "rand103"
+msgstr "手机客户端修改34项功能，"
+
+msgid "rand104"
+msgstr "事件列表加载提示内容错误，"
+
+msgid "rand105"
+msgstr "并且被拦截后不方便通知用户，"
+
+msgid "rand106"
+msgstr "我们也还是要发信过滤审计"
+
+msgid "rand107"
+msgstr "这类关键词是不断在更新变化的"
+
+msgid "rand108"
+msgstr "那警告信件这部分还要做开发么？"
+
+msgid "rand109"
+msgstr "提供的材料起草一个邮件使用规定，"
+
+msgid "rand110"
+msgstr "最终两个开发需求实现时间安排"
+
+msgid "rand111"
+msgstr "不至于耽误重要待办的邮件，"
+
+msgid "rand112"
+msgstr "这个目前来说不是很急需"
+
+msgid "rand113"
+msgstr "文件夹统计可以支持柱状图或饼状图显示，"
+
+msgid "rand114"
+msgstr "大胆预测趋势的功能"
+
+msgid "rand115"
+msgstr "无法为您提供数据展现，"
+
+msgid "rand116"
+msgstr "是我用刚下载的foxmail发送的邮件"
+
+msgid "rand117"
+msgstr "正文中无法直接粘贴图片"
+
+msgid "rand118"
+msgstr "避免删除了有用备份"
+
+msgid "rand119"
+msgstr "所以使用配置文件名称。"
+
+msgid "rand120"
+msgstr "出问题硬盘IBM自身不提供服务，"

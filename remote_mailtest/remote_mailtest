@@ -77,9 +77,11 @@ helo_greeting_fqdn=$( read_mole_config remote_mailtest helo_greeting_fqdn )
 
 # if null return STATE_UNKN
 
-#
-gen_text () {
-	local min=1 max=100
+# gen_text function here
+gen_text() {
+	local base_domain=$1
+	local date=$(date +%F_%T 2>&-)
+	local min=1 max=120				# random range
 	local line_maxlen=60				# line max length
 	local line_num=$( random_num 3 10 2>&- )	# line max number
 	local linen=0
@@ -96,7 +98,18 @@ gen_text () {
 			((linen++))
 		fi
 	done
+	local sig="-- $(eval_gettext "\${date} From [\${base_domain}]")"
+	local hid="-- $(get_mole_id)"
+	local hname="-- $(get_global_name)"
+	result="${result}\n\n\n${sig}\n${hname}\n${hid}"
 	echo -en "${result}\n"
+}
+
+# gen_subject function here
+gen_subject() {
+	local min=1 max=120				# random range
+	local result="$(gettext "rand$( random_num ${min} ${max} )" 2>&-) $(gettext "rand$( random_num ${min} ${max} )" 2>&-)"
+	echo -en "${result}"
 }
 
 # check function here.
@@ -157,7 +170,7 @@ check() {
   local _tmp_mail_body_file="/var/tmp/.${mail_body_file##*/}"
   { 
 	/bin/cat "${mail_body_file}"
-	gen_text
+	gen_text "${base_domain}"
   } > "${_tmp_mail_body_file}" 2>/dev/null
 
 
@@ -166,8 +179,9 @@ check() {
   local remote_domain=$( echo -e "${content}" | awk -F":::" '{print $1}' )
   for x in `echo "${remote_domain}"`
   do
-	local str1=  date=$(date +%F_%T 2>&-)
-	local subject="$(eval_gettext "Remote Test Mail from [\${base_domain}] at \${date}")"
+	local str1=
+	local subject="$(gen_subject)"
+	
 	### first set mx-host if specified.
 	local mx_host=$( (echo -e "${content}" | awk -F ":::" '($1~/'${x}'\>/) {print $2;exit;}' | tr -d '[ \t]') 2>&- )
 	if [ -z "${mx_host}" ]; then
