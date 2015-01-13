@@ -165,22 +165,30 @@ check() {
 	CONTENT="$(eval_gettext "mail_body_file [\${mail_body_file}] not exist or empty")"
 	return
   fi
+	
+  # prepare fixed mail header
+  local addrfrom="mole@${base_domain}"
+  local mailfrom="From: =?UTF-8?B?5pm66IO96L+Q57u05bmz5Y+w5bel56iL5biI?= <${addrfrom}>"
+  local mailer="X-Mailer: Foxmail 7, 2, 5, 140[cn]"
+  local priority="X-Priority: 3"
 
-  # write random content into {mail_body_file}
+  # prepare random subject
+  local subject="$(gen_subject)"
+  subject="$(${PLUTIL} base64_encode "${subject}" 2>&-)"
+  subject="Subject: =?UTF-8?B?${subject}?="
+
+  # prepare random content into {mail_body_file}
   local _tmp_mail_body_file="/var/tmp/.${mail_body_file##*/}"
   { 
 	/bin/cat "${mail_body_file}"
 	gen_text "${base_domain}"
   } > "${_tmp_mail_body_file}" 2>/dev/null
 
-
-
   local content=$( awk -F":::" '($0!~/^[ \t]*$/ && $0!~/^[ \t]*#/)' "${sample_email_file}" 2>&- )
   local remote_domain=$( echo -e "${content}" | awk -F":::" '{print $1}' )
   for x in `echo "${remote_domain}"`
   do
 	local str1=
-	local subject="$(gen_subject)"
 	
 	### first set mx-host if specified.
 	local mx_host=$( (echo -e "${content}" | awk -F ":::" '($1~/'${x}'\>/) {print $2;exit;}' | tr -d '[ \t]') 2>&- )
@@ -200,7 +208,14 @@ check() {
 	xlist=$( echo -e "${content}" | awk -F ":::" '($1~/'${x}'\>/) {$1=$2="";print;}' )
 	for y in `echo "${xlist}"`
 	do
-		str1=$( ${SENDEMAIL} -f "mole@${base_domain}" -t "${y}" -s "${mx_host}" -u "${subject}" -o message-file="${_tmp_mail_body_file}"  -o fqdn="${helo_greeting_fqdn}" -o message-charset=utf8 2>&1 )
+		str1=$( ${SENDEMAIL} -f "${addrfrom}" -t "${y}" -s "${mx_host}" \
+				-o message-header="${mailfrom}" \
+				-o message-header="${subject}" \
+				-o message-header="${mailer}" \
+				-o message-header="${priority}" \
+				-o message-file="${_tmp_mail_body_file}"  \
+				-o message-charset=utf8 \
+				-o fqdn="${helo_greeting_fqdn}" 2>&1 )
 		rc=$?
 		if [ "${rc}" == "0" ]; then
 			result=" $result $(eval_gettext "remote mail to [\${y}] succeed!") ### "
