@@ -189,6 +189,8 @@ check(){
 	fi
   fi
 
+  /bin/mkdir -p "${action_tag_path}" 2>/dev/null
+
   [ -d "${action_tag_path}" -a -x "${action_tag_path}" ] ||  {
         EXIT_STATUS=${STATE_UNKN};
         LEVEL="unkn";
