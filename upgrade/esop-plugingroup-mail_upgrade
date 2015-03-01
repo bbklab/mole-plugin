@@ -31,6 +31,12 @@ if [ "${ESOP_UPGRADE_MODE}" != "1" ] || [ "${ESOP_RPM_UPGRADE}" != "1" ];  then
 	exit 1
 fi
 
+# Initialize Counter
+upgrade_skip=0
+upgrade_succ=0
+upgrade_fail=0
+upgrade_note=0
+
 # RPM (%pre) Previous Action Result
 OLD_ESOP_SAVEDIR="/var/tmp/oldesop-plugingroup-mail-rpmsavedir"
 OLD_ESOP_VERFILE="${OLD_ESOP_SAVEDIR}/.version_upgrade-esop-plugingroup-mail"
@@ -41,11 +47,58 @@ if [ -z "${OLD_ESOP_VERSION}" ]; then
 	write_log -f "${UPGRADE_LOG}" "[ERROR] previous esop-plugingroup-mail version unknown, maybe already has been upgraded or new install!"
 	exit 1
 fi
-if [ "${OLD_ESOP_VERSION}" != "0.3" ]; then
+if [ "${OLD_ESOP_VERSION}" != "0.3" ] && [ "${OLD_ESOP_VERSION}" != "0.4" ]; then
 	write_log -f "${UPGRADE_LOG}" "[ERROR] previous esop-plugingroup-mail version [${OLD_ESOP_VERSION}] not supported!"
 	exit 1
 fi
 
+# if previous version 0.4, upgrade to 0.4.fix1 and exit
+if [ "${OLD_ESOP_VERSION}" == "0.4" ]; then
+
+	write_log -f "${UPGRADE_LOG}" ''
+	write_log -f "${UPGRADE_LOG}" ''
+	write_log -f "${UPGRADE_LOG}" '[INFO] esop-plugingroup-mail upgrade from 0.4 to 0.4.fix1 start.'
+
+	# only need to restore 10 plugin config files
+	ARRAY_V04_PLUGINS=(
+		dns_svr
+		dnsbl
+		emp_gearmanqueue
+		emp_mailqueue
+		emp_smtpauth_limit
+		http_svr
+		imap_svr
+		pop_svr
+		remote_mailtest
+		smtp_svr
+	)
+
+	for plugin in `echo "${ARRAY_V04_PLUGINS[*]}"`
+	do
+		if [ -f "${OLD_ESOP_SAVEDIR}/conf/${plugin}.ini" ] && [ -s "${OLD_ESOP_SAVEDIR}/conf/${plugin}.ini" ]; then
+			errstr=$( /bin/cp -f "${OLD_ESOP_SAVEDIR}/conf/${plugin}.ini" "${CONF_DIR}/${plugin}.ini" 2>&1 1>/dev/null )
+			rc=$?
+			if [ $rc -eq 0 ]; then  
+				((upgrade_succ++))                              
+				write_log -f "${UPGRADE_LOG}"  "[SUCC] restore plugin config-file [${plugin}.ini] (${rc})"
+			else
+				((upgrade_fail++))
+				write_log -f "${UPGRADE_LOG}"  "[FAIL] restore plugin config-file [${plugin}.ini] (${rc}) (${errstr})"
+			fi
+		else
+			((upgrade_note++))
+			write_log -f "${UPGRADE_LOG}" "[NOTICE] previous rpmsave plugin config-file [${plugin}.ini] not prepared!"
+		fi
+	done
+
+	write_log -f "${UPGRADE_LOG}"  "[INFO] esop-plugingroup-mail upgrade from 0.4 to 0.4.fix1 finished. "\
+					"[skip=${upgrade_skip}, succ=${upgrade_succ}, fail=${upgrade_fail}, note=${upgrade_note}]"
+
+	# finish upgrade and exit
+	exit 0
+fi
+
+# upgrade from version 0.3 to 0.4.fix1
 ARRAY_OLDMOLE_BASECONF=(
   enable
   comment
@@ -92,12 +145,6 @@ ARRAY_SKIP_RESTORE_CONF=(
 	#section		#key		#old-value
 	"emp_mailqueue"		"uplimit"	"1000"
 )
-
-# Initialize Counter
-upgrade_skip=0
-upgrade_succ=0
-upgrade_fail=0
-upgrade_note=0
 
 
 #
